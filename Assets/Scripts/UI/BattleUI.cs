@@ -13,6 +13,7 @@ namespace Botte.UI
         public TMP_Text p1ManaText;
         public TMP_Text p1StaminaText;
         public TMP_Text p1StatusText;
+        public RectTransform p1HandArea;
 
         [Header("Player 2 UI")]
         public TMP_Text p2HeroNameText;
@@ -21,6 +22,7 @@ namespace Botte.UI
         public TMP_Text p2ManaText;
         public TMP_Text p2StaminaText;
         public TMP_Text p2StatusText;
+        public RectTransform p2HandArea;
 
         [Header("Center Panel")]
         public TMP_Text turnText;
@@ -29,6 +31,14 @@ namespace Botte.UI
         public ScrollRect logScrollRect;
         public GameObject winnerOverlay;
         public TMP_Text winnerText;
+
+        [Header("Phase Containers")]
+        public GameObject prepButtonsContainer;
+        public GameObject combatButtonsContainer;
+        public GameObject endButtonsContainer;
+
+        [Header("Card Prefab")]
+        public GameObject cardPrefab;
 
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
@@ -41,8 +51,8 @@ namespace Botte.UI
 
             nameText.text = hero.data.heroName;
             hpText.text = $"HP: {hero.currentHP} / {hero.data.maxHP}";
-            manaText.text = $"Mana: {hero.currentMana} / {hero.data.intelligence}";
-            staminaText.text = $"Stamina: {hero.currentStamina} / {hero.data.agility}";
+            manaText.text = $"Mana: {hero.currentMana} / {hero.GetModifiedIntelligence()}";
+            staminaText.text = $"Stamina: {hero.currentStamina} / {hero.GetModifiedAgility()}";
             
             float hpPct = hero.data.maxHP > 0 ? (float)hero.currentHP / hero.data.maxHP : 0f;
             hpFill.anchorMax = new Vector2(hpPct, 1f);
@@ -52,6 +62,33 @@ namespace Botte.UI
             if (hero.isStunned) statusStr += "Stunned ";
             if (hero.isSilenced) statusStr += "Silenced";
             statusText.text = statusStr.Trim();
+        }
+
+        public void RefreshHand(HeroState hero, bool isPlayer1)
+        {
+            Transform handArea = isPlayer1 ? p1HandArea : p2HandArea;
+            if (handArea == null || cardPrefab == null) return;
+
+            // Clear old cards
+            foreach (Transform child in handArea)
+            {
+                Destroy(child.gameObject);
+            }
+
+            // Instantiate new cards
+            foreach (CardData card in hero.hand)
+            {
+                if (card is MagicData spell)
+                {
+                    GameObject cardGO = Instantiate(cardPrefab, handArea);
+                    CardUI cardUI = cardGO.GetComponent<CardUI>();
+                    if (cardUI == null)
+                    {
+                        cardUI = cardGO.AddComponent<CardUI>();
+                    }
+                    cardUI.Setup(spell, hero);
+                }
+            }
         }
 
         public void AddLog(string message)

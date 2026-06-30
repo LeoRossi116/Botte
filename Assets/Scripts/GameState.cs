@@ -17,4 +17,18 @@ public class GameState
         activePlayer = p1;
         phase = GamePhase.ResourceRecovery;
     }
+
+    public void AdvancePhase()
+    {
+        if (phase == GamePhase.EndPhase)
+        {
+            phase = GamePhase.ResourceRecovery;
+            currentTurn++;
+            activePlayer = (activePlayer == player1) ? player2 : player1;
+        }
+        else
+        {
+            phase = (GamePhase)((int)phase + 1);
+        }
+    }
 }
