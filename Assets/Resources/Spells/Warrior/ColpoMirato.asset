@@ -17,9 +17,9 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 1
-  effectDescription: +2 Forza fino a fine turno.
+  effectDescription: Il prossimo attacco ignora la difesa e non puo' essere bloccato.
   magicType: 0
-  damageValue: 0
-  effectType: 1
-  secondaryValue: 2
-  durationTurns: 0
+  effects:
+  - type: 8
+    value: 0
+    duration: 0

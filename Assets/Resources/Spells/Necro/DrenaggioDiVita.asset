@@ -17,9 +17,12 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 2
-  effectDescription: Infliggi 2 danni e recupera 2 HP.
+  effectDescription: Infligge 2 danni e recuperi 2 HP.
   magicType: 0
-  damageValue: 2
-  effectType: 4
-  secondaryValue: 2
-  durationTurns: 0
+  effects:
+  - type: 0
+    value: 2
+    duration: 0
+  - type: 1
+    value: 2
+    duration: 0

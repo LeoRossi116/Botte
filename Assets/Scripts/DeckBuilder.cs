@@ -35,13 +35,13 @@ public static class DeckBuilder
         switch (heroClass)
         {
             case HeroClass.Warrior:
-                return new string[] { "UrloDelBarbaro", "PugnoDelPaladino", "DifesaImperturbabile", "Ristoro", "GridoDiGuerra", "Terrore", "AffondoPoderoso", "ColpoMirato" };
+                return new string[] { "AffondoPoderoso", "ColpoMirato", "DifesaImperturbabile", "GridoDiGuerra", "PugnoDelPaladino", "Ristoro", "Terrore", "UrloDelBarbaro" };
             case HeroClass.Mage:
-                return new string[] { "DardoDiFuoco", "PallaDiFuoco", "DrenaggioVitale", "ScudoArcano", "Lentezza", "Debolezza", "Concentrazione", "Teletrasporto" };
+                return new string[] { "Concentrazione", "DardoDiFuoco", "Debolezza", "DrenaggioVitale", "Lentezza", "PallaDiFuoco", "ScudoArcano", "Teletrasporto" };
             case HeroClass.Rogue:
-                return new string[] { "VelenoRapido", "Elusione", "PassoDOmbra", "PuntoDebole", "AffondoPerforante", "RistoroVeloce", "Gambetto", "Prontezza" };
+                return new string[] { "AffondoPerforante", "Elusione", "Gambetto", "PassoDOmbra", "Prontezza", "PuntoDebole", "RiflessiFelini", "VelenoRapido" };
             case HeroClass.Necro:
-                return new string[] { "ToccoPutrido", "DrenaggioDiVita", "BanchettoDiAnime", "PattoDiSangue", "ComunioneOscura", "Maledizione", "TerroreMortale", "VeloDellaMorte" };
+                return new string[] { "BanchettoDiAnime", "ComunioneOscura", "DrenaggioDiVita", "Maledizione", "PattoDiSangue", "TerroreMortale", "ToccoPutrido", "VeloDellaMorte" };
             default:
                 return new string[0];
         }

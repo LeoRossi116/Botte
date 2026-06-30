@@ -17,10 +17,12 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 1
-  effectDescription: 'Versione semplificata: recupera 1 Stamina invece dell''effetto
-    legato agli scarti.'
+  effectDescription: Pesca 2 carte dagli scarti e recuperi 3 HP.
   magicType: 0
-  damageValue: 0
-  effectType: 7
-  secondaryValue: 1
-  durationTurns: 0
+  effects:
+  - type: 14
+    value: 2
+    duration: 0
+  - type: 1
+    value: 3
+    duration: 0

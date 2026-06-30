@@ -17,9 +17,12 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 1
-  effectDescription: 'Semplificato: infliggi 5 danni (HP cost ommited).'
+  effectDescription: Perdi 3 HP e infliggi 5 danni.
   magicType: 0
-  damageValue: 5
-  effectType: 0
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 2
+    value: 3
+    duration: 0
+  - type: 0
+    value: 5
+    duration: 0

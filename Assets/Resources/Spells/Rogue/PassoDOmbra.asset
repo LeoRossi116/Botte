@@ -17,10 +17,12 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 1
-  effectDescription: Previeni il prossimo danno. Semplificato per omettere recupero
-    Stamina.
+  effectDescription: Blocca il prossimo attacco e guadagni 1 Stamina.
   magicType: 0
-  damageValue: 0
-  effectType: 3
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 10
+    value: 0
+    duration: 0
+  - type: 4
+    value: 1
+    duration: 0

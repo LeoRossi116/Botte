@@ -17,9 +17,9 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 1
-  effectDescription: Il prossimo attacco infligge +2 danni.
+  effectDescription: +1 danno per ogni attacco di questo turno.
   magicType: 0
-  damageValue: 0
-  effectType: 2
-  secondaryValue: 2
-  durationTurns: 0
+  effects:
+  - type: 7
+    value: 1
+    duration: 0

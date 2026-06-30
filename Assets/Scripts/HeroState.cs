@@ -19,9 +19,20 @@ public class HeroState
     public int poisonStacks;
     public bool isStunned;
     public bool isSilenced;
-    public bool hasShield; // default false
+
+    [Header("Defensive state")]
+    public bool hasShield;              // PreventNextDamage: fully blocks the next single attack
+    public int shieldAmount;           // Shield points absorbed until the hero's next turn
+    public bool nextAttackUnblockable; // caster's next attack ignores defense & block
+    public bool auraBlockFirstAttack;  // aura: block the first attack received each turn
+    public bool blockedFirstAttackThisTurn; // runtime: reset each turn
+    public int auraWeakenOpponent;     // aura: opponent deals this much less damage per attack
 
     public List<StatModifier> activeModifiers = new List<StatModifier>();
+
+    // Runtime card bookkeeping (cards are shared ScriptableObjects, so state lives here)
+    public List<MagicData> activeAuras = new List<MagicData>();        // aura cards currently active
+    public List<MagicData> exhaustedThisRound = new List<MagicData>(); // exhaust cards used this round
 
     public HeroState(HeroData data)
     {
@@ -33,7 +44,10 @@ public class HeroState
             currentStamina = data.agility;
         }
         activeModifiers = new List<StatModifier>();
+        activeAuras = new List<MagicData>();
+        exhaustedThisRound = new List<MagicData>();
         hasShield = false;
+        shieldAmount = 0;
     }
 
     public void AddModifier(StatModifier mod)

@@ -17,10 +17,9 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 1
-  effectDescription: "L'avversario ha -3 Rapidit\xE0 fino al suo prossimo turno (Stun
-    semplificato come riduzione Rapidit\xE0)."
+  effectDescription: L'avversario perde 3 Stamina.
   magicType: 0
-  damageValue: 0
-  effectType: 6
-  secondaryValue: 3
-  durationTurns: 1
+  effects:
+  - type: 5
+    value: 3
+    duration: 0

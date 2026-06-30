@@ -10,16 +10,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b60508f7a338fac48be965ddfe676f0c, type: 3}
-  m_Name: RistoroVeloce
+  m_Name: RiflessiFelini
   m_EditorClassIdentifier: Assembly-CSharp::MagicData
-  cardName: Ristoro veloce
+  cardName: Riflessi felini
   cardType: 1
   cardClass: 3
-  staminaCost: 1
-  manaCost: 0
-  effectDescription: Guadagni 1 Stamina.
-  magicType: 0
-  damageValue: 0
-  effectType: 7
-  secondaryValue: 1
-  durationTurns: 0
+  staminaCost: 0
+  manaCost: 2
+  effectDescription: 'Aura: blocca il primo attacco di ogni turno mentre e'' attiva.'
+  magicType: 1
+  effects:
+  - type: 16
+    value: 0
+    duration: 0

@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 2
   effectDescription: Il prossimo attacco infligge +3 danni.
   magicType: 0
-  damageValue: 0
-  effectType: 2
-  secondaryValue: 3
-  durationTurns: 0
+  effects:
+  - type: 6
+    value: 3
+    duration: 0

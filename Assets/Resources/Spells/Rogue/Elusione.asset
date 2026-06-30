@@ -17,9 +17,9 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 1
   manaCost: 0
-  effectDescription: Previeni tutto il danno del prossimo attacco.
+  effectDescription: Blocca completamente il prossimo attacco.
   magicType: 0
-  damageValue: 0
-  effectType: 3
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 10
+    value: 0
+    duration: 0

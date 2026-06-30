@@ -17,10 +17,9 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 1
   manaCost: 0
-  effectDescription: 'Il prossimo attacco ignora la Difesa (DA IMPLEMENTARE: questa
-    versione base applica solo +0 danno come placeholder).'
+  effectDescription: Il prossimo attacco non puo' essere bloccato.
   magicType: 0
-  damageValue: 0
-  effectType: 2
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 8
+    value: 0
+    duration: 0

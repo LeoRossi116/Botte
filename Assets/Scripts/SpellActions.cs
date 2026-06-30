@@ -2,156 +2,155 @@ using UnityEngine;
 
 public static class SpellActions
 {
-    private static ModifierDuration GetDuration(int turns)
+    public static CastResult TryCastSpell(HeroState caster, HeroState opponent, MagicData spell)
     {
-        if (turns == 0) return ModifierDuration.EndOfThisTurn;
-        return ModifierDuration.UntilNextOpponentTurn;
-    }
+        CastResult result = new CastResult();
+        if (spell == null) return result;
 
-    public static bool TryCastSpell(HeroState caster, HeroState opponent, MagicData spell)
-    {
-        if (spell == null) return false;
-
-        // Class-lock validation
+        // Class-lock validation.
         if (spell.cardClass != CardClass.Shared && spell.cardClass.ToString() != caster.data.heroClass.ToString())
         {
             Debug.Log($"[Combat] {caster.data.heroName} non può lanciare {spell.cardName}: non è della sua classe.");
-            return false;
+            return result;
         }
 
-        // Dedicated check for "Patto di sangue"
-        if (spell.cardName == "Patto di sangue")
+        // Sum HP cost (LoseHP effects) — the caster may never reduce itself below 1 HP.
+        int hpCost = 0;
+        foreach (SpellEffect e in spell.effects)
         {
-            if (caster.currentHP - 2 < 1)
-            {
-                Debug.Log($"[Combat] {caster.data.heroName} non ha abbastanza HP per lanciare Patto di sangue (richiesti: 2, disponibili: {caster.currentHP}).");
-                return false;
-            }
-
-            // Pay costs (0 mana/stamina for Patto di sangue, but check just in case)
-            if (caster.currentMana < spell.manaCost || caster.currentStamina < spell.staminaCost)
-            {
-                Debug.Log($"[Combat] {caster.data.heroName} non ha abbastanza risorse per lanciare Patto di sangue (Mana: {caster.currentMana}/{spell.manaCost}, Stamina: {caster.currentStamina}/{spell.staminaCost}).");
-                return false;
-            }
-
-            caster.currentMana = Mathf.Max(0, caster.currentMana - spell.manaCost);
-            caster.currentStamina = Mathf.Max(0, caster.currentStamina - spell.staminaCost);
-
-            caster.currentHP -= 2;
-            int maxMana = caster.GetModifiedIntelligence();
-            caster.currentMana = Mathf.Min(maxMana, caster.currentMana + 3);
-
-            Debug.Log($"[Combat] {caster.data.heroName} paga 2 HP e guadagna 3 Mana (HP: {caster.currentHP}/{caster.data.maxHP}, Mana: {caster.currentMana}/{maxMana}).");
-            return true;
+            if (e.type == SpellEffectType.LoseHP) hpCost += e.value;
+        }
+        if (hpCost > 0 && caster.currentHP - hpCost < 1)
+        {
+            Debug.Log($"[Combat] {caster.data.heroName} non ha abbastanza HP per lanciare {spell.cardName} (richiesti: {hpCost}, disponibili: {caster.currentHP}).");
+            return result;
         }
 
-        // Generic resource check
+        // Resource check.
         if (caster.currentMana < spell.manaCost || caster.currentStamina < spell.staminaCost)
         {
             Debug.Log($"[Combat] {caster.data.heroName} non ha abbastanza risorse per lanciare {spell.cardName} (Mana: {caster.currentMana}/{spell.manaCost}, Stamina: {caster.currentStamina}/{spell.staminaCost}).");
-            return false;
+            return result;
         }
 
-        // Subtract costs
+        // Pay costs.
         caster.currentMana = Mathf.Max(0, caster.currentMana - spell.manaCost);
         caster.currentStamina = Mathf.Max(0, caster.currentStamina - spell.staminaCost);
 
-        ModifierDuration modDuration = GetDuration(spell.durationTurns);
+        Debug.Log($"[Combat] {caster.data.heroName} lancia {spell.cardName} ({spell.magicType}): -{spell.manaCost} Mana, -{spell.staminaCost} Stamina.");
 
-        switch (spell.effectType)
+        foreach (SpellEffect e in spell.effects)
         {
-            case SpellEffectType.DirectDamage:
-                {
-                    int damage = spell.damageValue;
-                    int defense = CombatActions.GetTotalDefense(opponent);
-                    damage = Mathf.Max(0, damage - defense);
-
-                    if (opponent.hasShield)
-                    {
-                        opponent.hasShield = false;
-                        Debug.Log($"[Combat] {opponent.data.heroName} blocca completamente l'attacco grazie allo scudo.");
-                    }
-                    else
-                    {
-                        opponent.currentHP = Mathf.Max(0, opponent.currentHP - damage);
-                        Debug.Log($"[Combat] {caster.data.heroName} lancia {spell.cardName}: -{spell.manaCost} Mana, infligge {damage} danni a {opponent.data.heroName} (HP rimanenti: {opponent.currentHP}).");
-                    }
-                }
-                break;
-
-            case SpellEffectType.BuffStrengthSelf:
-                {
-                    StatModifier mod = new StatModifier(spell.cardName, ModifierStat.Strength, spell.secondaryValue, modDuration);
-                    caster.AddModifier(mod);
-                }
-                break;
-
-            case SpellEffectType.BuffDamageNextAttack:
-                {
-                    StatModifier mod = new StatModifier(spell.cardName, ModifierStat.DamageBonus, spell.secondaryValue, ModifierDuration.UntilNextAttack);
-                    caster.AddModifier(mod);
-                }
-                break;
-
-            case SpellEffectType.PreventNextDamage:
-                {
-                    caster.hasShield = true;
-                    Debug.Log($"[Combat] {caster.data.heroName} ottiene uno scudo: il prossimo attacco subito non infligge danno.");
-                }
-                break;
-
-            case SpellEffectType.DrainHP:
-                {
-                    int damage = spell.damageValue;
-                    int defense = CombatActions.GetTotalDefense(opponent);
-                    damage = Mathf.Max(0, damage - defense);
-
-                    if (opponent.hasShield)
-                    {
-                        opponent.hasShield = false;
-                        Debug.Log($"[Combat] {opponent.data.heroName} blocca completamente l'attacco grazie allo scudo.");
-                    }
-                    else
-                    {
-                        opponent.currentHP = Mathf.Max(0, opponent.currentHP - damage);
-                        caster.currentHP = Mathf.Min(caster.data.maxHP, caster.currentHP + spell.secondaryValue);
-                        Debug.Log($"[Combat] {caster.data.heroName} lancia {spell.cardName}: -{spell.manaCost} Mana, infligge {damage} danni a {opponent.data.heroName} e recupera {spell.secondaryValue} HP (HP attuali: {caster.currentHP}/{caster.data.maxHP}).");
-                    }
-                }
-                break;
-
-            case SpellEffectType.DebuffStrengthOpponent:
-                {
-                    StatModifier mod = new StatModifier(spell.cardName, ModifierStat.Strength, -spell.secondaryValue, modDuration);
-                    opponent.AddModifier(mod);
-                }
-                break;
-
-            case SpellEffectType.DebuffAgilityOpponent:
-                {
-                    StatModifier mod = new StatModifier(spell.cardName, ModifierStat.Agility, -spell.secondaryValue, modDuration);
-                    opponent.AddModifier(mod);
-                }
-                break;
-
-            case SpellEffectType.GainStamina:
-                {
-                    int maxStamina = caster.GetModifiedAgility();
-                    caster.currentStamina = Mathf.Min(maxStamina, caster.currentStamina + spell.secondaryValue);
-                    Debug.Log($"[Combat] {caster.data.heroName} guadagna {spell.secondaryValue} Stamina ({caster.currentStamina}/{maxStamina}).");
-                }
-                break;
-
-            case SpellEffectType.GainMana:
-                {
-                    int maxMana = caster.GetModifiedIntelligence();
-                    caster.currentMana = Mathf.Min(maxMana, caster.currentMana + spell.secondaryValue);
-                    Debug.Log($"[Combat] {caster.data.heroName} guadagna {spell.secondaryValue} Mana ({caster.currentMana}/{maxMana}).");
-                }
-                break;
+            ApplyEffect(caster, opponent, spell, e, result);
         }
 
-        return true;
+        result.success = true;
+        return result;
+    }
+
+    private static void ApplyEffect(HeroState caster, HeroState opponent, MagicData spell, SpellEffect e, CastResult result)
+    {
+        switch (e.type)
+        {
+            case SpellEffectType.DirectDamage:
+            {
+                int dealt = CombatActions.DealDamage(caster, opponent, e.value, false, false);
+                Debug.Log($"[Combat] {spell.cardName}: {dealt} danni a {opponent.data.heroName} (HP rimanenti: {opponent.currentHP}).");
+                break;
+            }
+            case SpellEffectType.Heal:
+            {
+                caster.currentHP = Mathf.Min(caster.data.maxHP, caster.currentHP + e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} recupera {e.value} HP ({caster.currentHP}/{caster.data.maxHP}).");
+                break;
+            }
+            case SpellEffectType.LoseHP:
+            {
+                caster.currentHP = Mathf.Max(1, caster.currentHP - e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} paga {e.value} HP ({caster.currentHP}/{caster.data.maxHP}).");
+                break;
+            }
+            case SpellEffectType.GainMana:
+            {
+                int maxMana = caster.GetModifiedIntelligence();
+                caster.currentMana = Mathf.Min(maxMana, caster.currentMana + e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} guadagna {e.value} Mana ({caster.currentMana}/{maxMana}).");
+                break;
+            }
+            case SpellEffectType.GainStamina:
+            {
+                int maxStamina = caster.GetModifiedAgility();
+                caster.currentStamina = Mathf.Min(maxStamina, caster.currentStamina + e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} guadagna {e.value} Stamina ({caster.currentStamina}/{maxStamina}).");
+                break;
+            }
+            case SpellEffectType.DrainStaminaOpponent:
+            {
+                opponent.currentStamina = Mathf.Max(0, opponent.currentStamina - e.value);
+                Debug.Log($"[Combat] {opponent.data.heroName} perde {e.value} Stamina ({opponent.currentStamina}/{opponent.GetModifiedAgility()}).");
+                break;
+            }
+            case SpellEffectType.BuffDamageNextAttack:
+            {
+                caster.AddModifier(new StatModifier(spell.cardName, ModifierStat.DamageBonus, e.value, ModifierDuration.UntilNextAttack));
+                break;
+            }
+            case SpellEffectType.BuffDamageThisTurn:
+            {
+                caster.AddModifier(new StatModifier(spell.cardName, ModifierStat.DamageBonus, e.value, ModifierDuration.EndOfThisTurn));
+                break;
+            }
+            case SpellEffectType.NextAttackUnblockable:
+            {
+                caster.nextAttackUnblockable = true;
+                Debug.Log($"[Combat] Il prossimo attacco di {caster.data.heroName} non può essere bloccato.");
+                break;
+            }
+            case SpellEffectType.Shield:
+            {
+                caster.shieldAmount += e.value;
+                Debug.Log($"[Combat] {caster.data.heroName} ottiene {e.value} scudo (totale: {caster.shieldAmount}).");
+                break;
+            }
+            case SpellEffectType.PreventNextDamage:
+            {
+                caster.hasShield = true;
+                Debug.Log($"[Combat] {caster.data.heroName} bloccherà completamente il prossimo attacco subito.");
+                break;
+            }
+            case SpellEffectType.ApplyPoison:
+            {
+                opponent.poisonStacks += e.value;
+                Debug.Log($"[Combat] {opponent.data.heroName} subisce {e.value} Veleno (stack totali: {opponent.poisonStacks}).");
+                break;
+            }
+            case SpellEffectType.DebuffDamageOpponentNextTurn:
+            {
+                opponent.AddModifier(new StatModifier(spell.cardName, ModifierStat.DamageBonus, -e.value, ModifierDuration.UntilNextOpponentTurn));
+                break;
+            }
+            case SpellEffectType.DrawSpellCard:
+            {
+                result.drawSpellCount += e.value;
+                break;
+            }
+            case SpellEffectType.DrawFromDiscard:
+            {
+                result.drawFromDiscardCount += e.value;
+                break;
+            }
+            case SpellEffectType.AuraWeakenOpponent:
+            {
+                caster.auraWeakenOpponent += e.value;
+                Debug.Log($"[Combat] Aura attiva: l'avversario di {caster.data.heroName} infligge {e.value} danni in meno per attacco.");
+                break;
+            }
+            case SpellEffectType.AuraBlockFirstAttack:
+            {
+                caster.auraBlockFirstAttack = true;
+                Debug.Log($"[Combat] Aura attiva: {caster.data.heroName} bloccherà il primo attacco di ogni turno.");
+                break;
+            }
+        }
     }
 }

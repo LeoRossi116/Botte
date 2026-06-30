@@ -17,10 +17,10 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 1
   manaCost: 0
-  effectDescription: "Guadagni 1 Stamina (versione semplificata: il pescaggio carte
-    non \xE8 ancora implementato)."
+  effectDescription: Pesca una carta dal mazzo a scelta (per ora solo Spell; Equip/Oggetti
+    futuri).
   magicType: 0
-  damageValue: 0
-  effectType: 7
-  secondaryValue: 1
-  durationTurns: 0
+  effects:
+  - type: 13
+    value: 1
+    duration: 0

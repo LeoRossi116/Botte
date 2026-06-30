@@ -17,9 +17,10 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 1
-  effectDescription: Il prossimo attacco subito non infligge danno.
+  effectDescription: Riduce di 1 il prossimo danno subito (blocca 1 danno, non l'intero
+    attacco).
   magicType: 0
-  damageValue: 0
-  effectType: 3
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 9
+    value: 1
+    duration: 0

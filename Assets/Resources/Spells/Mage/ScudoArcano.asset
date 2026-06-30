@@ -17,9 +17,9 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 2
-  effectDescription: Il prossimo attacco subito non infligge danno.
+  effectDescription: Ottieni 3 scudo per questo turno.
   magicType: 0
-  damageValue: 0
-  effectType: 3
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 9
+    value: 3
+    duration: 0

@@ -17,9 +17,9 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 2
-  effectDescription: Previeni tutto il danno del prossimo attacco.
+  effectDescription: Non puoi subire danni nel prossimo turno (999 scudo).
   magicType: 0
-  damageValue: 0
-  effectType: 3
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 9
+    value: 999
+    duration: 0

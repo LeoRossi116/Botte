@@ -17,9 +17,9 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 2
-  effectDescription: Infliggi 3 danni diretti.
+  effectDescription: Infligge 3 danni immediati.
   magicType: 0
-  damageValue: 3
-  effectType: 0
-  secondaryValue: 0
-  durationTurns: 0
+  effects:
+  - type: 0
+    value: 3
+    duration: 0

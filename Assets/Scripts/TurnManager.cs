@@ -23,11 +23,19 @@ public class TurnManager
             opponent.ExpireModifiers(ModifierDuration.UntilNextOpponentTurn);
         }
 
+        // Reset per-turn defensive state for the hero whose turn is starting.
+        hero.hasShield = false;
+        hero.shieldAmount = 0;
+        hero.nextAttackUnblockable = false;
+        hero.blockedFirstAttackThisTurn = false;
+        hero.exhaustedThisRound.Clear();
+
         if (hero.poisonStacks > 0)
         {
             int poisonDamage = hero.poisonStacks;
             hero.currentHP = Mathf.Max(0, hero.currentHP - poisonDamage);
-            Debug.Log($"[ResourceRecovery] {hero.data.heroName} subisce {poisonDamage} danni da Veleno (HP rimanenti: {hero.currentHP}).");
+            hero.poisonStacks = Mathf.Max(0, hero.poisonStacks - 1); // decreases by 1 each round
+            Debug.Log($"[ResourceRecovery] {hero.data.heroName} subisce {poisonDamage} danni da Veleno (HP rimanenti: {hero.currentHP}, Veleno: {hero.poisonStacks}).");
         }
 
         // Stamina Recovery
@@ -86,10 +94,11 @@ public class TurnManager
             hero.currentStamina = Mathf.Min(hero.GetModifiedAgility(), hero.currentStamina + 1);
             if (hero.poisonStacks > 0)
             {
+                // Sleeping removes one extra poison stack on top of the per-round decay.
                 hero.poisonStacks = Mathf.Max(0, hero.poisonStacks - 1);
             }
 
-            Debug.Log($"[EndPhase] {hero.data.heroName} riposa: +2 HP, +1 Mana, +1 Stamina, -1 Veleno (se presente). Stato attuale: HP {hero.currentHP}/{hero.data.maxHP}, Mana {hero.currentMana}/{hero.data.intelligence}, Stamina {hero.currentStamina}/{hero.data.agility}.");
+            Debug.Log($"[EndPhase] {hero.data.heroName} riposa: +2 HP, +1 Mana, +1 Stamina, -1 Veleno extra (se presente). Stato attuale: HP {hero.currentHP}/{hero.data.maxHP}, Mana {hero.currentMana}/{hero.data.intelligence}, Stamina {hero.currentStamina}/{hero.data.agility}.");
         }
         else if (choice == EndPhaseChoice.DrawExtraCard)
         {

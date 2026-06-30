@@ -17,9 +17,10 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 2
-  effectDescription: L'avversario ha -1 Forza fino al suo prossimo turno.
-  magicType: 0
-  damageValue: 0
-  effectType: 5
-  secondaryValue: 1
-  durationTurns: 1
+  effectDescription: 'Aura: l''avversario infligge -1 danno per ogni attacco mentre
+    e'' attiva.'
+  magicType: 1
+  effects:
+  - type: 15
+    value: 1
+    duration: 0

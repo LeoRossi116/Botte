@@ -17,9 +17,13 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 2
-  effectDescription: Applica -1 Forza fino al prossimo turno avversario.
+  effectDescription: Applica 1 Veleno e l'avversario ha -1 danno nel suo prossimo
+    turno.
   magicType: 0
-  damageValue: 0
-  effectType: 5
-  secondaryValue: 1
-  durationTurns: 1
+  effects:
+  - type: 11
+    value: 1
+    duration: 0
+  - type: 12
+    value: 1
+    duration: 1

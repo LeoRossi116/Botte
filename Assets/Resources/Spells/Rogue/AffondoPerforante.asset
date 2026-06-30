@@ -17,10 +17,12 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 1
   manaCost: 1
-  effectDescription: "Il prossimo attacco infligge +2 danni (versione semplificata:
-    l'ignorare la Difesa non \xE8 ancora implementato)."
+  effectDescription: Il prossimo attacco infligge +2 danni e non puo' essere bloccato.
   magicType: 0
-  damageValue: 0
-  effectType: 2
-  secondaryValue: 2
-  durationTurns: 0
+  effects:
+  - type: 6
+    value: 2
+    duration: 0
+  - type: 8
+    value: 0
+    duration: 0

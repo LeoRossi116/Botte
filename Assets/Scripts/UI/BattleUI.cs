@@ -40,6 +40,25 @@ namespace Botte.UI
         [Header("Card Prefab")]
         public GameObject cardPrefab;
 
+        [Header("Screens")]
+        public GameObject characterSelectPanel;
+        public GameObject battleScreen;
+        public GameObject drawChoicePanel;
+
+        [Header("Card Description Panels")]
+        public GameObject p1DescPanel;
+        public TMP_Text p1DescName;
+        public TMP_Text p1DescCost;
+        public TMP_Text p1DescEffect;
+        public GameObject p2DescPanel;
+        public TMP_Text p2DescName;
+        public TMP_Text p2DescCost;
+        public TMP_Text p2DescEffect;
+
+        [Header("Character Select Buttons (Warrior, Mage, Rogue, Necro)")]
+        public Button[] p1ClassButtons;
+        public Button[] p2ClassButtons;
+
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
             TMP_Text nameText = isPlayer1 ? p1HeroNameText : p2HeroNameText;
@@ -53,14 +72,17 @@ namespace Botte.UI
             hpText.text = $"HP: {hero.currentHP} / {hero.data.maxHP}";
             manaText.text = $"Mana: {hero.currentMana} / {hero.GetModifiedIntelligence()}";
             staminaText.text = $"Stamina: {hero.currentStamina} / {hero.GetModifiedAgility()}";
-            
+
             float hpPct = hero.data.maxHP > 0 ? (float)hero.currentHP / hero.data.maxHP : 0f;
-            hpFill.anchorMax = new Vector2(hpPct, 1f);
-            
+            hpFill.anchorMax = new Vector2(Mathf.Clamp01(hpPct), 1f);
+
             string statusStr = "";
-            if (hero.poisonStacks > 0) statusStr += $"Poison ({hero.poisonStacks}) ";
-            if (hero.isStunned) statusStr += "Stunned ";
-            if (hero.isSilenced) statusStr += "Silenced";
+            if (hero.poisonStacks > 0) statusStr += $"Veleno({hero.poisonStacks}) ";
+            if (hero.shieldAmount > 0) statusStr += $"Scudo({hero.shieldAmount}) ";
+            if (hero.hasShield) statusStr += "Blocco ";
+            if (hero.nextAttackUnblockable) statusStr += "Perforante ";
+            if (hero.auraBlockFirstAttack) statusStr += "Riflessi ";
+            if (hero.auraWeakenOpponent > 0) statusStr += $"Indebol(-{hero.auraWeakenOpponent}) ";
             statusText.text = statusStr.Trim();
         }
 
@@ -69,40 +91,114 @@ namespace Botte.UI
             Transform handArea = isPlayer1 ? p1HandArea : p2HandArea;
             if (handArea == null || cardPrefab == null) return;
 
-            // Clear old cards
-            foreach (Transform child in handArea)
+            for (int i = handArea.childCount - 1; i >= 0; i--)
             {
+                Transform child = handArea.GetChild(i);
+                child.SetParent(null, false); // detach immediately so childCount is correct this frame
                 Destroy(child.gameObject);
             }
 
-            // Instantiate new cards
             foreach (CardData card in hero.hand)
             {
                 if (card is MagicData spell)
                 {
                     GameObject cardGO = Instantiate(cardPrefab, handArea);
                     CardUI cardUI = cardGO.GetComponent<CardUI>();
-                    if (cardUI == null)
-                    {
-                        cardUI = cardGO.AddComponent<CardUI>();
-                    }
-                    cardUI.Setup(spell, hero);
+                    if (cardUI == null) cardUI = cardGO.AddComponent<CardUI>();
+
+                    string state = "";
+                    if (spell.magicType == MagicType.Aura && hero.activeAuras.Contains(spell)) state = "ATTIVA";
+                    else if (spell.magicType == MagicType.Exhaustion && hero.exhaustedThisRound.Contains(spell)) state = "USATA";
+
+                    cardUI.Setup(spell, hero, isPlayer1, this, state);
                 }
             }
+        }
+
+        public void ShowCardDescription(bool isPlayer1, MagicData spell)
+        {
+            GameObject panel = isPlayer1 ? p1DescPanel : p2DescPanel;
+            TMP_Text nameT = isPlayer1 ? p1DescName : p2DescName;
+            TMP_Text costT = isPlayer1 ? p1DescCost : p2DescCost;
+            TMP_Text effectT = isPlayer1 ? p1DescEffect : p2DescEffect;
+            if (panel == null) return;
+
+            panel.SetActive(true);
+            if (nameT != null) nameT.text = spell.cardName;
+            if (costT != null) costT.text = $"M:{spell.manaCost}  S:{spell.staminaCost}";
+            if (effectT != null) effectT.text = $"<i>{spell.magicType}</i>\n{spell.effectDescription}";
+        }
+
+        public void HideCardDescription(bool isPlayer1)
+        {
+            GameObject panel = isPlayer1 ? p1DescPanel : p2DescPanel;
+            if (panel != null) panel.SetActive(false);
         }
 
         public void AddLog(string message)
         {
             Debug.Log(message);
+            if (logContent == null) return;
             GameObject newTextGO = new GameObject("LogText");
             newTextGO.transform.SetParent(logContent, false);
             TextMeshProUGUI txt = newTextGO.AddComponent<TextMeshProUGUI>();
             txt.text = message;
             txt.fontSize = 16f;
             txt.color = Color.white;
-            
+
             Canvas.ForceUpdateCanvases();
-            logScrollRect.verticalNormalizedPosition = 0f;
+            if (logScrollRect != null) logScrollRect.verticalNormalizedPosition = 0f;
+        }
+
+        public void ClearLog()
+        {
+            if (logContent == null) return;
+            foreach (Transform child in logContent) Destroy(child.gameObject);
+        }
+
+        public void ClearHands()
+        {
+            ClearChildren(p1HandArea);
+            ClearChildren(p2HandArea);
+            HideCardDescription(true);
+            HideCardDescription(false);
+        }
+
+        private void ClearChildren(Transform t)
+        {
+            if (t == null) return;
+            for (int i = t.childCount - 1; i >= 0; i--)
+            {
+                Transform child = t.GetChild(i);
+                child.SetParent(null, false);
+                Destroy(child.gameObject);
+            }
+        }
+
+        // Highlights the chosen class button for each player on the character-select screen.
+        public void UpdateSelectionHighlight(int player, int classIdx, HeroClass? sel1, HeroClass? sel2)
+        {
+            Color normal = new Color32(0xf5, 0xa6, 0x23, 0xff);
+            Color picked = new Color32(0x2e, 0xcc, 0x71, 0xff);
+
+            if (p1ClassButtons != null)
+            {
+                for (int i = 0; i < p1ClassButtons.Length; i++)
+                {
+                    if (p1ClassButtons[i] == null) continue;
+                    var img = p1ClassButtons[i].GetComponent<Image>();
+                    if (img != null) img.color = (sel1.HasValue && (int)sel1.Value == i) ? picked : normal;
+                }
+            }
+            if (p2ClassButtons != null)
+            {
+                for (int i = 0; i < p2ClassButtons.Length; i++)
+                {
+                    if (p2ClassButtons[i] == null) continue;
+                    var img = p2ClassButtons[i].GetComponent<Image>();
+                    if (img != null) img.color = (sel2.HasValue && (int)sel2.Value == i) ? picked : normal;
+                }
+            }
         }
     }
 }
