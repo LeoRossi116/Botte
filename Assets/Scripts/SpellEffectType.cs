@@ -16,7 +16,15 @@ public enum SpellEffectType
     DrawSpellCard,                // value = number of spell cards drawn (player choice of deck)
     DrawFromDiscard,              // value = number of cards drawn from the discard pile
     AuraWeakenOpponent,           // aura: opponent deals value less damage per attack while active
-    AuraBlockFirstAttack          // aura: blocks the first attack received each turn while active
+    AuraBlockFirstAttack,         // aura: blocks the first attack received each turn while active
+    // --- Item-oriented effects ---
+    RemoveAllPoison,              // removes all poison stacks from the caster (antidoto)
+    LoseMana,                     // value = mana the caster spends (validated, travaso)
+    GainMaxManaThisTurn,          // value = temporary +Intelligence this turn AND +value current mana (lucidita)
+    DrawChosenDeck,               // value = cards drawn from a player-chosen deck (pescata) [deferred]
+    PeekChosenDeck,               // value = peek top card of a chosen deck, keep or discard (manipolazione) [deferred]
+    StealOpponentDiscard,         // value = cards grabbed from opponent discard into own spellbook (saccheggio) [deferred]
+    EquipmentStub                 // logs an equipment-dependent effect that is not yet implemented
 }
 
 [System.Serializable]
@@ -27,11 +35,14 @@ public class SpellEffect
     public int duration;    // 0 = EndOfThisTurn, 1 = UntilNextOpponentTurn (used by debuffs)
 }
 
-// Result of attempting to cast a spell. Draw effects are deferred to the BattleManager
-// because they require deck/discard/UI manipulation that lives above the pure logic layer.
+// Result of attempting to cast a spell or use an item. Effects that require deck/discard/UI
+// manipulation are deferred to the BattleManager via these counters.
 public class CastResult
 {
     public bool success;
-    public int drawSpellCount;
-    public int drawFromDiscardCount;
+    public int drawSpellCount;          // legacy: draw from own spell deck (Prontezza)
+    public int drawFromDiscardCount;    // draw from own discard pile (Banchetto)
+    public int drawChosenDeckCount;     // draw 1 from a player-chosen deck (pescata)
+    public int peekChosenDeckCount;     // peek top of a player-chosen deck (manipolazione)
+    public int stealOpponentDiscardCount; // steal from opponent discard into spellbook (saccheggio)
 }

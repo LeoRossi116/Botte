@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 [System.Serializable]
@@ -8,6 +9,10 @@ public class GameState
     public int currentTurn;
     public HeroState activePlayer;
     public GamePhase phase;
+
+    // Shared between both players: a single item deck and a single item discard pile.
+    public List<CardData> itemDeck = new List<CardData>();
+    public List<CardData> itemDiscard = new List<CardData>();
 
     public GameState(HeroState p1, HeroState p2)
     {

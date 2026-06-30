@@ -36,6 +36,10 @@ namespace Botte.Core
         public Button drawChoiceEquipButton;
         public Button drawChoiceItemButton;
 
+        [Header("Peek Buttons (manipolazione)")]
+        public Button peekKeepButton;
+        public Button peekDiscardButton;
+
         private GameState gameState;
         private TurnManager turnManager;
         private int prepDrawsThisPhase;
@@ -43,8 +47,15 @@ namespace Botte.Core
         private HeroClass? selectedP1;
         private HeroClass? selectedP2;
 
+        // Pending deck-draw flow (deck choice popup).
         private HeroState pendingDrawHero;
         private int pendingDrawCount;
+        private bool pendingPeek;
+        private System.Action pendingAfterDraws;
+
+        // Pending peek (manipolazione) keep/discard.
+        private DeckChoice pendingPeekDeck;
+        private CardData pendingPeekCard;
 
         private void Start()
         {
@@ -74,9 +85,35 @@ namespace Botte.Core
             if (startBattleButton != null) startBattleButton.onClick.AddListener(OnStartBattlePressed);
             if (restartButton != null) restartButton.onClick.AddListener(OnRestartPressed);
             if (exitButton != null) exitButton.onClick.AddListener(OnExitPressed);
-            if (drawChoiceSpellButton != null) drawChoiceSpellButton.onClick.AddListener(() => OnDrawChoice("Spell"));
-            if (drawChoiceEquipButton != null) drawChoiceEquipButton.onClick.AddListener(() => OnDrawChoice("Equip"));
-            if (drawChoiceItemButton != null) drawChoiceItemButton.onClick.AddListener(() => OnDrawChoice("Item"));
+            if (drawChoiceSpellButton != null) drawChoiceSpellButton.onClick.AddListener(() => OnDeckChoice(DeckChoice.Spell));
+            if (drawChoiceEquipButton != null) drawChoiceEquipButton.onClick.AddListener(() => OnDeckChoice(DeckChoice.Equipment));
+            if (drawChoiceItemButton != null) drawChoiceItemButton.onClick.AddListener(() => OnDeckChoice(DeckChoice.Item));
+            if (peekKeepButton != null) peekKeepButton.onClick.AddListener(OnPeekKeep);
+            if (peekDiscardButton != null) peekDiscardButton.onClick.AddListener(OnPeekDiscard);
+
+            if (battleUI != null)
+            {
+                if (battleUI.p1BookButtons != null)
+                    for (int i = 0; i < battleUI.p1BookButtons.Length; i++)
+                    {
+                        int idx = i;
+                        if (battleUI.p1BookButtons[i] != null) battleUI.p1BookButtons[i].onClick.AddListener(() => OnBookSelected(true, idx));
+                    }
+                if (battleUI.p2BookButtons != null)
+                    for (int i = 0; i < battleUI.p2BookButtons.Length; i++)
+                    {
+                        int idx = i;
+                        if (battleUI.p2BookButtons[i] != null) battleUI.p2BookButtons[i].onClick.AddListener(() => OnBookSelected(false, idx));
+                    }
+            }
+        }
+
+        public void OnBookSelected(bool isPlayer1, int bookIdx)
+        {
+            if (battleUI == null) return;
+            battleUI.SetSelectedBook(isPlayer1, (BookType)bookIdx);
+            if (gameState != null)
+                battleUI.RefreshBook(isPlayer1 ? gameState.player1 : gameState.player2, isPlayer1);
         }
 
         // ---------- Character select ----------
@@ -169,10 +206,12 @@ namespace Botte.Core
             if (gameState == null || gameState.phase != GamePhase.Preparation) return;
             if (prepDrawsThisPhase >= 2) return;
 
-            DrawCardFromDeck(gameState.activePlayer);
-            prepDrawsThisPhase++;
-            if (prepDrawsThisPhase >= 2 && drawPrepButton != null) drawPrepButton.interactable = false;
-            RefreshAll();
+            // Each prep draw lets the player choose which deck to draw from.
+            RequestDeckDraw(gameState.activePlayer, 1, () =>
+            {
+                prepDrawsThisPhase++;
+                if (prepDrawsThisPhase >= 2 && drawPrepButton != null) drawPrepButton.interactable = false;
+            });
         }
 
         public void OnEquipPrepPressed()
@@ -220,28 +259,24 @@ namespace Botte.Core
         public void OnDrawExtraPressed()
         {
             if (gameState == null || gameState.phase != GamePhase.EndPhase) return;
-            DrawCardFromDeck(gameState.activePlayer);
-            turnManager.RunEndPhase(gameState.activePlayer, EndPhaseChoice.DrawExtraCard);
-            EndRoundForActive();
+            // Draw 1 from a chosen deck, then end the round.
+            HeroState active = gameState.activePlayer;
+            RequestDeckDraw(active, 1, () =>
+            {
+                turnManager.RunEndPhase(active, EndPhaseChoice.DrawExtraCard);
+                EndRoundForActive();
+            });
         }
 
-        // Discards the active hero's repeatable cards (round end), then advances to the next hero.
+        // Repeatable cards are NO LONGER auto-discarded — they persist until the player
+        // discards them by right-clicking. Round end just advances to the next hero.
         private void EndRoundForActive()
         {
-            HeroState active = gameState.activePlayer;
-            for (int i = active.hand.Count - 1; i >= 0; i--)
-            {
-                if (active.hand[i] is MagicData m && m.magicType == MagicType.Repeatable)
-                {
-                    active.hand.RemoveAt(i);
-                    active.discardPile.Add(m);
-                }
-            }
             gameState.AdvancePhase(); // wraps to next hero ResourceRecovery
             OnPhaseEntered();
         }
 
-        // ---------- Card usage ----------
+        // ---------- Spell card usage (left click) ----------
         public void OnCardClicked(HeroState owner, MagicData spell)
         {
             if (gameState == null || gameState.activePlayer != owner)
@@ -270,16 +305,9 @@ namespace Botte.Core
             CastResult result = SpellActions.TryCastSpell(owner, opponent, spell);
             if (!result.success) return;
 
-            // Resolve deferred draws.
-            for (int i = 0; i < result.drawFromDiscardCount; i++) DrawCardFromDiscard(owner);
-            if (result.drawSpellCount > 0)
-            {
-                pendingDrawHero = owner;
-                pendingDrawCount = result.drawSpellCount;
-                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
-            }
+            ResolveDeferred(owner, opponent, result);
 
-            // Apply per-magic-type bookkeeping.
+            // Per-magic-type bookkeeping.
             switch (spell.magicType)
             {
                 case MagicType.Instant:
@@ -293,7 +321,7 @@ namespace Botte.Core
                     if (!owner.exhaustedThisRound.Contains(spell)) owner.exhaustedThisRound.Add(spell);
                     break;
                 case MagicType.Repeatable:
-                    // stays in hand; discarded at round end
+                    // stays in the spellbook; only discarded by player choice (right-click)
                     break;
             }
 
@@ -301,62 +329,286 @@ namespace Botte.Core
             CheckForWinner();
         }
 
-        // ---------- Draw choice (Prontezza) ----------
-        private void OnDrawChoice(string choice)
+        // ---------- Item card usage (left click) ----------
+        public void OnItemClicked(HeroState owner, ItemData item)
         {
-            if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
-            if (pendingDrawHero == null) return;
-
-            if (choice == "Spell")
+            if (gameState == null || gameState.activePlayer != owner)
             {
-                for (int i = 0; i < pendingDrawCount; i++) DrawCardFromDeck(pendingDrawHero);
+                battleUI.AddLog("Non è il tuo turno!");
+                return;
+            }
+            if (gameState.phase != GamePhase.Combat)
+            {
+                battleUI.AddLog("Puoi usare gli oggetti solo durante la fase di Combattimento!");
+                return;
+            }
+
+            HeroState opponent = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
+
+            CastResult result = ItemActions.TryUseItem(owner, opponent, item);
+            if (!result.success) return;
+
+            // Items are always discarded into the shared item discard pile after use.
+            owner.itemBook.Remove(item);
+            gameState.itemDiscard.Add(item);
+
+            ResolveDeferred(owner, opponent, result);
+
+            RefreshAll();
+            CheckForWinner();
+        }
+
+        // ---------- Right click: discard a card from the active hero's books ----------
+        public void OnCardRightClicked(HeroState owner, CardData card)
+        {
+            if (gameState == null || gameState.activePlayer != owner)
+            {
+                battleUI.AddLog("Puoi scartare le carte solo durante il tuo turno!");
+                return;
+            }
+
+            if (card is ItemData item && owner.itemBook.Contains(item))
+            {
+                owner.itemBook.Remove(item);
+                gameState.itemDiscard.Add(item);
+                battleUI.AddLog($"{owner.data.heroName} scarta l'oggetto {item.cardName}.");
+            }
+            else if (card is MagicData spell && owner.hand.Contains(spell))
+            {
+                owner.hand.Remove(spell);
+                owner.discardPile.Add(spell);
+                owner.activeAuras.Remove(spell);
+                battleUI.AddLog($"{owner.data.heroName} scarta {spell.cardName} dal libro incantesimi.");
             }
             else
             {
-                battleUI.AddLog($"Pescaggio {choice}: non ancora implementato (solo Spell disponibili al momento).");
+                return;
             }
-            pendingDrawHero = null;
-            pendingDrawCount = 0;
             RefreshAll();
         }
 
-        // ---------- Deck / discard ----------
-        private void DrawCardFromDeck(HeroState hero)
+        // ---------- Deferred effect resolution ----------
+        private void ResolveDeferred(HeroState owner, HeroState opponent, CastResult result)
         {
-            if (hero.magicDeck.Count == 0)
+            for (int i = 0; i < result.drawFromDiscardCount; i++) DrawFromOwnDiscard(owner);
+            for (int i = 0; i < result.stealOpponentDiscardCount; i++) StealFromOpponentDiscard(owner, opponent);
+
+            int deckDraws = result.drawSpellCount + result.drawChosenDeckCount;
+            if (result.peekChosenDeckCount > 0)
             {
-                // Reshuffle the discard pile back into the deck (no duplicates exist).
-                if (hero.discardPile.Count > 0)
+                RequestPeek(owner);
+            }
+            else if (deckDraws > 0)
+            {
+                RequestDeckDraw(owner, deckDraws, null);
+            }
+        }
+
+        // ---------- Deck choice popup flow ----------
+        private void RequestDeckDraw(HeroState hero, int count, System.Action after)
+        {
+            pendingDrawHero = hero;
+            pendingDrawCount = count;
+            pendingAfterDraws = after;
+            pendingPeek = false;
+            if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
+        }
+
+        private void RequestPeek(HeroState hero)
+        {
+            pendingDrawHero = hero;
+            pendingPeek = true;
+            if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
+        }
+
+        public void OnDeckChoice(DeckChoice deck)
+        {
+            if (pendingDrawHero == null) { if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false); return; }
+
+            if (deck == DeckChoice.Equipment)
+            {
+                battleUI.AddLog("Mazzo equipaggiamento non ancora implementato. Scegli un altro mazzo.");
+                return; // keep the panel open so the player can pick again
+            }
+
+            if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
+
+            if (pendingPeek)
+            {
+                pendingPeek = false;
+                DoPeek(pendingDrawHero, deck);
+                RefreshAll();
+                return;
+            }
+
+            DrawOneFromDeck(pendingDrawHero, deck);
+            pendingDrawCount--;
+            RefreshAll();
+
+            if (pendingDrawCount > 0)
+            {
+                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
+            }
+            else
+            {
+                System.Action after = pendingAfterDraws;
+                pendingAfterDraws = null;
+                pendingDrawHero = null;
+                if (after != null) after.Invoke();
+            }
+        }
+
+        // ---------- Concrete draws ----------
+        private void DrawOneFromDeck(HeroState hero, DeckChoice deck)
+        {
+            if (deck == DeckChoice.Item)
+            {
+                if (!EnsureItemDeck()) { battleUI.AddLog("Il mazzo oggetti è vuoto!"); return; }
+                int idx = Random.Range(0, gameState.itemDeck.Count);
+                CardData card = gameState.itemDeck[idx];
+                gameState.itemDeck.RemoveAt(idx);
+                hero.itemBook.Add(card);
+                battleUI.AddLog($"{hero.data.heroName} pesca l'oggetto {card.cardName}.");
+                return;
+            }
+
+            // Spell deck draw, with spellbook size limit (instants excluded).
+            if (!EnsureSpellDeck(hero)) { battleUI.AddLog($"{hero.data.heroName} non ha carte incantesimo da pescare!"); return; }
+            int sIdx = Random.Range(0, hero.magicDeck.Count);
+            CardData spellCard = hero.magicDeck[sIdx];
+            bool isInstant = spellCard is MagicData m && m.magicType == MagicType.Instant;
+            if (!isInstant && hero.IsSpellbookFull())
+            {
+                battleUI.AddLog($"Libro incantesimi pieno ({HeroState.MAX_SPELLBOOK}): {spellCard.cardName} non viene raccolta e resta nel mazzo.");
+                return; // card stays in the deck
+            }
+            hero.magicDeck.RemoveAt(sIdx);
+            hero.hand.Add(spellCard);
+            battleUI.AddLog($"{hero.data.heroName} pesca {spellCard.cardName}.");
+        }
+
+        private bool EnsureSpellDeck(HeroState hero)
+        {
+            if (hero.magicDeck.Count > 0) return true;
+            if (hero.discardPile.Count > 0)
+            {
+                hero.magicDeck.AddRange(hero.discardPile);
+                hero.discardPile.Clear();
+                battleUI.AddLog($"{hero.data.heroName} rimescola gli scarti nel mazzo incantesimi.");
+                return true;
+            }
+            return false;
+        }
+
+        private bool EnsureItemDeck()
+        {
+            if (gameState.itemDeck.Count > 0) return true;
+            if (gameState.itemDiscard.Count > 0)
+            {
+                gameState.itemDeck.AddRange(gameState.itemDiscard);
+                gameState.itemDiscard.Clear();
+                battleUI.AddLog("Gli scarti oggetti vengono rimescolati nel mazzo oggetti.");
+                return true;
+            }
+            return false;
+        }
+
+        private void DrawFromOwnDiscard(HeroState hero)
+        {
+            if (hero.discardPile.Count == 0) { battleUI.AddLog($"{hero.data.heroName} non ha carte negli scarti."); return; }
+            int idx = Random.Range(0, hero.discardPile.Count);
+            CardData card = hero.discardPile[idx];
+            if (card is MagicData m && m.magicType != MagicType.Instant && hero.IsSpellbookFull())
+            {
+                battleUI.AddLog($"Libro incantesimi pieno: impossibile recuperare {card.cardName} dagli scarti.");
+                return;
+            }
+            hero.discardPile.RemoveAt(idx);
+            hero.hand.Add(card);
+            battleUI.AddLog($"{hero.data.heroName} recupera {card.cardName} dagli scarti.");
+        }
+
+        // Saccheggio: grab a card from opponent discard into own spellbook (ignores size limit).
+        private void StealFromOpponentDiscard(HeroState owner, HeroState opponent)
+        {
+            if (opponent.discardPile.Count == 0) { battleUI.AddLog($"{opponent.data.heroName} non ha carte negli scarti da rubare."); return; }
+            int idx = Random.Range(0, opponent.discardPile.Count);
+            CardData card = opponent.discardPile[idx];
+            opponent.discardPile.RemoveAt(idx);
+            owner.hand.Add(card);
+            battleUI.AddLog($"{owner.data.heroName} ruba {card.cardName} dagli scarti di {opponent.data.heroName} (limite ignorato).");
+        }
+
+        // Manipolazione: reveal top card of a chosen deck, then keep or discard it.
+        private void DoPeek(HeroState hero, DeckChoice deck)
+        {
+            CardData top = null;
+            if (deck == DeckChoice.Item)
+            {
+                if (!EnsureItemDeck()) { battleUI.AddLog("Il mazzo oggetti è vuoto."); return; }
+                top = gameState.itemDeck[0];
+            }
+            else
+            {
+                if (!EnsureSpellDeck(hero)) { battleUI.AddLog($"Il mazzo incantesimi di {hero.data.heroName} è vuoto."); return; }
+                top = hero.magicDeck[0];
+            }
+            pendingPeekDeck = deck;
+            pendingPeekCard = top;
+            battleUI.ShowPeek(top.cardName);
+        }
+
+        public void OnPeekKeep()
+        {
+            battleUI.HidePeek();
+            if (pendingPeekCard == null) return;
+            HeroState hero = pendingDrawHero;
+            if (pendingPeekDeck == DeckChoice.Item)
+            {
+                gameState.itemDeck.Remove(pendingPeekCard);
+                hero.itemBook.Add(pendingPeekCard);
+                battleUI.AddLog($"{hero.data.heroName} tiene l'oggetto {pendingPeekCard.cardName}.");
+            }
+            else
+            {
+                bool isInstant = pendingPeekCard is MagicData m && m.magicType == MagicType.Instant;
+                if (!isInstant && hero.IsSpellbookFull())
                 {
-                    hero.magicDeck.AddRange(hero.discardPile);
-                    hero.discardPile.Clear();
-                    battleUI.AddLog($"{hero.data.heroName} rimescola gli scarti nel mazzo.");
+                    battleUI.AddLog($"Libro pieno: {pendingPeekCard.cardName} viene scartata invece di essere tenuta.");
+                    hero.magicDeck.Remove(pendingPeekCard);
+                    hero.discardPile.Add(pendingPeekCard);
                 }
                 else
                 {
-                    battleUI.AddLog($"{hero.data.heroName} non ha carte da pescare!");
-                    return;
+                    hero.magicDeck.Remove(pendingPeekCard);
+                    hero.hand.Add(pendingPeekCard);
+                    battleUI.AddLog($"{hero.data.heroName} tiene {pendingPeekCard.cardName}.");
                 }
             }
-            int index = Random.Range(0, hero.magicDeck.Count);
-            CardData card = hero.magicDeck[index];
-            hero.magicDeck.RemoveAt(index);
-            hero.hand.Add(card);
-            battleUI.AddLog($"{hero.data.heroName} pesca {card.cardName}.");
+            pendingPeekCard = null;
+            pendingDrawHero = null;
+            RefreshAll();
         }
 
-        private void DrawCardFromDiscard(HeroState hero)
+        public void OnPeekDiscard()
         {
-            if (hero.discardPile.Count == 0)
+            battleUI.HidePeek();
+            if (pendingPeekCard == null) return;
+            HeroState hero = pendingDrawHero;
+            if (pendingPeekDeck == DeckChoice.Item)
             {
-                battleUI.AddLog($"{hero.data.heroName} non ha carte negli scarti.");
-                return;
+                gameState.itemDeck.Remove(pendingPeekCard);
+                gameState.itemDiscard.Add(pendingPeekCard);
             }
-            int index = Random.Range(0, hero.discardPile.Count);
-            CardData card = hero.discardPile[index];
-            hero.discardPile.RemoveAt(index);
-            hero.hand.Add(card);
-            battleUI.AddLog($"{hero.data.heroName} recupera {card.cardName} dagli scarti.");
+            else
+            {
+                hero.magicDeck.Remove(pendingPeekCard);
+                hero.discardPile.Add(pendingPeekCard);
+            }
+            battleUI.AddLog($"{hero.data.heroName} scarta {pendingPeekCard.cardName} dalla cima del mazzo.");
+            pendingPeekCard = null;
+            pendingDrawHero = null;
+            RefreshAll();
         }
 
         // ---------- Win / restart / exit ----------
@@ -406,8 +658,8 @@ namespace Botte.Core
         {
             battleUI.RefreshHero(gameState.player1, true);
             battleUI.RefreshHero(gameState.player2, false);
-            battleUI.RefreshHand(gameState.player1, true);
-            battleUI.RefreshHand(gameState.player2, false);
+            battleUI.RefreshBook(gameState.player1, true);
+            battleUI.RefreshBook(gameState.player2, false);
         }
 
         private void SetAllButtonsInteractable(bool value)

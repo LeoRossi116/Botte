@@ -24,6 +24,19 @@ public static class DeckBuilder
         return deck;
     }
 
+    // Builds the shared item deck by loading every ItemData asset under Resources/Items.
+    public static List<CardData> BuildItemDeck()
+    {
+        List<CardData> deck = new List<CardData>();
+        ItemData[] items = Resources.LoadAll<ItemData>("Items");
+        foreach (ItemData item in items)
+        {
+            if (item != null) deck.Add(item);
+        }
+        if (items.Length == 0) Debug.LogWarning("No ItemData assets found under Resources/Items.");
+        return deck;
+    }
+
     public static bool CanDrawFromDeck(HeroState hero, MagicData card)
     {
         if (card == null) return false;

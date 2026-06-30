@@ -33,7 +33,8 @@ public class GameManager : MonoBehaviour
         player2.magicDeck = DeckBuilder.BuildSpellDeck(p2Class);
 
         gameState = new GameState(player1, player2);
+        gameState.itemDeck = DeckBuilder.BuildItemDeck();
 
-        Debug.Log($"Game initialized. P1: {player1.data.heroName} ({p1Class}) vs P2: {player2.data.heroName} ({p2Class}).");
+        Debug.Log($"Game initialized. P1: {player1.data.heroName} ({p1Class}) vs P2: {player2.data.heroName} ({p2Class}). Item deck: {gameState.itemDeck.Count} carte.");
     }
 }

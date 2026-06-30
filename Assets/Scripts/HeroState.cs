@@ -9,12 +9,16 @@ public class HeroState
     public int currentMana;
     public int currentStamina;
 
-    public List<CardData> hand = new List<CardData>();
-    public List<CardData> equipmentDeck = new List<CardData>();
-    public List<CardData> magicDeck = new List<CardData>();
-    public List<CardData> discardPile = new List<CardData>();
+    // Maximum number of NON-instant spells a hero may hold in the spellbook at once.
+    public const int MAX_SPELLBOOK = 4;
+
+    public List<CardData> hand = new List<CardData>();          // held spells (the "spellbook" contents)
+    public List<CardData> itemBook = new List<CardData>();      // held item cards
+    public List<CardData> equipmentBook = new List<CardData>(); // held equipment (future)
+    public List<CardData> equipmentDeck = new List<CardData>(); // equipment draw pile (future)
+    public List<CardData> magicDeck = new List<CardData>();     // spell draw pile
+    public List<CardData> discardPile = new List<CardData>();   // spell discard pile
     public EquipmentData[] equippedItems = new EquipmentData[6];
-    public List<MagicData> spellbook = new List<MagicData>(3);
 
     public int poisonStacks;
     public bool isStunned;
@@ -48,6 +52,23 @@ public class HeroState
         exhaustedThisRound = new List<MagicData>();
         hasShield = false;
         shieldAmount = 0;
+    }
+
+    // Instant spells do NOT occupy a spellbook slot, so only count non-instant held spells.
+    public int CountSpellbookSlots()
+    {
+        int count = 0;
+        foreach (CardData c in hand)
+        {
+            if (c is MagicData m && m.magicType == MagicType.Instant) continue;
+            count++;
+        }
+        return count;
+    }
+
+    public bool IsSpellbookFull()
+    {
+        return CountSpellbookSlots() >= MAX_SPELLBOOK;
     }
 
     public void AddModifier(StatModifier mod)

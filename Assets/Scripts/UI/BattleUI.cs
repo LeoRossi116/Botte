@@ -59,6 +59,20 @@ namespace Botte.UI
         public Button[] p1ClassButtons;
         public Button[] p2ClassButtons;
 
+        [Header("Book Selectors (Spell, Equipment, Item)")]
+        public Button[] p1BookButtons;
+        public Button[] p2BookButtons;
+        public TMP_Text p1BookLabel;
+        public TMP_Text p2BookLabel;
+
+        [Header("Peek Panel (manipolazione)")]
+        public GameObject peekPanel;
+        public TMP_Text peekText;
+
+        // Currently displayed book per player.
+        public BookType p1SelectedBook = BookType.Spell;
+        public BookType p2SelectedBook = BookType.Spell;
+
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
             TMP_Text nameText = isPlayer1 ? p1HeroNameText : p2HeroNameText;
@@ -86,53 +100,129 @@ namespace Botte.UI
             statusText.text = statusStr.Trim();
         }
 
-        public void RefreshHand(HeroState hero, bool isPlayer1)
+        // Displays the contents of the currently selected book for the given player.
+        public void RefreshBook(HeroState hero, bool isPlayer1)
         {
-            Transform handArea = isPlayer1 ? p1HandArea : p2HandArea;
-            if (handArea == null || cardPrefab == null) return;
+            Transform area = isPlayer1 ? p1HandArea : p2HandArea;
+            if (area == null || cardPrefab == null) return;
 
-            for (int i = handArea.childCount - 1; i >= 0; i--)
+            for (int i = area.childCount - 1; i >= 0; i--)
             {
-                Transform child = handArea.GetChild(i);
-                child.SetParent(null, false); // detach immediately so childCount is correct this frame
+                Transform child = area.GetChild(i);
+                child.SetParent(null, false); // detach so childCount is correct this frame
                 Destroy(child.gameObject);
             }
 
-            foreach (CardData card in hero.hand)
+            BookType book = isPlayer1 ? p1SelectedBook : p2SelectedBook;
+            UpdateBookSelectorVisuals(isPlayer1);
+
+            if (book == BookType.Spell)
             {
-                if (card is MagicData spell)
+                foreach (CardData card in hero.hand)
                 {
-                    GameObject cardGO = Instantiate(cardPrefab, handArea);
-                    CardUI cardUI = cardGO.GetComponent<CardUI>();
-                    if (cardUI == null) cardUI = cardGO.AddComponent<CardUI>();
-
-                    string state = "";
-                    if (spell.magicType == MagicType.Aura && hero.activeAuras.Contains(spell)) state = "ATTIVA";
-                    else if (spell.magicType == MagicType.Exhaustion && hero.exhaustedThisRound.Contains(spell)) state = "USATA";
-
-                    cardUI.Setup(spell, hero, isPlayer1, this, state);
+                    if (card is MagicData spell)
+                    {
+                        string state = "";
+                        if (spell.magicType == MagicType.Aura && hero.activeAuras.Contains(spell)) state = "ATTIVA";
+                        else if (spell.magicType == MagicType.Exhaustion && hero.exhaustedThisRound.Contains(spell)) state = "USATA";
+                        SpawnCard(area, spell, hero, isPlayer1, state);
+                    }
                 }
+            }
+            else if (book == BookType.Item)
+            {
+                foreach (CardData card in hero.itemBook)
+                    SpawnCard(area, card, hero, isPlayer1, "");
+            }
+            else if (book == BookType.Equipment)
+            {
+                foreach (CardData card in hero.equipmentBook)
+                    SpawnCard(area, card, hero, isPlayer1, "");
             }
         }
 
-        public void ShowCardDescription(bool isPlayer1, MagicData spell)
+        private void SpawnCard(Transform area, CardData card, HeroState hero, bool isPlayer1, string state)
+        {
+            GameObject cardGO = Instantiate(cardPrefab, area);
+            CardUI cardUI = cardGO.GetComponent<CardUI>();
+            if (cardUI == null) cardUI = cardGO.AddComponent<CardUI>();
+            cardUI.Setup(card, hero, isPlayer1, this, state);
+        }
+
+        // Backwards-compatible alias still used by some flows.
+        public void RefreshHand(HeroState hero, bool isPlayer1) => RefreshBook(hero, isPlayer1);
+
+        public void SetSelectedBook(bool isPlayer1, BookType book)
+        {
+            if (isPlayer1) p1SelectedBook = book; else p2SelectedBook = book;
+            TMP_Text label = isPlayer1 ? p1BookLabel : p2BookLabel;
+            if (label != null) label.text = BookName(book);
+            UpdateBookSelectorVisuals(isPlayer1);
+        }
+
+        private string BookName(BookType b)
+        {
+            switch (b)
+            {
+                case BookType.Spell: return "Libro Incantesimi";
+                case BookType.Equipment: return "Libro Equipaggiamento";
+                case BookType.Item: return "Libro Oggetti";
+            }
+            return "";
+        }
+
+        private void UpdateBookSelectorVisuals(bool isPlayer1)
+        {
+            Button[] buttons = isPlayer1 ? p1BookButtons : p2BookButtons;
+            BookType selected = isPlayer1 ? p1SelectedBook : p2SelectedBook;
+            if (buttons == null) return;
+            Color normal = new Color32(0x16, 0x21, 0x3e, 0xff);
+            Color picked = new Color32(0xf5, 0xa6, 0x23, 0xff);
+            for (int i = 0; i < buttons.Length; i++)
+            {
+                if (buttons[i] == null) continue;
+                var img = buttons[i].GetComponent<Image>();
+                if (img != null) img.color = ((int)selected == i) ? picked : normal;
+            }
+        }
+
+        public void ShowCardDescription(bool isPlayer1, CardData card)
         {
             GameObject panel = isPlayer1 ? p1DescPanel : p2DescPanel;
             TMP_Text nameT = isPlayer1 ? p1DescName : p2DescName;
             TMP_Text costT = isPlayer1 ? p1DescCost : p2DescCost;
             TMP_Text effectT = isPlayer1 ? p1DescEffect : p2DescEffect;
-            if (panel == null) return;
+            if (panel == null || card == null) return;
 
             panel.SetActive(true);
-            if (nameT != null) nameT.text = spell.cardName;
-            if (costT != null) costT.text = $"M:{spell.manaCost}  S:{spell.staminaCost}";
-            if (effectT != null) effectT.text = $"<i>{spell.magicType}</i>\n{spell.effectDescription}";
+            if (nameT != null) nameT.text = card.cardName;
+            if (costT != null) costT.text = $"M:{card.manaCost}  S:{card.staminaCost}";
+            if (effectT != null)
+            {
+                string typeLine;
+                if (card is MagicData spell) typeLine = spell.magicType.ToString();
+                else if (card is ItemData item) typeLine = $"Oggetto · {item.category} · {item.target}";
+                else typeLine = card.cardType.ToString();
+                effectT.text = $"<i>{typeLine}</i>\n{card.effectDescription}";
+            }
         }
 
         public void HideCardDescription(bool isPlayer1)
         {
             GameObject panel = isPlayer1 ? p1DescPanel : p2DescPanel;
             if (panel != null) panel.SetActive(false);
+        }
+
+        public void ShowPeek(string cardName)
+        {
+            if (peekPanel == null) return;
+            peekPanel.SetActive(true);
+            if (peekText != null) peekText.text = $"Cima del mazzo:\n<b>{cardName}</b>\nTenere o scartare?";
+        }
+
+        public void HidePeek()
+        {
+            if (peekPanel != null) peekPanel.SetActive(false);
         }
 
         public void AddLog(string message)

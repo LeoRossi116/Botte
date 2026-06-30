@@ -41,21 +41,22 @@ public static class SpellActions
 
         foreach (SpellEffect e in spell.effects)
         {
-            ApplyEffect(caster, opponent, spell, e, result);
+            ApplyEffect(caster, opponent, spell.cardName, e, result);
         }
 
         result.success = true;
         return result;
     }
 
-    private static void ApplyEffect(HeroState caster, HeroState opponent, MagicData spell, SpellEffect e, CastResult result)
+    // Shared effect application used by both spells and items. sourceName is used for logging.
+    public static void ApplyEffect(HeroState caster, HeroState opponent, string sourceName, SpellEffect e, CastResult result)
     {
         switch (e.type)
         {
             case SpellEffectType.DirectDamage:
             {
                 int dealt = CombatActions.DealDamage(caster, opponent, e.value, false, false);
-                Debug.Log($"[Combat] {spell.cardName}: {dealt} danni a {opponent.data.heroName} (HP rimanenti: {opponent.currentHP}).");
+                Debug.Log($"[Combat] {sourceName}: {dealt} danni a {opponent.data.heroName} (HP rimanenti: {opponent.currentHP}).");
                 break;
             }
             case SpellEffectType.Heal:
@@ -92,12 +93,12 @@ public static class SpellActions
             }
             case SpellEffectType.BuffDamageNextAttack:
             {
-                caster.AddModifier(new StatModifier(spell.cardName, ModifierStat.DamageBonus, e.value, ModifierDuration.UntilNextAttack));
+                caster.AddModifier(new StatModifier(sourceName, ModifierStat.DamageBonus, e.value, ModifierDuration.UntilNextAttack));
                 break;
             }
             case SpellEffectType.BuffDamageThisTurn:
             {
-                caster.AddModifier(new StatModifier(spell.cardName, ModifierStat.DamageBonus, e.value, ModifierDuration.EndOfThisTurn));
+                caster.AddModifier(new StatModifier(sourceName, ModifierStat.DamageBonus, e.value, ModifierDuration.EndOfThisTurn));
                 break;
             }
             case SpellEffectType.NextAttackUnblockable:
@@ -126,7 +127,7 @@ public static class SpellActions
             }
             case SpellEffectType.DebuffDamageOpponentNextTurn:
             {
-                opponent.AddModifier(new StatModifier(spell.cardName, ModifierStat.DamageBonus, -e.value, ModifierDuration.UntilNextOpponentTurn));
+                opponent.AddModifier(new StatModifier(sourceName, ModifierStat.DamageBonus, -e.value, ModifierDuration.UntilNextOpponentTurn));
                 break;
             }
             case SpellEffectType.DrawSpellCard:
@@ -149,6 +150,47 @@ public static class SpellActions
             {
                 caster.auraBlockFirstAttack = true;
                 Debug.Log($"[Combat] Aura attiva: {caster.data.heroName} bloccherà il primo attacco di ogni turno.");
+                break;
+            }
+            case SpellEffectType.RemoveAllPoison:
+            {
+                int removed = caster.poisonStacks;
+                caster.poisonStacks = 0;
+                Debug.Log($"[Combat] {sourceName}: {caster.data.heroName} rimuove {removed} stack di Veleno.");
+                break;
+            }
+            case SpellEffectType.LoseMana:
+            {
+                caster.currentMana = Mathf.Max(0, caster.currentMana - e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} perde {e.value} Mana ({caster.currentMana}/{caster.GetModifiedIntelligence()}).");
+                break;
+            }
+            case SpellEffectType.GainMaxManaThisTurn:
+            {
+                caster.AddModifier(new StatModifier(sourceName, ModifierStat.Intelligence, e.value, ModifierDuration.EndOfThisTurn));
+                int maxMana = caster.GetModifiedIntelligence();
+                caster.currentMana = Mathf.Min(maxMana, caster.currentMana + e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} ottiene +{e.value} Mana max per questo turno ({caster.currentMana}/{maxMana}).");
+                break;
+            }
+            case SpellEffectType.DrawChosenDeck:
+            {
+                result.drawChosenDeckCount += e.value;
+                break;
+            }
+            case SpellEffectType.PeekChosenDeck:
+            {
+                result.peekChosenDeckCount += e.value;
+                break;
+            }
+            case SpellEffectType.StealOpponentDiscard:
+            {
+                result.stealOpponentDiscardCount += e.value;
+                break;
+            }
+            case SpellEffectType.EquipmentStub:
+            {
+                Debug.Log($"[Combat] {sourceName}: effetto legato all'equipaggiamento non ancora implementato.");
                 break;
             }
         }
