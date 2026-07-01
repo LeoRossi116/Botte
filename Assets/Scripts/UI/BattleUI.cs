@@ -74,6 +74,20 @@ namespace Botte.UI
         public EquipSlotUI[] p2EquipSlots;
         public GameObject p1WeaponConnector;
         public GameObject p2WeaponConnector;
+        public GameObject p1EquipWindow;
+        public GameObject p2EquipWindow;
+        public Button p1ShowEquipButton;
+        public Button p2ShowEquipButton;
+
+        // Whether the equipment slots are currently shown (per player). Hidden by default.
+        public bool p1EquipVisible;
+        public bool p2EquipVisible;
+
+        // Desc panel layout: full width when slots hidden, narrow (right of slots) when shown.
+        private static readonly Vector2 DescPosFull = new Vector2(0f, -238f);
+        private static readonly Vector2 DescSizeFull = new Vector2(340f, 176f);
+        private static readonly Vector2 DescPosRight = new Vector2(78f, -238f);
+        private static readonly Vector2 DescSizeRight = new Vector2(184f, 176f);
 
         // Currently displayed book per player.
         public BookType p1SelectedBook = BookType.Spell;
@@ -164,12 +178,20 @@ namespace Botte.UI
             EquipmentSlot.Feet, EquipmentSlot.WeaponMain, EquipmentSlot.WeaponOff
         };
 
-        // Updates the equipped-slot squares (name + durability) and the 2-hand connector.
+        // Enlarged slot metrics (used when the equipment window is shown).
+        private const float SLOT_SIZE = 52f;
+        private const float FUSED_WEAPON_WIDTH = 112f; // two columns (52 + 8 gap + 52)
+
+        // Updates the equipped-slot squares (name + durability). A two-handed weapon fuses the
+        // two weapon squares into one wider rectangle; this reverts when the weapon is removed.
         public void RefreshEquipment(HeroState hero, bool isPlayer1)
         {
             EquipSlotUI[] slots = isPlayer1 ? p1EquipSlots : p2EquipSlots;
             GameObject connector = isPlayer1 ? p1WeaponConnector : p2WeaponConnector;
+            if (connector != null) connector.SetActive(false); // legacy orange connector no longer used
             if (slots == null) return;
+
+            bool twoHanded = hero.weaponTwoHandedEquipped;
 
             for (int i = 0; i < slots.Length && i < EquipOrder.Length; i++)
             {
@@ -178,29 +200,73 @@ namespace Botte.UI
                 EquipmentSlot es = EquipOrder[i];
                 EquipmentData eq = hero.equippedItems[(int)es];
 
-                // Off-hand square reflects a two-handed weapon occupying both hands.
-                if (es == EquipmentSlot.WeaponOff && hero.weaponTwoHandedEquipped)
+                // Off-hand square: hidden entirely when a two-handed weapon is equipped (fused).
+                if (es == EquipmentSlot.WeaponOff)
                 {
-                    slot.current = hero.MainWeapon;
-                    if (slot.label != null) slot.label.text = "(2 mani)";
+                    slot.gameObject.SetActive(!twoHanded);
+                    slot.current = twoHanded ? null : eq;
+                    if (!twoHanded && slot.label != null)
+                        slot.label.text = eq != null ? SlotText(hero, es, eq) : slot.placeholder;
                     continue;
+                }
+
+                // Main weapon square: widen to a fused rectangle when two-handed, else normal.
+                if (es == EquipmentSlot.WeaponMain)
+                {
+                    var rt = slot.GetComponent<RectTransform>();
+                    if (rt != null)
+                        rt.sizeDelta = twoHanded ? new Vector2(FUSED_WEAPON_WIDTH, SLOT_SIZE)
+                                                 : new Vector2(SLOT_SIZE, SLOT_SIZE);
                 }
 
                 slot.current = eq;
                 if (slot.label == null) continue;
-                if (eq != null)
-                {
-                    string dur = (eq.maxDurability > 0 && hero.durability.ContainsKey(es))
-                        ? $"\n[{hero.durability[es]}/{eq.maxDurability}]" : "";
-                    slot.label.text = ShortName(eq.cardName) + dur;
-                }
-                else
-                {
-                    slot.label.text = slot.placeholder;
-                }
+                slot.label.text = eq != null ? SlotText(hero, es, eq) : slot.placeholder;
+            }
+        }
+
+        private string SlotText(HeroState hero, EquipmentSlot es, EquipmentData eq)
+        {
+            string dur = (eq.maxDurability > 0 && hero.durability.ContainsKey(es))
+                ? $"\n[{hero.durability[es]}/{eq.maxDurability}]" : "";
+            return ShortName(eq.cardName) + dur;
+        }
+
+        // ---------- Equipment window visibility ----------
+        public bool IsEquipVisible(bool isPlayer1) => isPlayer1 ? p1EquipVisible : p2EquipVisible;
+
+        public void ToggleEquipmentSlots(bool isPlayer1)
+        {
+            SetEquipmentSlotsVisible(isPlayer1, !(isPlayer1 ? p1EquipVisible : p2EquipVisible));
+        }
+
+        public void SetEquipmentSlotsVisible(bool isPlayer1, bool visible)
+        {
+            if (isPlayer1) p1EquipVisible = visible; else p2EquipVisible = visible;
+
+            GameObject window = isPlayer1 ? p1EquipWindow : p2EquipWindow;
+            if (window != null) window.SetActive(visible);
+
+            // Highlight the toggle button when active.
+            Button toggle = isPlayer1 ? p1ShowEquipButton : p2ShowEquipButton;
+            if (toggle != null)
+            {
+                var img = toggle.GetComponent<Image>();
+                if (img != null) img.color = visible ? new Color32(0x2e, 0xcc, 0x71, 0xff)
+                                                     : new Color32(0x16, 0x21, 0x3e, 0xff);
             }
 
-            if (connector != null) connector.SetActive(hero.weaponTwoHandedEquipped);
+            // Move/resize the inspect box: full width when hidden, right of the slots when shown.
+            GameObject descPanel = isPlayer1 ? p1DescPanel : p2DescPanel;
+            if (descPanel != null)
+            {
+                var rt = descPanel.GetComponent<RectTransform>();
+                if (rt != null)
+                {
+                    rt.anchoredPosition = visible ? DescPosRight : DescPosFull;
+                    rt.sizeDelta = visible ? DescSizeRight : DescSizeFull;
+                }
+            }
         }
 
         private string ShortName(string n)
@@ -253,7 +319,8 @@ namespace Botte.UI
 
             panel.SetActive(true);
             if (nameT != null) nameT.text = card.cardName;
-            if (costT != null) costT.text = $"M:{card.manaCost}  S:{card.staminaCost}";
+            // Equipment has no mana/stamina cost, so hide the cost line for it.
+            if (costT != null) costT.text = (card is EquipmentData) ? "" : $"M:{card.manaCost}  S:{card.staminaCost}";
             if (effectT != null)
             {
                 if (card is EquipmentData eq)

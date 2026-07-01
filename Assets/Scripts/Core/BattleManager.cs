@@ -106,7 +106,19 @@ namespace Botte.Core
                         int idx = i;
                         if (battleUI.p2BookButtons[i] != null) battleUI.p2BookButtons[i].onClick.AddListener(() => OnBookSelected(false, idx));
                     }
+
+                if (battleUI.p1ShowEquipButton != null) battleUI.p1ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(true));
+                if (battleUI.p2ShowEquipButton != null) battleUI.p2ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(false));
             }
+        }
+
+        // Toggles the equipment-slot window for a player (button to the left of the hero stats).
+        public void OnShowEquipToggle(bool isPlayer1)
+        {
+            if (battleUI == null) return;
+            battleUI.ToggleEquipmentSlots(isPlayer1);
+            if (gameState != null)
+                battleUI.RefreshEquipment(isPlayer1 ? gameState.player1 : gameState.player2, isPlayer1);
         }
 
         public void OnBookSelected(bool isPlayer1, int bookIdx)
@@ -123,6 +135,14 @@ namespace Botte.Core
             selectedP1 = null;
             selectedP2 = null;
             if (startBattleButton != null) startBattleButton.interactable = false;
+
+            // Populate class-button labels dynamically so F shows the bare (unarmed) damage.
+            for (int i = 0; i < 4; i++)
+            {
+                RefreshClassButtonLabel(p1ClassButtons, i, (HeroClass)i);
+                RefreshClassButtonLabel(p2ClassButtons, i, (HeroClass)i);
+            }
+
             if (battleUI != null)
             {
                 if (battleUI.characterSelectPanel != null) battleUI.characterSelectPanel.SetActive(true);
@@ -130,6 +150,17 @@ namespace Botte.Core
                 if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
                 if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
             }
+        }
+
+        // Bare damage the hero deals unarmed: UNARMED_DAMAGE + floor(strength / 3).
+        private void RefreshClassButtonLabel(Button[] buttons, int idx, HeroClass hc)
+        {
+            if (buttons == null || idx >= buttons.Length || buttons[idx] == null) return;
+            HeroData d = GameManager.CreateHeroData(hc);
+            int bareDamage = CombatActions.UNARMED_DAMAGE + Mathf.FloorToInt((float)d.strength / 3);
+            var tmp = buttons[idx].GetComponentInChildren<TMP_Text>();
+            if (tmp != null)
+                tmp.text = $"{d.heroName}\n{hc}\nHP{d.maxHP}  F{bareDamage} M{d.intelligence} S{d.agility}";
         }
 
         private void SelectClass(int player, int classIdx)
@@ -183,6 +214,10 @@ namespace Botte.Core
             if (battleUI.combatButtonsContainer != null) battleUI.combatButtonsContainer.SetActive(gameState.phase == GamePhase.Combat);
             if (battleUI.endButtonsContainer != null) battleUI.endButtonsContainer.SetActive(gameState.phase == GamePhase.EndPhase);
 
+            // Equipment slots are hidden by default at the start of every phase.
+            battleUI.SetEquipmentSlotsVisible(true, false);
+            battleUI.SetEquipmentSlotsVisible(false, false);
+
             if (gameState.phase == GamePhase.Preparation)
             {
                 prepDrawsThisPhase = 0;
@@ -218,8 +253,13 @@ namespace Botte.Core
 
         public void OnEquipPrepPressed()
         {
-            battleUI.AddLog($"{gameState.activePlayer.data.heroName}: seleziona il Libro Equipaggiamento e clicca un pezzo per equipaggiarlo (max 2 per turno).");
-            if (battleUI != null) battleUI.SetSelectedBook(gameState.activePlayer == gameState.player1, BookType.Equipment);
+            if (gameState == null || gameState.phase != GamePhase.Preparation) return;
+            bool isP1 = gameState.activePlayer == gameState.player1;
+
+            // Entering equip mode: force the equipment book AND show the equipment slots.
+            battleUI.SetSelectedBook(isP1, BookType.Equipment);
+            battleUI.SetEquipmentSlotsVisible(isP1, true);
+            battleUI.AddLog($"{gameState.activePlayer.data.heroName}: modalità equipaggiamento attiva. Clicca un pezzo nel Libro Equipaggiamento (max 2 per turno).");
             RefreshAll();
         }
 
@@ -239,6 +279,15 @@ namespace Botte.Core
             if (equipsThisPhase >= 2)
             {
                 battleUI.AddLog($"{owner.data.heroName} ha già equipaggiato 2 pezzi questo turno.");
+                return;
+            }
+
+            // Both conditions required: the equipment book must be selected AND the slots shown.
+            bool isP1 = owner == gameState.player1;
+            BookType selBook = isP1 ? battleUI.p1SelectedBook : battleUI.p2SelectedBook;
+            if (selBook != BookType.Equipment || !battleUI.IsEquipVisible(isP1))
+            {
+                battleUI.AddLog("Premi il pulsante Equipaggia per attivare la modalità (serve il Libro Equipaggiamento e gli slot mostrati).");
                 return;
             }
             if (!owner.equipmentBook.Contains(equip)) return;

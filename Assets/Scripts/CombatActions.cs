@@ -222,20 +222,21 @@ public static class CombatActions
         attacker.attackedThisTurn = true;
 
         int weaponDmg = EquipmentSystem.GetWeaponDamage(attacker, UNARMED_DAMAGE);
-        int hits = attacker.HasEquipEffect(EquipEffect.AttackTwice) ? 2 : 1;
+        bool doubleAttack = attacker.HasEquipEffect(EquipEffect.AttackTwice);
         bool unblockable = attacker.nextAttackUnblockable;
 
-        for (int h = 0; h < hits; h++)
-        {
-            if (defender.currentHP <= 0) break;
-            int raw = weaponDmg
-                      + Mathf.FloorToInt((float)attacker.GetModifiedStrength() / 3)
-                      + attacker.GetDamageBonusThisTurn()
-                      + GetEquipmentAttackBonus(attacker, defender);
-            int dealt = DealDamage(attacker, defender, raw, unblockable, true);
-            OnWeaponHit(attacker, defender);
-            Debug.Log($"[Combat] {attacker.data.heroName} attacca con l'arma (colpo {h + 1}/{hits}): {dealt} danno a {defender.data.heroName} (HP: {defender.currentHP}).");
-        }
+        int raw = weaponDmg
+                  + Mathf.FloorToInt((float)attacker.GetModifiedStrength() / 3)
+                  + attacker.GetDamageBonusThisTurn()
+                  + GetEquipmentAttackBonus(attacker, defender);
+
+        // A "double attack" weapon deals its TOTAL damage twice (e.g. 2 -> 4) resolved as a
+        // single hit, so defense and blocks apply once to the combined amount.
+        if (doubleAttack) raw *= 2;
+
+        int dealt = DealDamage(attacker, defender, raw, unblockable, true);
+        OnWeaponHit(attacker, defender);
+        Debug.Log($"[Combat] {attacker.data.heroName} attacca con l'arma{(doubleAttack ? " (attacco doppio)" : "")}: {dealt} danno a {defender.data.heroName} (HP: {defender.currentHP}).");
 
         // Consume next-attack buffs once per attack action.
         attacker.nextAttackUnblockable = false;
