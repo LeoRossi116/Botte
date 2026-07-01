@@ -18,11 +18,21 @@ public class HeroState
     public List<CardData> equipmentDeck = new List<CardData>(); // equipment draw pile (future)
     public List<CardData> magicDeck = new List<CardData>();     // spell draw pile
     public List<CardData> discardPile = new List<CardData>();   // spell discard pile
+    // Indexed by EquipmentSlot: WeaponMain, WeaponOff, Head, Torso, Hands, Feet.
     public EquipmentData[] equippedItems = new EquipmentData[6];
+    public bool weaponTwoHandedEquipped; // main weapon occupies both weapon slots
+    public Dictionary<EquipmentSlot, int> durability = new Dictionary<EquipmentSlot, int>();
 
     public int poisonStacks;
     public bool isStunned;
     public bool isSilenced;
+
+    [Header("Per-turn / equipment tracking")]
+    public bool attackedThisTurn;
+    public bool attackedLastTurn;
+    public int pendingStaminaPenalty;                 // stun etc. applied at next turn start
+    public HashSet<string> cardTypesUsedThisTurn = new HashSet<string>();
+    public int manaUsedThisTurn;
 
     [Header("Defensive state")]
     public bool hasShield;              // PreventNextDamage: fully blocks the next single attack
@@ -153,5 +163,59 @@ public class HeroState
                 Debug.Log($"{sourceName} su {data.heroName} è scaduto.");
             }
         }
+    }
+
+    public int GetModifiedMaxHP()
+    {
+        int total = data.maxHP;
+        foreach (var mod in activeModifiers)
+            if (mod.stat == ModifierStat.MaxHP) total += mod.amount;
+        return Mathf.Max(1, total);
+    }
+
+    // Remove all permanent modifiers that came from a given equipment source.
+    public void RemovePermanentFromSource(string sourceName)
+    {
+        for (int i = activeModifiers.Count - 1; i >= 0; i--)
+            if (activeModifiers[i].duration == ModifierDuration.Permanent && activeModifiers[i].sourceName == sourceName)
+                activeModifiers.RemoveAt(i);
+    }
+
+    // ---------- Equipment helpers ----------
+    public EquipmentData GetEquipped(EquipmentSlot slot) => equippedItems[(int)slot];
+
+    public EquipmentData MainWeapon => equippedItems[(int)EquipmentSlot.WeaponMain];
+    public EquipmentData OffWeapon => equippedItems[(int)EquipmentSlot.WeaponOff];
+    public EquipmentData Helmet => equippedItems[(int)EquipmentSlot.Head];
+    public EquipmentData Torso => equippedItems[(int)EquipmentSlot.Torso];
+    public EquipmentData Gloves => equippedItems[(int)EquipmentSlot.Hands];
+    public EquipmentData Boots => equippedItems[(int)EquipmentSlot.Feet];
+
+    public IEnumerable<EquipmentData> AllEquipped()
+    {
+        for (int i = 0; i < equippedItems.Length; i++)
+            if (equippedItems[i] != null) yield return equippedItems[i];
+    }
+
+    // Does ANY equipped piece grant this effect?
+    public bool HasEquipEffect(EquipEffect fx)
+    {
+        foreach (var e in AllEquipped()) if (e.specialEffect == fx) return true;
+        return false;
+    }
+
+    // First equipped piece with this effect (or null).
+    public EquipmentData FindEquip(EquipEffect fx)
+    {
+        foreach (var e in AllEquipped()) if (e.specialEffect == fx) return e;
+        return null;
+    }
+
+    // Sum of effectValue across equipped pieces with this effect.
+    public int SumEquipEffect(EquipEffect fx)
+    {
+        int total = 0;
+        foreach (var e in AllEquipped()) if (e.specialEffect == fx) total += e.effectValue;
+        return total;
     }
 }

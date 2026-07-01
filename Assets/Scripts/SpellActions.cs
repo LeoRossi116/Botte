@@ -7,12 +7,24 @@ public static class SpellActions
         CastResult result = new CastResult();
         if (spell == null) return result;
 
+        // Silence (lama spezza-incantesimi) prevents casting.
+        if (caster.isSilenced)
+        {
+            Debug.Log($"[Combat] {caster.data.heroName} è silenziato e non può lanciare incantesimi.");
+            return result;
+        }
+
         // Class-lock validation.
         if (spell.cardClass != CardClass.Shared && spell.cardClass.ToString() != caster.data.heroClass.ToString())
         {
             Debug.Log($"[Combat] {caster.data.heroName} non può lanciare {spell.cardName}: non è della sua classe.");
             return result;
         }
+
+        // Stamina-cost reduction from equipment (guanti dell'abilità/agilità).
+        int staminaCost = spell.staminaCost;
+        if (staminaCost > 0 && caster.HasEquipEffect(EquipEffect.ReduceStaminaCost))
+            staminaCost = Mathf.Max(1, staminaCost - 1);
 
         // Sum HP cost (LoseHP effects) — the caster may never reduce itself below 1 HP.
         int hpCost = 0;
@@ -27,22 +39,35 @@ public static class SpellActions
         }
 
         // Resource check.
-        if (caster.currentMana < spell.manaCost || caster.currentStamina < spell.staminaCost)
+        if (caster.currentMana < spell.manaCost || caster.currentStamina < staminaCost)
         {
-            Debug.Log($"[Combat] {caster.data.heroName} non ha abbastanza risorse per lanciare {spell.cardName} (Mana: {caster.currentMana}/{spell.manaCost}, Stamina: {caster.currentStamina}/{spell.staminaCost}).");
+            Debug.Log($"[Combat] {caster.data.heroName} non ha abbastanza risorse per lanciare {spell.cardName} (Mana: {caster.currentMana}/{spell.manaCost}, Stamina: {caster.currentStamina}/{staminaCost}).");
             return result;
         }
 
         // Pay costs.
         caster.currentMana = Mathf.Max(0, caster.currentMana - spell.manaCost);
-        caster.currentStamina = Mathf.Max(0, caster.currentStamina - spell.staminaCost);
+        caster.currentStamina = Mathf.Max(0, caster.currentStamina - staminaCost);
+        caster.manaUsedThisTurn += spell.manaCost;
 
-        Debug.Log($"[Combat] {caster.data.heroName} lancia {spell.cardName} ({spell.magicType}): -{spell.manaCost} Mana, -{spell.staminaCost} Stamina.");
+        Debug.Log($"[Combat] {caster.data.heroName} lancia {spell.cardName} ({spell.magicType}): -{spell.manaCost} Mana, -{staminaCost} Stamina.");
 
         foreach (SpellEffect e in spell.effects)
         {
             ApplyEffect(caster, opponent, spell.cardName, e, result);
         }
+
+        // Equipment: shield gained per 2 mana spent (talismano di protezione).
+        if (caster.HasEquipEffect(EquipEffect.ShieldPerManaUsed) && spell.manaCost >= 2)
+        {
+            int gain = (spell.manaCost / 2) * 2;
+            caster.shieldAmount += gain;
+            Debug.Log($"[Combat] {caster.data.heroName} ottiene {gain} scudo (mana speso).");
+        }
+
+        // Equipment: every spell applies poison (totem della maledizione).
+        var totem = caster.FindEquip(EquipEffect.PoisonOnSpell);
+        if (totem != null) CombatActions.ApplyPoison(caster, opponent, totem.effectValue);
 
         result.success = true;
         return result;
@@ -55,7 +80,8 @@ public static class SpellActions
         {
             case SpellEffectType.DirectDamage:
             {
-                int dealt = CombatActions.DealDamage(caster, opponent, e.value, false, false);
+                int amount = e.value + caster.SumEquipEffect(EquipEffect.SpellDamageBonus);
+                int dealt = CombatActions.DealDamage(caster, opponent, amount, false, false);
                 Debug.Log($"[Combat] {sourceName}: {dealt} danni a {opponent.data.heroName} (HP rimanenti: {opponent.currentHP}).");
                 break;
             }
@@ -121,8 +147,7 @@ public static class SpellActions
             }
             case SpellEffectType.ApplyPoison:
             {
-                opponent.poisonStacks += e.value;
-                Debug.Log($"[Combat] {opponent.data.heroName} subisce {e.value} Veleno (stack totali: {opponent.poisonStacks}).");
+                CombatActions.ApplyPoison(caster, opponent, e.value);
                 break;
             }
             case SpellEffectType.DebuffDamageOpponentNextTurn:

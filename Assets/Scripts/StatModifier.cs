@@ -17,5 +17,5 @@ public class StatModifier
     }
 }
 
-public enum ModifierStat { Strength, Intelligence, Agility, Defense, DamageBonus }
-public enum ModifierDuration { UntilNextOpponentTurn, EndOfThisTurn, UntilNextAttack }
+public enum ModifierStat { Strength, Intelligence, Agility, Defense, DamageBonus, MaxHP }
+public enum ModifierDuration { UntilNextOpponentTurn, EndOfThisTurn, UntilNextAttack, Permanent }

@@ -32,6 +32,9 @@ public class GameManager : MonoBehaviour
         player1.magicDeck = DeckBuilder.BuildSpellDeck(p1Class);
         player2.magicDeck = DeckBuilder.BuildSpellDeck(p2Class);
 
+        player1.equipmentDeck = DeckBuilder.BuildEquipmentDeck(p1Class);
+        player2.equipmentDeck = DeckBuilder.BuildEquipmentDeck(p2Class);
+
         gameState = new GameState(player1, player2);
         gameState.itemDeck = DeckBuilder.BuildItemDeck();
 

@@ -43,6 +43,7 @@ namespace Botte.Core
         private GameState gameState;
         private TurnManager turnManager;
         private int prepDrawsThisPhase;
+        private int equipsThisPhase;
 
         private HeroClass? selectedP1;
         private HeroClass? selectedP2;
@@ -185,6 +186,7 @@ namespace Botte.Core
             if (gameState.phase == GamePhase.Preparation)
             {
                 prepDrawsThisPhase = 0;
+                equipsThisPhase = 0;
                 if (drawPrepButton != null) drawPrepButton.interactable = true;
                 battleUI.AddLog($"=== Fase di Preparazione di {active.data.heroName} ===");
             }
@@ -216,7 +218,58 @@ namespace Botte.Core
 
         public void OnEquipPrepPressed()
         {
-            battleUI.AddLog($"{gameState.activePlayer.data.heroName} equipaggia un oggetto (sistema equipaggiamento da implementare).");
+            battleUI.AddLog($"{gameState.activePlayer.data.heroName}: seleziona il Libro Equipaggiamento e clicca un pezzo per equipaggiarlo (max 2 per turno).");
+            if (battleUI != null) battleUI.SetSelectedBook(gameState.activePlayer == gameState.player1, BookType.Equipment);
+            RefreshAll();
+        }
+
+        // Left-clicking an equipment card in the Equipment book during Preparation equips it.
+        public void OnEquipmentClicked(HeroState owner, EquipmentData equip)
+        {
+            if (gameState == null || gameState.activePlayer != owner)
+            {
+                battleUI.AddLog("Non è il tuo turno!");
+                return;
+            }
+            if (gameState.phase != GamePhase.Preparation)
+            {
+                battleUI.AddLog("Puoi equipaggiare solo in Preparazione (in combattimento l'equipaggiamento si può solo ispezionare).");
+                return;
+            }
+            if (equipsThisPhase >= 2)
+            {
+                battleUI.AddLog($"{owner.data.heroName} ha già equipaggiato 2 pezzi questo turno.");
+                return;
+            }
+            if (!owner.equipmentBook.Contains(equip)) return;
+
+            HeroState opponent = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
+            owner.equipmentBook.Remove(equip);
+            var displaced = EquipmentSystem.Equip(owner, equip);
+            battleUI.AddLog($"{owner.data.heroName} equipaggia {equip.cardName} ({equip.slotType}).");
+            foreach (var d in displaced)
+            {
+                DiscardEquipment(owner, opponent, d);
+                battleUI.AddLog($"{owner.data.heroName} sostituisce e scarta {d.cardName}.");
+            }
+            equipsThisPhase++;
+            RefreshAll();
+        }
+
+        // Handles OnDiscard equipment effects then moves the piece to the discard pile.
+        private void DiscardEquipment(HeroState owner, HeroState opponent, EquipmentData equip)
+        {
+            if (equip.specialEffect == EquipEffect.OnDiscardGainMana)
+            {
+                owner.currentMana = Mathf.Min(owner.GetModifiedIntelligence(), owner.currentMana + equip.effectValue);
+                battleUI.AddLog($"{equip.cardName}: {owner.data.heroName} guadagna {equip.effectValue} Mana.");
+            }
+            else if (equip.specialEffect == EquipEffect.OnDiscardDamage)
+            {
+                int dealt = CombatActions.DealDamage(owner, opponent, equip.effectValue, false, false);
+                battleUI.AddLog($"{equip.cardName}: infligge {dealt} danni a {opponent.data.heroName}.");
+            }
+            owner.discardPile.Add(equip);
         }
 
         public void OnFinishPrepPressed()
@@ -234,7 +287,7 @@ namespace Botte.Core
             HeroState attacker = gameState.activePlayer;
             HeroState defender = (attacker == gameState.player1) ? gameState.player2 : gameState.player1;
 
-            if (CombatActions.TryWeaponAttack(attacker, defender, 2, 4))
+            if (CombatActions.TryWeaponAttack(attacker, defender, 2))
             {
                 RefreshAll();
                 CheckForWinner();
@@ -305,6 +358,7 @@ namespace Botte.Core
             CastResult result = SpellActions.TryCastSpell(owner, opponent, spell);
             if (!result.success) return;
 
+            owner.cardTypesUsedThisTurn.Add("Spell");
             ResolveDeferred(owner, opponent, result);
 
             // Per-magic-type bookkeeping.
@@ -348,6 +402,8 @@ namespace Botte.Core
             CastResult result = ItemActions.TryUseItem(owner, opponent, item);
             if (!result.success) return;
 
+            owner.cardTypesUsedThisTurn.Add("Item");
+
             // Items are always discarded into the shared item discard pile after use.
             owner.itemBook.Remove(item);
             gameState.itemDiscard.Add(item);
@@ -379,6 +435,13 @@ namespace Botte.Core
                 owner.discardPile.Add(spell);
                 owner.activeAuras.Remove(spell);
                 battleUI.AddLog($"{owner.data.heroName} scarta {spell.cardName} dal libro incantesimi.");
+            }
+            else if (card is EquipmentData eq && owner.equipmentBook.Contains(eq))
+            {
+                HeroState opp = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
+                owner.equipmentBook.Remove(eq);
+                DiscardEquipment(owner, opp, eq);
+                battleUI.AddLog($"{owner.data.heroName} scarta l'equipaggiamento {eq.cardName}.");
             }
             else
             {
@@ -425,12 +488,6 @@ namespace Botte.Core
         {
             if (pendingDrawHero == null) { if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false); return; }
 
-            if (deck == DeckChoice.Equipment)
-            {
-                battleUI.AddLog("Mazzo equipaggiamento non ancora implementato. Scegli un altro mazzo.");
-                return; // keep the panel open so the player can pick again
-            }
-
             if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
 
             if (pendingPeek)
@@ -472,6 +529,17 @@ namespace Botte.Core
                 return;
             }
 
+            if (deck == DeckChoice.Equipment)
+            {
+                if (!EnsureEquipmentDeck(hero)) { battleUI.AddLog($"{hero.data.heroName} non ha equipaggiamento da pescare!"); return; }
+                int eIdx = Random.Range(0, hero.equipmentDeck.Count);
+                CardData card = hero.equipmentDeck[eIdx];
+                hero.equipmentDeck.RemoveAt(eIdx);
+                hero.equipmentBook.Add(card);
+                battleUI.AddLog($"{hero.data.heroName} pesca l'equipaggiamento {card.cardName}.");
+                return;
+            }
+
             // Spell deck draw, with spellbook size limit (instants excluded).
             if (!EnsureSpellDeck(hero)) { battleUI.AddLog($"{hero.data.heroName} non ha carte incantesimo da pescare!"); return; }
             int sIdx = Random.Range(0, hero.magicDeck.Count);
@@ -487,17 +555,40 @@ namespace Botte.Core
             battleUI.AddLog($"{hero.data.heroName} pesca {spellCard.cardName}.");
         }
 
+        // Refills the spell deck by pulling ONLY spell cards out of the shared discard pile.
         private bool EnsureSpellDeck(HeroState hero)
         {
             if (hero.magicDeck.Count > 0) return true;
-            if (hero.discardPile.Count > 0)
+            bool moved = false;
+            for (int i = hero.discardPile.Count - 1; i >= 0; i--)
             {
-                hero.magicDeck.AddRange(hero.discardPile);
-                hero.discardPile.Clear();
-                battleUI.AddLog($"{hero.data.heroName} rimescola gli scarti nel mazzo incantesimi.");
-                return true;
+                if (hero.discardPile[i] is MagicData)
+                {
+                    hero.magicDeck.Add(hero.discardPile[i]);
+                    hero.discardPile.RemoveAt(i);
+                    moved = true;
+                }
             }
-            return false;
+            if (moved) battleUI.AddLog($"{hero.data.heroName} rimescola gli incantesimi scartati nel mazzo.");
+            return hero.magicDeck.Count > 0;
+        }
+
+        // Refills the equipment deck by pulling ONLY equipment cards out of the shared discard pile.
+        private bool EnsureEquipmentDeck(HeroState hero)
+        {
+            if (hero.equipmentDeck.Count > 0) return true;
+            bool moved = false;
+            for (int i = hero.discardPile.Count - 1; i >= 0; i--)
+            {
+                if (hero.discardPile[i] is EquipmentData)
+                {
+                    hero.equipmentDeck.Add(hero.discardPile[i]);
+                    hero.discardPile.RemoveAt(i);
+                    moved = true;
+                }
+            }
+            if (moved) battleUI.AddLog($"{hero.data.heroName} rimescola l'equipaggiamento scartato nel mazzo.");
+            return hero.equipmentDeck.Count > 0;
         }
 
         private bool EnsureItemDeck()
@@ -660,6 +751,8 @@ namespace Botte.Core
             battleUI.RefreshHero(gameState.player2, false);
             battleUI.RefreshBook(gameState.player1, true);
             battleUI.RefreshBook(gameState.player2, false);
+            battleUI.RefreshEquipment(gameState.player1, true);
+            battleUI.RefreshEquipment(gameState.player2, false);
         }
 
         private void SetAllButtonsInteractable(bool value)

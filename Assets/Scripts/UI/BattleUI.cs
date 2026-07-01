@@ -69,6 +69,12 @@ namespace Botte.UI
         public GameObject peekPanel;
         public TMP_Text peekText;
 
+        [Header("Equipment Window (Helmet, Torso, Gloves, Boots, WeaponMain, WeaponOff)")]
+        public EquipSlotUI[] p1EquipSlots;
+        public EquipSlotUI[] p2EquipSlots;
+        public GameObject p1WeaponConnector;
+        public GameObject p2WeaponConnector;
+
         // Currently displayed book per player.
         public BookType p1SelectedBook = BookType.Spell;
         public BookType p2SelectedBook = BookType.Spell;
@@ -152,6 +158,57 @@ namespace Botte.UI
         // Backwards-compatible alias still used by some flows.
         public void RefreshHand(HeroState hero, bool isPlayer1) => RefreshBook(hero, isPlayer1);
 
+        private static readonly EquipmentSlot[] EquipOrder =
+        {
+            EquipmentSlot.Head, EquipmentSlot.Torso, EquipmentSlot.Hands,
+            EquipmentSlot.Feet, EquipmentSlot.WeaponMain, EquipmentSlot.WeaponOff
+        };
+
+        // Updates the equipped-slot squares (name + durability) and the 2-hand connector.
+        public void RefreshEquipment(HeroState hero, bool isPlayer1)
+        {
+            EquipSlotUI[] slots = isPlayer1 ? p1EquipSlots : p2EquipSlots;
+            GameObject connector = isPlayer1 ? p1WeaponConnector : p2WeaponConnector;
+            if (slots == null) return;
+
+            for (int i = 0; i < slots.Length && i < EquipOrder.Length; i++)
+            {
+                var slot = slots[i];
+                if (slot == null) continue;
+                EquipmentSlot es = EquipOrder[i];
+                EquipmentData eq = hero.equippedItems[(int)es];
+
+                // Off-hand square reflects a two-handed weapon occupying both hands.
+                if (es == EquipmentSlot.WeaponOff && hero.weaponTwoHandedEquipped)
+                {
+                    slot.current = hero.MainWeapon;
+                    if (slot.label != null) slot.label.text = "(2 mani)";
+                    continue;
+                }
+
+                slot.current = eq;
+                if (slot.label == null) continue;
+                if (eq != null)
+                {
+                    string dur = (eq.maxDurability > 0 && hero.durability.ContainsKey(es))
+                        ? $"\n[{hero.durability[es]}/{eq.maxDurability}]" : "";
+                    slot.label.text = ShortName(eq.cardName) + dur;
+                }
+                else
+                {
+                    slot.label.text = slot.placeholder;
+                }
+            }
+
+            if (connector != null) connector.SetActive(hero.weaponTwoHandedEquipped);
+        }
+
+        private string ShortName(string n)
+        {
+            if (string.IsNullOrEmpty(n)) return "";
+            return n.Length <= 12 ? n : n.Substring(0, 11) + "…";
+        }
+
         public void SetSelectedBook(bool isPlayer1, BookType book)
         {
             if (isPlayer1) p1SelectedBook = book; else p2SelectedBook = book;
@@ -199,11 +256,27 @@ namespace Botte.UI
             if (costT != null) costT.text = $"M:{card.manaCost}  S:{card.staminaCost}";
             if (effectT != null)
             {
-                string typeLine;
-                if (card is MagicData spell) typeLine = spell.magicType.ToString();
-                else if (card is ItemData item) typeLine = $"Oggetto · {item.category} · {item.target}";
-                else typeLine = card.cardType.ToString();
-                effectT.text = $"<i>{typeLine}</i>\n{card.effectDescription}";
+                if (card is EquipmentData eq)
+                {
+                    string stats = $"<i>{eq.equipType} · {eq.slotType}</i>\n";
+                    if (eq.damageValue > 0) stats += $"Danno: {eq.damageValue}  ";
+                    if (eq.defenseValue > 0) stats += $"Difesa: {eq.defenseValue}  ";
+                    foreach (var m in eq.attributeMods)
+                        stats += $"{(m.value >= 0 ? "+" : "")}{m.value} {m.attr}  ";
+                    stats += "\n";
+                    if (eq.maxDurability > 0) stats += $"Durabilità: {eq.maxDurability}\n";
+                    if (!string.IsNullOrEmpty(eq.effectDescription)) stats += eq.effectDescription;
+                    else if (eq.specialEffect != EquipEffect.None) stats += eq.specialEffect.ToString();
+                    effectT.text = stats;
+                }
+                else
+                {
+                    string typeLine;
+                    if (card is MagicData spell) typeLine = spell.magicType.ToString();
+                    else if (card is ItemData item) typeLine = $"Oggetto · {item.category} · {item.target}";
+                    else typeLine = card.cardType.ToString();
+                    effectT.text = $"<i>{typeLine}</i>\n{card.effectDescription}";
+                }
             }
         }
 

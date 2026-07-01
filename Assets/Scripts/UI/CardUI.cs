@@ -16,10 +16,12 @@ namespace Botte.UI
         private Image borderImage;
         private Color normalColor = new Color32(0xf5, 0xa6, 0x23, 0xff); // Amber border (spells)
         private Color itemColor = new Color32(0x3a, 0x9e, 0xd0, 0xff);   // Blue-ish border (items)
+        private Color equipColor = new Color32(0x9b, 0x59, 0xb6, 0xff);  // Purple border (equipment)
         private Color hoverColor = Color.white;                          // White outline on hover
         private Color activeColor = new Color32(0x2e, 0xcc, 0x71, 0xff); // Green border when aura active / used
         private bool isActiveOrUsed;
         private bool isItem;
+        private bool isEquip;
 
         private void Awake()
         {
@@ -34,19 +36,34 @@ namespace Botte.UI
             battleUI = ui;
             isActiveOrUsed = !string.IsNullOrEmpty(stateLabel);
             isItem = data is ItemData;
+            isEquip = data is EquipmentData;
 
             TMP_Text label = GetComponentInChildren<TMP_Text>();
             if (label != null && data != null)
             {
-                string suffix = isActiveOrUsed ? $"\n<{stateLabel}>" : "";
-                label.text = $"{data.cardName}\n(M:{data.manaCost} S:{data.staminaCost}){suffix}";
+                if (data is EquipmentData eq)
+                {
+                    string stat = eq.damageValue > 0 ? $"Dmg {eq.damageValue}" : (eq.defenseValue > 0 ? $"Def {eq.defenseValue}" : eq.equipType.ToString());
+                    label.text = $"{data.cardName}\n({stat})";
+                }
+                else
+                {
+                    string suffix = isActiveOrUsed ? $"\n<{stateLabel}>" : "";
+                    label.text = $"{data.cardName}\n(M:{data.manaCost} S:{data.staminaCost}){suffix}";
+                }
             }
 
             if (borderImage != null)
-                borderImage.color = isActiveOrUsed ? activeColor : (isItem ? itemColor : normalColor);
+                borderImage.color = BaseColor();
         }
 
-        private Color BaseColor() => isActiveOrUsed ? activeColor : (isItem ? itemColor : normalColor);
+        private Color BaseColor()
+        {
+            if (isActiveOrUsed) return activeColor;
+            if (isEquip) return equipColor;
+            if (isItem) return itemColor;
+            return normalColor;
+        }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
@@ -74,6 +91,7 @@ namespace Botte.UI
 
             if (cardData is MagicData spell) bm.OnCardClicked(owner, spell);
             else if (cardData is ItemData item) bm.OnItemClicked(owner, item);
+            else if (cardData is EquipmentData equip) bm.OnEquipmentClicked(owner, equip);
         }
     }
 }

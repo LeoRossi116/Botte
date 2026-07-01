@@ -37,6 +37,19 @@ public static class DeckBuilder
         return deck;
     }
 
+    // Builds a hero's class-based equipment deck from Resources/Equipment/[Class].
+    public static List<CardData> BuildEquipmentDeck(HeroClass heroClass)
+    {
+        List<CardData> deck = new List<CardData>();
+        EquipmentData[] pieces = Resources.LoadAll<EquipmentData>($"Equipment/{heroClass}");
+        foreach (EquipmentData eq in pieces)
+        {
+            if (eq != null) deck.Add(eq);
+        }
+        if (pieces.Length == 0) Debug.LogWarning($"No EquipmentData assets found under Resources/Equipment/{heroClass}.");
+        return deck;
+    }
+
     public static bool CanDrawFromDeck(HeroState hero, MagicData card)
     {
         if (card == null) return false;

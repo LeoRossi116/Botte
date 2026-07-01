@@ -30,16 +30,31 @@ public class TurnManager
         hero.blockedFirstAttackThisTurn = false;
         hero.exhaustedThisRound.Clear();
 
+        // Per-turn attack / card-type tracking.
+        hero.attackedLastTurn = hero.attackedThisTurn;
+        hero.attackedThisTurn = false;
+        hero.cardTypesUsedThisTurn.Clear();
+        hero.manaUsedThisTurn = 0;
+
+        // Poison tick (unless immune, e.g. passo del non-morto).
         if (hero.poisonStacks > 0)
         {
-            int poisonDamage = hero.poisonStacks;
-            hero.currentHP = Mathf.Max(0, hero.currentHP - poisonDamage);
-            hero.poisonStacks = Mathf.Max(0, hero.poisonStacks - 1); // decreases by 1 each round
-            Debug.Log($"[ResourceRecovery] {hero.data.heroName} subisce {poisonDamage} danni da Veleno (HP rimanenti: {hero.currentHP}, Veleno: {hero.poisonStacks}).");
+            if (hero.HasEquipEffect(EquipEffect.PoisonImmune))
+            {
+                hero.poisonStacks = 0;
+                Debug.Log($"[ResourceRecovery] {hero.data.heroName} è immune al Veleno: stack rimossi.");
+            }
+            else
+            {
+                int poisonDamage = hero.poisonStacks;
+                hero.currentHP = Mathf.Max(0, hero.currentHP - poisonDamage);
+                hero.poisonStacks = Mathf.Max(0, hero.poisonStacks - 1);
+                Debug.Log($"[ResourceRecovery] {hero.data.heroName} subisce {poisonDamage} danni da Veleno (HP rimanenti: {hero.currentHP}, Veleno: {hero.poisonStacks}).");
+            }
         }
 
         // Stamina Recovery
-        int maxStamina = hero.GetModifiedAgility(); // Agility can be modified!
+        int maxStamina = hero.GetModifiedAgility();
         int staminaGained = Mathf.Min(STAMINA_RECOVERY, maxStamina - hero.currentStamina);
         if (staminaGained > 0)
         {
@@ -51,8 +66,16 @@ public class TurnManager
             Debug.Log($"[ResourceRecovery] {hero.data.heroName} è già al massimo di Stamina ({hero.currentStamina}/{maxStamina}), nessun recupero.");
         }
 
+        // Stun / pending stamina penalty (maglio colossale, ecc.).
+        if (hero.pendingStaminaPenalty > 0)
+        {
+            hero.currentStamina = Mathf.Max(0, hero.currentStamina - hero.pendingStaminaPenalty);
+            Debug.Log($"[ResourceRecovery] {hero.data.heroName} è stordito: -{hero.pendingStaminaPenalty} Stamina ({hero.currentStamina}/{maxStamina}).");
+            hero.pendingStaminaPenalty = 0;
+        }
+
         // Mana Recovery
-        int maxMana = hero.GetModifiedIntelligence(); // Intelligence can be modified!
+        int maxMana = hero.GetModifiedIntelligence();
         int manaGained = Mathf.Min(MANA_RECOVERY, maxMana - hero.currentMana);
         if (manaGained > 0)
         {
@@ -64,8 +87,50 @@ public class TurnManager
             Debug.Log($"[ResourceRecovery] {hero.data.heroName} è già al massimo di Mana ({hero.currentMana}/{maxMana}), nessun recupero.");
         }
 
+        ApplyTurnStartEquipment(hero, opponent, maxMana);
+
         // HP Recovery
         Debug.Log($"[ResourceRecovery] {hero.data.heroName}: nessun recupero HP in questa fase.");
+    }
+
+    // Equipment effects that trigger at the start of the owner's turn.
+    private void ApplyTurnStartEquipment(HeroState hero, HeroState opponent, int maxMana)
+    {
+        int extraMana = 0;
+        if (hero.HasEquipEffect(EquipEffect.ExtraManaEachTurn))
+            extraMana += hero.SumEquipEffect(EquipEffect.ExtraManaEachTurn);
+        if (!hero.attackedLastTurn)
+        {
+            var med = hero.FindEquip(EquipEffect.ManaIfNoAttack);
+            if (med != null) extraMana += med.effectValue;
+        }
+        if (opponent != null && hero.currentHP < opponent.currentHP)
+        {
+            var rit = hero.FindEquip(EquipEffect.ManaIfLowerHP);
+            if (rit != null) extraMana += rit.effectValue;
+        }
+        if (extraMana > 0)
+        {
+            hero.currentMana = Mathf.Min(maxMana, hero.currentMana + extraMana);
+            Debug.Log($"[ResourceRecovery] {hero.data.heroName} guadagna {extraMana} Mana extra dall'equipaggiamento ({hero.currentMana}/{maxMana}).");
+        }
+
+        int shield = 0;
+        if (hero.HasEquipEffect(EquipEffect.ShieldEachTurn))
+            shield += hero.SumEquipEffect(EquipEffect.ShieldEachTurn);
+        var egida = hero.FindEquip(EquipEffect.ChanceShieldEachTurn);
+        if (egida != null && Random.Range(0, 100) < egida.effectValue2) shield += egida.effectValue;
+        if (shield > 0)
+        {
+            hero.shieldAmount += shield;
+            Debug.Log($"[ResourceRecovery] {hero.data.heroName} ottiene {shield} scudo dall'equipaggiamento (totale: {hero.shieldAmount}).");
+        }
+
+        if (hero.HasEquipEffect(EquipEffect.BlockEachRound))
+        {
+            hero.hasShield = true;
+            Debug.Log($"[ResourceRecovery] {hero.data.heroName} ottiene un blocco completo per questo turno (equipaggiamento).");
+        }
     }
 
     public void RunPreparationPhase(HeroState hero, PreparationChoice choice)
@@ -111,5 +176,12 @@ public class TurnManager
         }
 
         hero.ExpireModifiers(ModifierDuration.EndOfThisTurn);
+
+        // Silence lasts through the silenced hero's turn, then clears.
+        if (hero.isSilenced)
+        {
+            hero.isSilenced = false;
+            Debug.Log($"[EndPhase] {hero.data.heroName} non è più silenziato.");
+        }
     }
 }

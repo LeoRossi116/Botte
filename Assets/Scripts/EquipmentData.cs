@@ -1,14 +1,45 @@
+using System.Collections.Generic;
 using UnityEngine;
+
+[System.Serializable]
+public class EquipAttributeMod
+{
+    public EquipAttribute attr;
+    public int value;
+}
 
 [CreateAssetMenu(fileName = "NewEquipmentData", menuName = "Botte/EquipmentData")]
 public class EquipmentData : CardData
 {
-    public EquipmentSlot slot;
-    public bool twoHanded;
-    public int damageValue;
-    public int defenseValue;
-    public int durability;
-    public int requiredStrength;
-    public int requiredIntelligence;
-    public int requiredAgility;
+    public EquipmentType equipType;      // Armor, Utility, Weapon
+    public EquipSlotType slotType;       // Torso, Helmet, Boots, Gloves, OneHandWeapon, TwoHandWeapon
+
+    public int damageValue;              // weapons only
+    public int defenseValue;             // armor (helmet/torso) reduces incoming damage
+
+    public List<EquipAttributeMod> attributeMods = new List<EquipAttributeMod>();
+
+    public EquipEffect specialEffect = EquipEffect.None;
+    public int effectValue;              // primary magnitude for the special effect
+    public int effectValue2;             // secondary magnitude (e.g. hp cost, chance %)
+
+    public int maxDurability;            // 0 = indestructible (no durability)
+
+    public bool IsWeapon => equipType == EquipmentType.Weapon;
+    public bool IsTwoHanded => slotType == EquipSlotType.TwoHandWeapon;
+
+    // Maps the declared card slot to the physical equipped-slot index used by HeroState.
+    public EquipmentSlot PhysicalSlot()
+    {
+        switch (slotType)
+        {
+            case EquipSlotType.Torso: return EquipmentSlot.Torso;
+            case EquipSlotType.Helmet: return EquipmentSlot.Head;
+            case EquipSlotType.Boots: return EquipmentSlot.Feet;
+            case EquipSlotType.Gloves: return EquipmentSlot.Hands;
+            case EquipSlotType.OneHandWeapon: return EquipmentSlot.WeaponMain;
+            case EquipSlotType.TwoHandWeapon: return EquipmentSlot.WeaponMain;
+        }
+        return EquipmentSlot.WeaponMain;
+    }
 }
