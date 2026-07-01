@@ -36,23 +36,6 @@ public class TurnManager
         hero.cardTypesUsedThisTurn.Clear();
         hero.manaUsedThisTurn = 0;
 
-        // Poison tick (unless immune, e.g. passo del non-morto).
-        if (hero.poisonStacks > 0)
-        {
-            if (hero.HasEquipEffect(EquipEffect.PoisonImmune))
-            {
-                hero.poisonStacks = 0;
-                Debug.Log($"[ResourceRecovery] {hero.data.heroName} è immune al Veleno: stack rimossi.");
-            }
-            else
-            {
-                int poisonDamage = hero.poisonStacks;
-                hero.currentHP = Mathf.Max(0, hero.currentHP - poisonDamage);
-                hero.poisonStacks = Mathf.Max(0, hero.poisonStacks - 1);
-                Debug.Log($"[ResourceRecovery] {hero.data.heroName} subisce {poisonDamage} danni da Veleno (HP rimanenti: {hero.currentHP}, Veleno: {hero.poisonStacks}).");
-            }
-        }
-
         // Stamina Recovery
         int maxStamina = hero.GetModifiedAgility();
         int staminaGained = Mathf.Min(STAMINA_RECOVERY, maxStamina - hero.currentStamina);
@@ -183,5 +166,27 @@ public class TurnManager
             hero.isSilenced = false;
             Debug.Log($"[EndPhase] {hero.data.heroName} non è più silenziato.");
         }
+    }
+
+    public int ProcessPoisonTick(HeroState hero)
+    {
+        if (hero.poisonStacks > 0)
+        {
+            if (hero.HasEquipEffect(EquipEffect.PoisonImmune))
+            {
+                hero.poisonStacks = 0;
+                Debug.Log($"[Preparation] {hero.data.heroName} è immune al Veleno: stack rimossi.");
+                return 0;
+            }
+            else
+            {
+                int poisonDamage = hero.poisonStacks;
+                hero.currentHP = Mathf.Max(0, hero.currentHP - poisonDamage);
+                hero.poisonStacks = Mathf.Max(0, hero.poisonStacks - 1);
+                Debug.Log($"[Preparation] {hero.data.heroName} subisce {poisonDamage} danni da Veleno (HP rimanenti: {hero.currentHP}, Veleno: {hero.poisonStacks}).");
+                return poisonDamage;
+            }
+        }
+        return 0;
     }
 }

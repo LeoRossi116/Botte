@@ -40,6 +40,10 @@ namespace Botte.Core
         public Button peekKeepButton;
         public Button peekDiscardButton;
 
+        [Header("Main Menu Buttons")]
+        public Button playMenuButton;
+        public Button exitMenuButton;
+
         private GameState gameState;
         private TurnManager turnManager;
         private int prepDrawsThisPhase;
@@ -61,12 +65,20 @@ namespace Botte.Core
         private void Start()
         {
             WireRuntimeListeners();
-            ShowCharacterSelect();
+            ShowMainMenu();
+        }
+
+        public bool IsHeroActive(HeroState hero)
+        {
+            return gameState != null && gameState.activePlayer == hero;
         }
 
         // ---------- Runtime wiring ----------
         private void WireRuntimeListeners()
         {
+            if (playMenuButton != null) playMenuButton.onClick.AddListener(OnPlayMenuPressed);
+            if (exitMenuButton != null) exitMenuButton.onClick.AddListener(OnExitPressed);
+
             if (p1ClassButtons != null)
             {
                 for (int i = 0; i < p1ClassButtons.Length; i++)
@@ -112,6 +124,25 @@ namespace Botte.Core
             }
         }
 
+        private void ShowMainMenu()
+        {
+            if (battleUI != null)
+            {
+                if (battleUI.mainMenuPanel != null) battleUI.mainMenuPanel.SetActive(true);
+                if (battleUI.characterSelectPanel != null) battleUI.characterSelectPanel.SetActive(false);
+                if (battleUI.battleScreen != null) battleUI.battleScreen.SetActive(false);
+                if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
+                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
+            }
+        }
+
+        public void OnPlayMenuPressed()
+        {
+            if (battleUI != null && battleUI.mainMenuPanel != null)
+                battleUI.mainMenuPanel.SetActive(false);
+            ShowCharacterSelect();
+        }
+
         // Toggles the equipment-slot window for a player (button to the left of the hero stats).
         public void OnShowEquipToggle(bool isPlayer1)
         {
@@ -152,23 +183,39 @@ namespace Botte.Core
             }
         }
 
-        // Bare damage the hero deals unarmed: UNARMED_DAMAGE + floor(strength / 3).
+        // Displays the hero's strength (F) directly.
         private void RefreshClassButtonLabel(Button[] buttons, int idx, HeroClass hc)
         {
             if (buttons == null || idx >= buttons.Length || buttons[idx] == null) return;
             HeroData d = GameManager.CreateHeroData(hc);
-            int bareDamage = CombatActions.UNARMED_DAMAGE + Mathf.FloorToInt((float)d.strength / 3);
             var tmp = buttons[idx].GetComponentInChildren<TMP_Text>();
             if (tmp != null)
-                tmp.text = $"{d.heroName}\n{hc}\nHP{d.maxHP}  F{bareDamage} M{d.intelligence} S{d.agility}";
+                tmp.text = $"{d.heroName}\n{hc}\nHP{d.maxHP}  F{d.strength} M{d.intelligence} S{d.agility}";
         }
 
         private void SelectClass(int player, int classIdx)
         {
             HeroClass chosen = (HeroClass)classIdx;
-            if (player == 1) selectedP1 = chosen; else selectedP2 = chosen;
+            if (player == 1)
+            {
+                if (selectedP2.HasValue && selectedP2.Value == chosen)
+                {
+                    battleUI.AddLog($"Non puoi scegliere lo stesso eroe dell'altro giocatore ({chosen})!");
+                    return;
+                }
+                selectedP1 = chosen;
+            }
+            else
+            {
+                if (selectedP1.HasValue && selectedP1.Value == chosen)
+                {
+                    battleUI.AddLog($"Non puoi scegliere lo stesso eroe dell'altro giocatore ({chosen})!");
+                    return;
+                }
+                selectedP2 = chosen;
+            }
             if (battleUI != null) battleUI.UpdateSelectionHighlight(player, classIdx, selectedP1, selectedP2);
-            if (startBattleButton != null) startBattleButton.interactable = selectedP1.HasValue && selectedP2.HasValue;
+            if (startBattleButton != null) startBattleButton.interactable = selectedP1.HasValue && selectedP2.HasValue && (selectedP1.Value != selectedP2.Value);
         }
 
         public void OnStartBattlePressed()
@@ -187,8 +234,16 @@ namespace Botte.Core
                 battleUI.ClearLog();
             }
 
+            // Hide the optional draw prep button as the 2 draws are now obligatory
+            if (drawPrepButton != null) drawPrepButton.gameObject.SetActive(false);
+
             SetAllButtonsInteractable(true);
-            battleUI.AddLog($"Battaglia iniziata! {gameState.player1.data.heroName} vs {gameState.player2.data.heroName}.");
+            LogAction($"Battaglia iniziata! {GetStyledName(gameState.player1)} vs {GetStyledName(gameState.player2)}.");
+
+            // Draw starting hands (Warrior: 3E/1I, Rogue: 2E/2I, Mage/Necro: 1E/2S/1I)
+            DrawStartingHand(gameState.player1);
+            DrawStartingHand(gameState.player2);
+
             OnPhaseEntered();
         }
 
@@ -207,10 +262,14 @@ namespace Botte.Core
                 gameState.AdvancePhase(); // -> Preparation
             }
 
-            battleUI.turnText.text = $"Turno {gameState.currentTurn} — tocca a {active.data.heroName}";
+            battleUI.turnText.text = $"Turno {gameState.currentTurn} — tocca a {GetStyledName(active)}";
             battleUI.phaseText.text = $"Fase: {gameState.phase}";
 
-            if (battleUI.prepButtonsContainer != null) battleUI.prepButtonsContainer.SetActive(gameState.phase == GamePhase.Preparation);
+            if (battleUI.prepButtonsContainer != null)
+            {
+                battleUI.prepButtonsContainer.SetActive(gameState.phase == GamePhase.Preparation);
+                if (drawPrepButton != null) drawPrepButton.gameObject.SetActive(false);
+            }
             if (battleUI.combatButtonsContainer != null) battleUI.combatButtonsContainer.SetActive(gameState.phase == GamePhase.Combat);
             if (battleUI.endButtonsContainer != null) battleUI.endButtonsContainer.SetActive(gameState.phase == GamePhase.EndPhase);
 
@@ -223,32 +282,52 @@ namespace Botte.Core
                 prepDrawsThisPhase = 0;
                 equipsThisPhase = 0;
                 if (drawPrepButton != null) drawPrepButton.interactable = true;
-                battleUI.AddLog($"=== Fase di Preparazione di {active.data.heroName} ===");
+                LogAction($"=== Fase di Preparazione di {GetStyledName(active)} ===");
+
+                // Process poison damage tick during the preparation phase
+                int poisonDamage = turnManager.ProcessPoisonTick(active);
+                if (poisonDamage > 0)
+                {
+                    LogAction($"{GetStyledName(active)} subisce {poisonDamage} danni da Veleno all'inizio della Preparazione.");
+                    if (CheckForWinner()) return;
+                }
+
+                // Automatically trigger the 2 obligatory prep phase draws
+                TriggerPrepDraw(active, 1);
             }
             else if (gameState.phase == GamePhase.Combat)
             {
-                battleUI.AddLog($"=== Fase di Combattimento di {active.data.heroName} ===");
+                LogAction($"=== Fase di Combattimento di {GetStyledName(active)} ===");
             }
             else if (gameState.phase == GamePhase.EndPhase)
             {
-                battleUI.AddLog($"=== Fase Finale di {active.data.heroName} ===");
+                LogAction($"=== Fase Finale di {GetStyledName(active)} ===");
             }
 
             RefreshAll();
         }
 
+        private void TriggerPrepDraw(HeroState hero, int drawNumber)
+        {
+            pendingDrawHero = hero;
+            pendingDrawCount = 1;
+            pendingPeek = false;
+            pendingAfterDraws = () =>
+            {
+                prepDrawsThisPhase++;
+                if (prepDrawsThisPhase < 2)
+                {
+                    TriggerPrepDraw(hero, 2);
+                }
+            };
+            string label = (drawNumber == 1) ? "1° Pescaggio Obbligatorio" : "2° Pescaggio Obbligatorio";
+            battleUI.ShowDrawChoice(label);
+        }
+
         // ---------- Preparation ----------
         public void OnDrawPrepPressed()
         {
-            if (gameState == null || gameState.phase != GamePhase.Preparation) return;
-            if (prepDrawsThisPhase >= 2) return;
-
-            // Each prep draw lets the player choose which deck to draw from.
-            RequestDeckDraw(gameState.activePlayer, 1, () =>
-            {
-                prepDrawsThisPhase++;
-                if (prepDrawsThisPhase >= 2 && drawPrepButton != null) drawPrepButton.interactable = false;
-            });
+            // Legacy button no longer active
         }
 
         public void OnEquipPrepPressed()
@@ -259,7 +338,7 @@ namespace Botte.Core
             // Entering equip mode: force the equipment book AND show the equipment slots.
             battleUI.SetSelectedBook(isP1, BookType.Equipment);
             battleUI.SetEquipmentSlotsVisible(isP1, true);
-            battleUI.AddLog($"{gameState.activePlayer.data.heroName}: modalità equipaggiamento attiva. Clicca un pezzo nel Libro Equipaggiamento (max 2 per turno).");
+            LogAction($"{GetStyledName(gameState.activePlayer)}: modalità equipaggiamento attiva. Clicca un pezzo nel Libro Equipaggiamento (max 2 per turno).");
             RefreshAll();
         }
 
@@ -295,11 +374,11 @@ namespace Botte.Core
             HeroState opponent = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
             owner.equipmentBook.Remove(equip);
             var displaced = EquipmentSystem.Equip(owner, equip);
-            battleUI.AddLog($"{owner.data.heroName} equipaggia {equip.cardName} ({equip.slotType}).");
+            LogAction($"{GetStyledName(owner)} equipaggia {equip.cardName} ({equip.slotType}).");
             foreach (var d in displaced)
             {
                 DiscardEquipment(owner, opponent, d);
-                battleUI.AddLog($"{owner.data.heroName} sostituisce e scarta {d.cardName}.");
+                LogAction($"{GetStyledName(owner)} sostituisce e scarta {d.cardName}.");
             }
             equipsThisPhase++;
             RefreshAll();
@@ -311,12 +390,12 @@ namespace Botte.Core
             if (equip.specialEffect == EquipEffect.OnDiscardGainMana)
             {
                 owner.currentMana = Mathf.Min(owner.GetModifiedIntelligence(), owner.currentMana + equip.effectValue);
-                battleUI.AddLog($"{equip.cardName}: {owner.data.heroName} guadagna {equip.effectValue} Mana.");
+                LogAction($"{equip.cardName}: {GetStyledName(owner)} guadagna {equip.effectValue} Mana.");
             }
             else if (equip.specialEffect == EquipEffect.OnDiscardDamage)
             {
                 int dealt = CombatActions.DealDamage(owner, opponent, equip.effectValue, false, false);
-                battleUI.AddLog($"{equip.cardName}: infligge {dealt} danni a {opponent.data.heroName}.");
+                LogAction($"{equip.cardName}: infligge {dealt} danni a {GetStyledName(opponent)}.");
             }
             owner.discardPile.Add(equip);
         }
@@ -476,21 +555,21 @@ namespace Botte.Core
             {
                 owner.itemBook.Remove(item);
                 gameState.itemDiscard.Add(item);
-                battleUI.AddLog($"{owner.data.heroName} scarta l'oggetto {item.cardName}.");
+                LogAction($"{GetStyledName(owner)} scarta l'oggetto {item.cardName}.");
             }
             else if (card is MagicData spell && owner.hand.Contains(spell))
             {
                 owner.hand.Remove(spell);
                 owner.discardPile.Add(spell);
                 owner.activeAuras.Remove(spell);
-                battleUI.AddLog($"{owner.data.heroName} scarta {spell.cardName} dal libro incantesimi.");
+                LogAction($"{GetStyledName(owner)} scarta {spell.cardName} dal libro incantesimi.");
             }
             else if (card is EquipmentData eq && owner.equipmentBook.Contains(eq))
             {
                 HeroState opp = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
                 owner.equipmentBook.Remove(eq);
                 DiscardEquipment(owner, opp, eq);
-                battleUI.AddLog($"{owner.data.heroName} scarta l'equipaggiamento {eq.cardName}.");
+                LogAction($"{GetStyledName(owner)} scarta l'equipaggiamento {eq.cardName}.");
             }
             else
             {
@@ -564,93 +643,226 @@ namespace Botte.Core
             }
         }
 
-        // ---------- Concrete draws ----------
-        private void DrawOneFromDeck(HeroState hero, DeckChoice deck)
+        public string GetStyledName(HeroState hero)
+        {
+            if (hero == null) return "";
+            return Botte.UI.BattleUI.GetClassColorizedName(hero.data.heroClass, hero.data.heroName);
+        }
+
+        public void LogAction(string message)
+        {
+            if (battleUI != null)
+            {
+                battleUI.AddLog(""); // empty line separator between different turn actions
+                battleUI.AddLog(message);
+            }
+        }
+
+        public void OnEquipSlotRightClicked(bool isPlayer1, EquipmentSlot slot)
+        {
+            if (gameState == null) return;
+            HeroState owner = isPlayer1 ? gameState.player1 : gameState.player2;
+            if (gameState.activePlayer != owner)
+            {
+                battleUI.AddLog("Puoi disequipaggiare/scartare equipaggiamento solo durante il tuo turno!");
+                return;
+            }
+
+            EquipmentData equip = owner.equippedItems[(int)slot];
+            if (equip != null)
+            {
+                owner.equippedItems[(int)slot] = null;
+                if (equip.slotType == EquipSlotType.TwoHandWeapon)
+                {
+                    owner.weaponTwoHandedEquipped = false;
+                }
+                owner.durability.Remove(slot);
+                EquipmentSystem.RemoveAttributes(owner, equip);
+
+                HeroState opponent = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
+
+                // Sacrifice ability triggered on right click
+                if (equip.specialEffect == EquipEffect.SacrificeBlockThenBreak)
+                {
+                    owner.hasShield = true;
+                    LogAction($"{GetStyledName(owner)} sacrifica {equip.cardName} e ottiene un BLOCCO completo per il prossimo attacco!");
+                }
+
+                DiscardEquipment(owner, opponent, equip);
+                LogAction($"{GetStyledName(owner)} disequipaggia e scarta {equip.cardName} dallo slot attivo {slot}.");
+                RefreshAll();
+            }
+        }
+
+        private void DrawStartingHand(HeroState hero)
+        {
+            HeroClass hc = hero.data.heroClass;
+            int numEquip = 0;
+            int numSpells = 0;
+            int numItems = 0;
+
+            switch (hc)
+            {
+                case HeroClass.Warrior:
+                    numEquip = 3; numItems = 1; break;
+                case HeroClass.Rogue:
+                    numEquip = 2; numItems = 2; break;
+                case HeroClass.Mage:
+                    numEquip = 1; numSpells = 2; numItems = 1; break;
+                case HeroClass.Necro:
+                    numEquip = 1; numSpells = 2; numItems = 1; break;
+            }
+
+            for (int i = 0; i < numEquip; i++) DrawStartingCard(hero, DeckChoice.Equipment);
+            for (int i = 0; i < numSpells; i++) DrawStartingCard(hero, DeckChoice.Spell);
+            for (int i = 0; i < numItems; i++) DrawStartingCard(hero, DeckChoice.Item);
+        }
+
+        private void DrawStartingCard(HeroState hero, DeckChoice deck)
         {
             if (deck == DeckChoice.Item)
             {
-                if (!EnsureItemDeck()) { battleUI.AddLog("Il mazzo oggetti è vuoto!"); return; }
+                if (gameState.itemDeck.Count > 0)
+                {
+                    int idx = Random.Range(0, gameState.itemDeck.Count);
+                    CardData card = gameState.itemDeck[idx];
+                    gameState.itemDeck.RemoveAt(idx);
+                    if (hero.itemBook.Count < HeroState.MAX_BOOK_SIZE)
+                    {
+                        hero.itemBook.Add(card);
+                    }
+                    else
+                    {
+                        gameState.itemDiscard.Add(card);
+                    }
+                }
+            }
+            else if (deck == DeckChoice.Equipment)
+            {
+                if (hero.equipmentDeck.Count > 0)
+                {
+                    int idx = Random.Range(0, hero.equipmentDeck.Count);
+                    CardData card = hero.equipmentDeck[idx];
+                    hero.equipmentDeck.RemoveAt(idx);
+                    if (hero.equipmentBook.Count < HeroState.MAX_BOOK_SIZE)
+                    {
+                        hero.equipmentBook.Add(card);
+                    }
+                    else
+                    {
+                        hero.discardPile.Add(card);
+                    }
+                }
+            }
+            else if (deck == DeckChoice.Spell)
+            {
+                if (hero.magicDeck.Count > 0)
+                {
+                    int idx = Random.Range(0, hero.magicDeck.Count);
+                    CardData card = hero.magicDeck[idx];
+                    hero.magicDeck.RemoveAt(idx);
+                    if (hero.hand.Count < HeroState.MAX_BOOK_SIZE)
+                    {
+                        hero.hand.Add(card);
+                    }
+                    else
+                    {
+                        hero.discardPile.Add(card);
+                    }
+                }
+            }
+        }
+
+        private void ApplyFatigue(HeroState hero)
+        {
+            hero.fatigueCount++;
+            hero.currentHP = Mathf.Max(0, hero.currentHP - hero.fatigueCount);
+            LogAction($"{GetStyledName(hero)} tenta di pescare da un mazzo vuoto e subisce <color=red>{hero.fatigueCount}</color> danni da Affaticamento! (HP rimanenti: {hero.currentHP})");
+            RefreshAll();
+            CheckForWinner();
+        }
+
+        // ---------- Concrete draws ----------
+        private void DrawOneFromDeck(HeroState hero, DeckChoice deck)
+        {
+            string prepPrefix = "";
+            if (gameState != null && gameState.phase == GamePhase.Preparation)
+            {
+                prepPrefix = (prepDrawsThisPhase == 0) ? "[1° pescaggio di preparazione] " : "[2° pescaggio di preparazione] ";
+            }
+
+            if (deck == DeckChoice.Item)
+            {
+                if (gameState.itemDeck.Count == 0)
+                {
+                    ApplyFatigue(hero);
+                    return;
+                }
                 int idx = Random.Range(0, gameState.itemDeck.Count);
                 CardData card = gameState.itemDeck[idx];
                 gameState.itemDeck.RemoveAt(idx);
-                hero.itemBook.Add(card);
-                battleUI.AddLog($"{hero.data.heroName} pesca l'oggetto {card.cardName}.");
+
+                if (hero.itemBook.Count >= HeroState.MAX_BOOK_SIZE)
+                {
+                    gameState.itemDiscard.Add(card);
+                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'oggetto {card.cardName}, ma il suo Libro Oggetti è pieno ({HeroState.MAX_BOOK_SIZE}). Viene scartato immediatamente!");
+                }
+                else
+                {
+                    hero.itemBook.Add(card);
+                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'oggetto {card.cardName}.");
+                }
                 return;
             }
 
             if (deck == DeckChoice.Equipment)
             {
-                if (!EnsureEquipmentDeck(hero)) { battleUI.AddLog($"{hero.data.heroName} non ha equipaggiamento da pescare!"); return; }
+                if (hero.equipmentDeck.Count == 0)
+                {
+                    ApplyFatigue(hero);
+                    return;
+                }
                 int eIdx = Random.Range(0, hero.equipmentDeck.Count);
                 CardData card = hero.equipmentDeck[eIdx];
                 hero.equipmentDeck.RemoveAt(eIdx);
-                hero.equipmentBook.Add(card);
-                battleUI.AddLog($"{hero.data.heroName} pesca l'equipaggiamento {card.cardName}.");
+
+                if (hero.equipmentBook.Count >= HeroState.MAX_BOOK_SIZE)
+                {
+                    hero.discardPile.Add(card);
+                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'equipaggiamento {card.cardName}, ma il suo Libro Equipaggiamento è pieno ({HeroState.MAX_BOOK_SIZE}). Viene scartato immediatamente!");
+                }
+                else
+                {
+                    hero.equipmentBook.Add(card);
+                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'equipaggiamento {card.cardName}.");
+                }
                 return;
             }
 
-            // Spell deck draw, with spellbook size limit (instants excluded).
-            if (!EnsureSpellDeck(hero)) { battleUI.AddLog($"{hero.data.heroName} non ha carte incantesimo da pescare!"); return; }
-            int sIdx = Random.Range(0, hero.magicDeck.Count);
-            CardData spellCard = hero.magicDeck[sIdx];
-            bool isInstant = spellCard is MagicData m && m.magicType == MagicType.Instant;
-            if (!isInstant && hero.IsSpellbookFull())
+            if (deck == DeckChoice.Spell)
             {
-                battleUI.AddLog($"Libro incantesimi pieno ({HeroState.MAX_SPELLBOOK}): {spellCard.cardName} non viene raccolta e resta nel mazzo.");
-                return; // card stays in the deck
-            }
-            hero.magicDeck.RemoveAt(sIdx);
-            hero.hand.Add(spellCard);
-            battleUI.AddLog($"{hero.data.heroName} pesca {spellCard.cardName}.");
-        }
-
-        // Refills the spell deck by pulling ONLY spell cards out of the shared discard pile.
-        private bool EnsureSpellDeck(HeroState hero)
-        {
-            if (hero.magicDeck.Count > 0) return true;
-            bool moved = false;
-            for (int i = hero.discardPile.Count - 1; i >= 0; i--)
-            {
-                if (hero.discardPile[i] is MagicData)
+                if (hero.magicDeck.Count == 0)
                 {
-                    hero.magicDeck.Add(hero.discardPile[i]);
-                    hero.discardPile.RemoveAt(i);
-                    moved = true;
+                    ApplyFatigue(hero);
+                    return;
                 }
-            }
-            if (moved) battleUI.AddLog($"{hero.data.heroName} rimescola gli incantesimi scartati nel mazzo.");
-            return hero.magicDeck.Count > 0;
-        }
+                int sIdx = Random.Range(0, hero.magicDeck.Count);
+                CardData spellCard = hero.magicDeck[sIdx];
+                hero.magicDeck.RemoveAt(sIdx);
 
-        // Refills the equipment deck by pulling ONLY equipment cards out of the shared discard pile.
-        private bool EnsureEquipmentDeck(HeroState hero)
-        {
-            if (hero.equipmentDeck.Count > 0) return true;
-            bool moved = false;
-            for (int i = hero.discardPile.Count - 1; i >= 0; i--)
-            {
-                if (hero.discardPile[i] is EquipmentData)
+                bool isInstant = spellCard is MagicData m && m.magicType == MagicType.Instant;
+                if (hero.hand.Count >= HeroState.MAX_BOOK_SIZE || (!isInstant && hero.IsSpellbookFull()))
                 {
-                    hero.equipmentDeck.Add(hero.discardPile[i]);
-                    hero.discardPile.RemoveAt(i);
-                    moved = true;
+                    hero.discardPile.Add(spellCard);
+                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca {spellCard.cardName}, ma il suo Libro Incantesimi è pieno ({HeroState.MAX_BOOK_SIZE}). Viene scartata immediatamente!");
                 }
+                else
+                {
+                    hero.hand.Add(spellCard);
+                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca {spellCard.cardName}.");
+                }
+                return;
             }
-            if (moved) battleUI.AddLog($"{hero.data.heroName} rimescola l'equipaggiamento scartato nel mazzo.");
-            return hero.equipmentDeck.Count > 0;
-        }
-
-        private bool EnsureItemDeck()
-        {
-            if (gameState.itemDeck.Count > 0) return true;
-            if (gameState.itemDiscard.Count > 0)
-            {
-                gameState.itemDeck.AddRange(gameState.itemDiscard);
-                gameState.itemDiscard.Clear();
-                battleUI.AddLog("Gli scarti oggetti vengono rimescolati nel mazzo oggetti.");
-                return true;
-            }
-            return false;
         }
 
         private void DrawFromOwnDiscard(HeroState hero)
@@ -658,14 +870,14 @@ namespace Botte.Core
             if (hero.discardPile.Count == 0) { battleUI.AddLog($"{hero.data.heroName} non ha carte negli scarti."); return; }
             int idx = Random.Range(0, hero.discardPile.Count);
             CardData card = hero.discardPile[idx];
-            if (card is MagicData m && m.magicType != MagicType.Instant && hero.IsSpellbookFull())
+            if (hero.hand.Count >= HeroState.MAX_BOOK_SIZE || (card is MagicData m && m.magicType != MagicType.Instant && hero.IsSpellbookFull()))
             {
-                battleUI.AddLog($"Libro incantesimi pieno: impossibile recuperare {card.cardName} dagli scarti.");
+                LogAction($"Libro incantesimi pieno: impossibile recuperare {card.cardName} dagli scarti.");
                 return;
             }
             hero.discardPile.RemoveAt(idx);
             hero.hand.Add(card);
-            battleUI.AddLog($"{hero.data.heroName} recupera {card.cardName} dagli scarti.");
+            LogAction($"{GetStyledName(hero)} recupera {card.cardName} dagli scarti.");
         }
 
         // Saccheggio: grab a card from opponent discard into own spellbook (ignores size limit).
@@ -675,8 +887,11 @@ namespace Botte.Core
             int idx = Random.Range(0, opponent.discardPile.Count);
             CardData card = opponent.discardPile[idx];
             opponent.discardPile.RemoveAt(idx);
+            
+            // Ignores spellbook size restriction (standard logic), but let's check MAX_BOOK_SIZE limit!
+            // Wait, "ignore spell book size restriction" is stated in the description of Saccheggio, so we bypass it!
             owner.hand.Add(card);
-            battleUI.AddLog($"{owner.data.heroName} ruba {card.cardName} dagli scarti di {opponent.data.heroName} (limite ignorato).");
+            LogAction($"{GetStyledName(owner)} ruba {card.cardName} dagli scarti di {GetStyledName(opponent)} (limite ignorato).");
         }
 
         // Manipolazione: reveal top card of a chosen deck, then keep or discard it.
@@ -685,12 +900,17 @@ namespace Botte.Core
             CardData top = null;
             if (deck == DeckChoice.Item)
             {
-                if (!EnsureItemDeck()) { battleUI.AddLog("Il mazzo oggetti è vuoto."); return; }
+                if (gameState.itemDeck.Count == 0) { battleUI.AddLog("Il mazzo oggetti è vuoto."); return; }
                 top = gameState.itemDeck[0];
+            }
+            else if (deck == DeckChoice.Equipment)
+            {
+                if (hero.equipmentDeck.Count == 0) { battleUI.AddLog("Il mazzo equipaggiamento è vuoto."); return; }
+                top = hero.equipmentDeck[0];
             }
             else
             {
-                if (!EnsureSpellDeck(hero)) { battleUI.AddLog($"Il mazzo incantesimi di {hero.data.heroName} è vuoto."); return; }
+                if (hero.magicDeck.Count == 0) { battleUI.AddLog($"Il mazzo incantesimi di {hero.data.heroName} è vuoto."); return; }
                 top = hero.magicDeck[0];
             }
             pendingPeekDeck = deck;
@@ -767,7 +987,7 @@ namespace Botte.Core
             {
                 battleUI.winnerOverlay.SetActive(true);
                 battleUI.winnerText.text = $"{winner.data.heroName} vince!";
-                battleUI.AddLog($"{winner.data.heroName} vince! Partita conclusa.");
+                LogAction($"{GetStyledName(winner)} vince! Partita conclusa.");
             }
         }
 

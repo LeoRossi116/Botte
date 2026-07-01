@@ -41,6 +41,7 @@ namespace Botte.UI
         public GameObject cardPrefab;
 
         [Header("Screens")]
+        public GameObject mainMenuPanel;
         public GameObject characterSelectPanel;
         public GameObject battleScreen;
         public GameObject drawChoicePanel;
@@ -93,6 +94,24 @@ namespace Botte.UI
         public BookType p1SelectedBook = BookType.Spell;
         public BookType p2SelectedBook = BookType.Spell;
 
+        // Color coding for each hero class.
+        public static string GetClassColor(HeroClass hc)
+        {
+            switch (hc)
+            {
+                case HeroClass.Warrior: return "#E94560"; // RED
+                case HeroClass.Rogue: return "#2980B9";   // BLUE
+                case HeroClass.Mage: return "#30E3CA";    // LIGHT BLUE
+                case HeroClass.Necro: return "#8A39E8";   // PURPLE
+            }
+            return "#FFFFFF";
+        }
+
+        public static string GetClassColorizedName(HeroClass hc, string name)
+        {
+            return $"<color={GetClassColor(hc)}>{name}</color>";
+        }
+
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
             TMP_Text nameText = isPlayer1 ? p1HeroNameText : p2HeroNameText;
@@ -102,8 +121,12 @@ namespace Botte.UI
             TMP_Text staminaText = isPlayer1 ? p1StaminaText : p2StaminaText;
             TMP_Text statusText = isPlayer1 ? p1StatusText : p2StatusText;
 
-            nameText.text = hero.data.heroName;
-            hpText.text = $"HP: {hero.currentHP} / {hero.data.maxHP}";
+            var bm = Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+            bool isActive = bm != null && bm.IsHeroActive(hero);
+            string styledName = GetClassColorizedName(hero.data.heroClass, hero.data.heroName);
+            nameText.text = isActive ? $"<b>▶ {styledName} ◀</b>" : styledName;
+
+            hpText.text = $"HP: {hero.currentHP} / {hero.GetModifiedMaxHP()}";
             manaText.text = $"Mana: {hero.currentMana} / {hero.GetModifiedIntelligence()}";
             staminaText.text = $"Stamina: {hero.currentStamina} / {hero.GetModifiedAgility()}";
 
@@ -198,6 +221,7 @@ namespace Botte.UI
                 var slot = slots[i];
                 if (slot == null) continue;
                 EquipmentSlot es = EquipOrder[i];
+                slot.equipmentSlot = es; // Assign slot enum dynamically
                 EquipmentData eq = hero.equippedItems[(int)es];
 
                 // Off-hand square: hidden entirely when a two-handed weapon is equipped (fused).
@@ -363,6 +387,19 @@ namespace Botte.UI
         public void HidePeek()
         {
             if (peekPanel != null) peekPanel.SetActive(false);
+        }
+
+        public void ShowDrawChoice(string title)
+        {
+            if (drawChoicePanel != null)
+            {
+                drawChoicePanel.SetActive(true);
+                var titleText = drawChoicePanel.transform.Find("Box/Title")?.GetComponent<TMP_Text>();
+                if (titleText != null)
+                {
+                    titleText.text = title;
+                }
+            }
         }
 
         public void AddLog(string message)

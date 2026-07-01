@@ -9,8 +9,8 @@ public class HeroState
     public int currentMana;
     public int currentStamina;
 
-    // Maximum number of NON-instant spells a hero may hold in the spellbook at once.
-    public const int MAX_SPELLBOOK = 4;
+    // Maximum number of cards a hero can have in each book.
+    public const int MAX_BOOK_SIZE = 7;
 
     public List<CardData> hand = new List<CardData>();          // held spells (the "spellbook" contents)
     public List<CardData> itemBook = new List<CardData>();      // held item cards
@@ -26,6 +26,7 @@ public class HeroState
     public int poisonStacks;
     public bool isStunned;
     public bool isSilenced;
+    public int fatigueCount; // tracks how many times they tried to draw from an empty deck
 
     [Header("Per-turn / equipment tracking")]
     public bool attackedThisTurn;
@@ -78,7 +79,17 @@ public class HeroState
 
     public bool IsSpellbookFull()
     {
-        return CountSpellbookSlots() >= MAX_SPELLBOOK;
+        return CountSpellbookSlots() >= MAX_BOOK_SIZE;
+    }
+
+    public bool IsItemBookFull()
+    {
+        return itemBook.Count >= MAX_BOOK_SIZE;
+    }
+
+    public bool IsEquipmentBookFull()
+    {
+        return equipmentBook.Count >= MAX_BOOK_SIZE;
     }
 
     public void AddModifier(StatModifier mod)

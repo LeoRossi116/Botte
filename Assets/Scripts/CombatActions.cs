@@ -36,15 +36,18 @@ public static class CombatActions
     }
 
     // Fires when a physical (weapon) attack lands (not fully blocked): armor durability + reactions.
-    private static void OnPhysicalHitTaken(HeroState attacker, HeroState defender)
+    private static void OnPhysicalHitTaken(HeroState attacker, HeroState defender, int dealt)
     {
         // Armor durability decreases on each hit taken; broken pieces are discarded.
         DegradeArmor(defender, EquipmentSlot.Head);
         DegradeArmor(defender, EquipmentSlot.Torso);
 
-        // Retaliation poison (casacca di spine, corazza spettrale).
-        var retal = defender.FindEquip(EquipEffect.PoisonOnHitTaken);
-        if (retal != null) ApplyPoison(defender, attacker, retal.effectValue);
+        // Retaliation poison (casacca di spine, corazza spettrale) only if dealt > 0
+        if (dealt > 0)
+        {
+            var retal = defender.FindEquip(EquipEffect.PoisonOnHitTaken);
+            if (retal != null) ApplyPoison(defender, attacker, retal.effectValue);
+        }
 
         // Shield gained per physical hit taken (stivali leggieri del mago).
         var shieldPerHit = defender.FindEquip(EquipEffect.ShieldPerPhysicalHitTaken);
@@ -126,7 +129,7 @@ public static class CombatActions
 
         defender.currentHP = Mathf.Max(0, defender.currentHP - dmg);
 
-        if (isWeaponAttack) OnPhysicalHitTaken(attacker, defender);
+        if (isWeaponAttack) OnPhysicalHitTaken(attacker, defender, dmg);
         return dmg;
     }
 
@@ -171,14 +174,17 @@ public static class CombatActions
     }
 
     // Post-hit weapon effects: on-hit poison/silence/stun, life gain, hp cost, reaper heal.
-    private static void OnWeaponHit(HeroState attacker, HeroState defender)
+    private static void OnWeaponHit(HeroState attacker, HeroState defender, int dealt)
     {
         foreach (var eq in attacker.AllEquipped())
         {
             switch (eq.specialEffect)
             {
                 case EquipEffect.PoisonOnHit:
-                    ApplyPoison(attacker, defender, eq.effectValue);
+                    if (dealt > 0)
+                        ApplyPoison(attacker, defender, eq.effectValue);
+                    else
+                        Debug.Log($"[Combat] L'attacco è stato completamente bloccato: {eq.cardName} non applica Veleno.");
                     break;
                 case EquipEffect.SilenceOnHit:
                     defender.isSilenced = true;
@@ -235,7 +241,7 @@ public static class CombatActions
         if (doubleAttack) raw *= 2;
 
         int dealt = DealDamage(attacker, defender, raw, unblockable, true);
-        OnWeaponHit(attacker, defender);
+        OnWeaponHit(attacker, defender, dealt);
         Debug.Log($"[Combat] {attacker.data.heroName} attacca con l'arma{(doubleAttack ? " (attacco doppio)" : "")}: {dealt} danno a {defender.data.heroName} (HP: {defender.currentHP}).");
 
         // Consume next-attack buffs once per attack action.

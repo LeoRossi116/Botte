@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
         switch (heroClass)
         {
             case HeroClass.Warrior:
-                d.heroName = "Garrik"; d.maxHP = 24; d.strength = 3; d.intelligence = 3; d.agility = 6; break;
+                d.heroName = "Garrik"; d.maxHP = 24; d.strength = 5; d.intelligence = 3; d.agility = 6; break;
             case HeroClass.Mage:
                 d.heroName = "Lyra"; d.maxHP = 16; d.strength = 1; d.intelligence = 5; d.agility = 5; break;
             case HeroClass.Rogue:
@@ -38,6 +38,18 @@ public class GameManager : MonoBehaviour
         gameState = new GameState(player1, player2);
         gameState.itemDeck = DeckBuilder.BuildItemDeck();
 
-        Debug.Log($"Game initialized. P1: {player1.data.heroName} ({p1Class}) vs P2: {player2.data.heroName} ({p2Class}). Item deck: {gameState.itemDeck.Count} carte.");
+        // Decide who starts based on the hero who has higher starting max stamina (agility).
+        int p1Stam = player1.GetModifiedAgility();
+        int p2Stam = player2.GetModifiedAgility();
+        if (p2Stam > p1Stam)
+        {
+            gameState.activePlayer = player2;
+        }
+        else
+        {
+            gameState.activePlayer = player1;
+        }
+
+        Debug.Log($"Game initialized. P1: {player1.data.heroName} ({p1Class}) vs P2: {player2.data.heroName} ({p2Class}). Item deck: {gameState.itemDeck.Count} carte. Higher stamina starts: {gameState.activePlayer.data.heroName}.");
     }
 }
