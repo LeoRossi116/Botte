@@ -4,6 +4,24 @@ using TMPro;
 
 namespace Botte.Core
 {
+    public enum GameplayActionType
+    {
+        Attack,
+        EndTurn,
+        EquipPrep,
+        FinishPrep,
+        Sleep,
+        DrawExtra,
+        DeckChoice,
+        PeekKeep,
+        PeekDiscard,
+        CardClicked,
+        ItemClicked,
+        EquipmentClicked,
+        CardRightClicked,
+        EquipSlotRightClicked
+    }
+
     public class BattleManager : MonoBehaviour
     {
         public GameManager gameManager;
@@ -62,10 +80,18 @@ namespace Botte.Core
         private DeckChoice pendingPeekDeck;
         private CardData pendingPeekCard;
 
+        // --- Timer and Turn Counter Fields ---
+        private float phaseTimer;
+        private bool timerActive;
+        private int lastSentSeconds = -1;
+        private TextMeshProUGUI turnCounterText;
+        private TextMeshProUGUI timerText;
+
         private void Start()
         {
             WireRuntimeListeners();
             ShowMainMenu();
+            EnsureTurnAndTimerUI();
         }
 
         public bool IsHeroActive(HeroState hero)
@@ -160,6 +186,215 @@ namespace Botte.Core
                 battleUI.RefreshBook(isPlayer1 ? gameState.player1 : gameState.player2, isPlayer1);
         }
 
+        // ---------- Turn and Timer UI Generator ----------
+        private void EnsureTurnAndTimerUI()
+        {
+            var centerPanel = GameObject.Find("Canvas/BattleScreen/CenterPanel");
+            if (centerPanel == null) return;
+
+            var turnTextTrans = centerPanel.transform.Find("TurnText");
+            if (turnTextTrans != null)
+            {
+                var turnTextRT = turnTextTrans.GetComponent<RectTransform>();
+                if (turnTextRT != null)
+                {
+                    turnTextRT.anchoredPosition = new Vector2(0f, -45f);
+                }
+            }
+
+            var phaseTextTrans = centerPanel.transform.Find("PhaseText");
+            if (phaseTextTrans != null)
+            {
+                var phaseTextRT = phaseTextTrans.GetComponent<RectTransform>();
+                if (phaseTextRT != null)
+                {
+                    phaseTextRT.anchoredPosition = new Vector2(0f, -75f);
+                }
+            }
+
+            var turnCounterTrans = centerPanel.transform.Find("TurnCounterText");
+            if (turnCounterTrans == null)
+            {
+                var go = new GameObject("TurnCounterText");
+                go.transform.SetParent(centerPanel.transform, false);
+                turnCounterText = go.AddComponent<TextMeshProUGUI>();
+                turnCounterText.fontSize = 20f;
+                turnCounterText.color = Color.yellow;
+                turnCounterText.alignment = TextAlignmentOptions.Left;
+                
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0.5f, 1f);
+                rt.anchorMax = new Vector2(0.5f, 1f);
+                rt.pivot = new Vector2(0.5f, 1f);
+                rt.anchoredPosition = new Vector2(-60f, -10f);
+                rt.sizeDelta = new Vector2(120f, 30f);
+            }
+            else
+            {
+                turnCounterText = turnCounterTrans.GetComponent<TextMeshProUGUI>();
+            }
+
+            var timerTrans = centerPanel.transform.Find("TimerText");
+            if (timerTrans == null)
+            {
+                var go = new GameObject("TimerText");
+                go.transform.SetParent(centerPanel.transform, false);
+                timerText = go.AddComponent<TextMeshProUGUI>();
+                timerText.fontSize = 20f;
+                timerText.color = Color.cyan;
+                timerText.alignment = TextAlignmentOptions.Right;
+                
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0.5f, 1f);
+                rt.anchorMax = new Vector2(0.5f, 1f);
+                rt.pivot = new Vector2(0.5f, 1f);
+                rt.anchoredPosition = new Vector2(60f, -10f);
+                rt.sizeDelta = new Vector2(120f, 30f);
+            }
+            else
+            {
+                timerText = timerTrans.GetComponent<TextMeshProUGUI>();
+            }
+        }
+
+        public void UpdateTimerText(int secondsLeft)
+        {
+            EnsureTurnAndTimerUI();
+            if (timerText != null)
+            {
+                if (secondsLeft > 0)
+                {
+                    timerText.text = $"TIME: {secondsLeft}s";
+                }
+                else
+                {
+                    timerText.text = "";
+                }
+            }
+
+            if (turnCounterText != null && gameState != null)
+            {
+                turnCounterText.text = $"TURN {gameState.currentTurn}";
+            }
+        }
+
+        // ---------- Multiplayer Helper Checks ----------
+        private bool IsMyTurn()
+        {
+            if (!RelayManager.IsMultiplayer) return true;
+            bool amHost = Unity.Netcode.NetworkManager.Singleton.IsServer;
+            bool isP1Turn = gameState.activePlayer == gameState.player1;
+            return amHost == isP1Turn;
+        }
+
+        private bool CanInteract()
+        {
+            return IsMyTurn();
+        }
+
+        private bool CanInteractWithOwner(HeroState owner)
+        {
+            if (!RelayManager.IsMultiplayer) return true;
+            bool amHost = Unity.Netcode.NetworkManager.Singleton.IsServer;
+            bool isP1Turn = gameState.activePlayer == gameState.player1;
+            bool isOwnerP1 = owner == gameState.player1;
+            return (amHost == isP1Turn) && (isOwnerP1 == amHost);
+        }
+
+        private HeroState GetMyHero()
+        {
+            if (Unity.Netcode.NetworkManager.Singleton.IsServer)
+                return gameState.player1;
+            else
+                return gameState.player2;
+        }
+
+        private void ExecuteAction(GameplayActionType actionType, int arg1 = 0, int arg2 = 0)
+        {
+            if (RelayManager.IsMultiplayer)
+            {
+                RelayManager.Instance.SendGameplayAction(actionType, arg1, arg2);
+            }
+            else
+            {
+                ExecuteActionLocal(actionType, arg1, arg2);
+            }
+        }
+
+        public void ExecuteActionLocal(GameplayActionType actionType, int arg1, int arg2)
+        {
+            HeroState active = gameState.activePlayer;
+            switch (actionType)
+            {
+                case GameplayActionType.Attack:
+                    OnAttackPressedLocal();
+                    break;
+                case GameplayActionType.EndTurn:
+                    OnEndTurnPressedLocal();
+                    break;
+                case GameplayActionType.EquipPrep:
+                    OnEquipPrepPressedLocal();
+                    break;
+                case GameplayActionType.FinishPrep:
+                    OnFinishPrepPressedLocal();
+                    break;
+                case GameplayActionType.Sleep:
+                    OnSleepPressedLocal();
+                    break;
+                case GameplayActionType.DrawExtra:
+                    OnDrawExtraPressedLocal();
+                    break;
+                case GameplayActionType.DeckChoice:
+                    OnDeckChoiceLocal((DeckChoice)arg1);
+                    break;
+                case GameplayActionType.PeekKeep:
+                    OnPeekKeepLocal();
+                    break;
+                case GameplayActionType.PeekDiscard:
+                    OnPeekDiscardLocal();
+                    break;
+                case GameplayActionType.CardClicked:
+                    if (arg1 >= 0 && arg1 < active.hand.Count)
+                    {
+                        OnCardClickedLocal(active, (MagicData)active.hand[arg1]);
+                    }
+                    break;
+                case GameplayActionType.ItemClicked:
+                    if (arg1 >= 0 && arg1 < active.itemBook.Count)
+                    {
+                        OnItemClickedLocal(active, (ItemData)active.itemBook[arg1]);
+                    }
+                    break;
+                case GameplayActionType.EquipmentClicked:
+                    if (arg1 >= 0 && arg1 < active.equipmentBook.Count)
+                    {
+                        OnEquipmentClickedLocal(active, (EquipmentData)active.equipmentBook[arg1]);
+                    }
+                    break;
+                case GameplayActionType.CardRightClicked:
+                    if (arg1 == 0)
+                    {
+                        if (arg2 >= 0 && arg2 < active.hand.Count)
+                            OnCardRightClickedLocal(active, active.hand[arg2]);
+                    }
+                    else if (arg1 == 1)
+                    {
+                        if (arg2 >= 0 && arg2 < active.equipmentBook.Count)
+                            OnCardRightClickedLocal(active, active.equipmentBook[arg2]);
+                    }
+                    else if (arg1 == 2)
+                    {
+                        if (arg2 >= 0 && arg2 < active.itemBook.Count)
+                            OnCardRightClickedLocal(active, active.itemBook[arg2]);
+                    }
+                    break;
+                case GameplayActionType.EquipSlotRightClicked:
+                    bool isP1 = arg2 == 1;
+                    OnEquipSlotRightClickedLocal(isP1, (EquipmentSlot)arg1);
+                    break;
+            }
+        }
+
         // ---------- Character select ----------
         private void ShowCharacterSelect()
         {
@@ -181,6 +416,93 @@ namespace Botte.Core
                 if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
                 if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
             }
+
+            // --- Multiplayer Mode Custom Selection Setup ---
+            if (RelayManager.IsMultiplayer)
+            {
+                bool amHost = Unity.Netcode.NetworkManager.Singleton.IsServer;
+                
+                // P1 can only be picked by Host, P2 only by Client
+                if (p1ClassButtons != null)
+                {
+                    for (int i = 0; i < p1ClassButtons.Length; i++)
+                    {
+                        if (p1ClassButtons[i] != null) p1ClassButtons[i].interactable = amHost;
+                    }
+                }
+                if (p2ClassButtons != null)
+                {
+                    for (int i = 0; i < p2ClassButtons.Length; i++)
+                    {
+                        if (p2ClassButtons[i] != null) p2ClassButtons[i].interactable = !amHost;
+                    }
+                }
+
+                // Only host can see and press startBattleButton
+                if (startBattleButton != null)
+                {
+                    startBattleButton.gameObject.SetActive(amHost);
+                    startBattleButton.interactable = false;
+                }
+
+                // Dynamically setup instruction text above the start button
+                var canvas = GameObject.Find("Canvas");
+                if (canvas != null)
+                {
+                    var selectPanel = canvas.transform.Find("CharacterSelectPanel");
+                    if (selectPanel != null)
+                    {
+                        var instrTextTrans = selectPanel.Find("MultiplayerInstructionText");
+                        TextMeshProUGUI instrText = null;
+                        if (instrTextTrans == null)
+                        {
+                            var go = new GameObject("MultiplayerInstructionText");
+                            go.transform.SetParent(selectPanel, false);
+                            instrText = go.AddComponent<TextMeshProUGUI>();
+                            instrText.fontSize = 24f;
+                            instrText.color = Color.white;
+                            instrText.alignment = TextAlignmentOptions.Center;
+                            var rt = go.GetComponent<RectTransform>();
+                            rt.anchoredPosition = new Vector2(0f, -220f);
+                            rt.sizeDelta = new Vector2(600f, 50f);
+                        }
+                        else
+                        {
+                            instrText = instrTextTrans.GetComponent<TextMeshProUGUI>();
+                        }
+                        instrText.gameObject.SetActive(true);
+                        instrText.text = "Scegli il tuo Eroe!";
+                    }
+                }
+            }
+            else
+            {
+                // Local mode restores full interactivity
+                if (p1ClassButtons != null)
+                {
+                    for (int i = 0; i < p1ClassButtons.Length; i++)
+                    {
+                        if (p1ClassButtons[i] != null) p1ClassButtons[i].interactable = true;
+                    }
+                }
+                if (p2ClassButtons != null)
+                {
+                    for (int i = 0; i < p2ClassButtons.Length; i++)
+                    {
+                        if (p2ClassButtons[i] != null) p2ClassButtons[i].interactable = true;
+                    }
+                }
+                if (startBattleButton != null)
+                {
+                    startBattleButton.gameObject.SetActive(true);
+                }
+
+                var instrText = GameObject.Find("Canvas/CharacterSelectPanel/MultiplayerInstructionText");
+                if (instrText != null)
+                {
+                    instrText.SetActive(false);
+                }
+            }
         }
 
         // Displays the hero's strength (F) directly.
@@ -193,7 +515,17 @@ namespace Botte.Core
                 tmp.text = $"{d.heroName}\n{hc}\nHP{d.maxHP}  F{d.strength} M{d.intelligence} S{d.agility}";
         }
 
-        private void SelectClass(int player, int classIdx)
+        public void SelectClass(int player, int classIdx)
+        {
+            if (RelayManager.IsMultiplayer)
+            {
+                RelayManager.Instance.SendHeroSelection(player, classIdx);
+                return;
+            }
+            SelectClassLocal(player, classIdx);
+        }
+
+        public void SelectClassLocal(int player, int classIdx)
         {
             HeroClass chosen = (HeroClass)classIdx;
             if (player == 1)
@@ -215,10 +547,55 @@ namespace Botte.Core
                 selectedP2 = chosen;
             }
             if (battleUI != null) battleUI.UpdateSelectionHighlight(player, classIdx, selectedP1, selectedP2);
-            if (startBattleButton != null) startBattleButton.interactable = selectedP1.HasValue && selectedP2.HasValue && (selectedP1.Value != selectedP2.Value);
+            
+            bool choicesValid = selectedP1.HasValue && selectedP2.HasValue && (selectedP1.Value != selectedP2.Value);
+            if (startBattleButton != null) startBattleButton.interactable = choicesValid;
+
+            // Update Multiplayer Instruction Text
+            if (RelayManager.IsMultiplayer)
+            {
+                var instrText = GameObject.Find("Canvas/CharacterSelectPanel/MultiplayerInstructionText")?.GetComponent<TextMeshProUGUI>();
+                if (instrText != null)
+                {
+                    bool hostSelected = selectedP1.HasValue;
+                    bool clientSelected = selectedP2.HasValue;
+                    bool amHost = Unity.Netcode.NetworkManager.Singleton.IsServer;
+
+                    if (hostSelected && clientSelected)
+                    {
+                        if (amHost)
+                        {
+                            instrText.text = "Entrambi hanno scelto! Avvia la battaglia!";
+                        }
+                        else
+                        {
+                            instrText.text = "Entrambi hanno scelto! In attesa che l'Host avvii...";
+                        }
+                    }
+                    else if ((amHost && hostSelected) || (!amHost && clientSelected))
+                    {
+                        instrText.text = "In attesa dell'altro giocatore...";
+                    }
+                    else
+                    {
+                        instrText.text = "Scegli il tuo Eroe!";
+                    }
+                }
+            }
         }
 
         public void OnStartBattlePressed()
+        {
+            if (RelayManager.IsMultiplayer)
+            {
+                int seed = UnityEngine.Random.Range(1, 100000);
+                RelayManager.Instance.SendStartBattle(seed);
+                return;
+            }
+            OnStartBattlePressedLocal();
+        }
+
+        public void OnStartBattlePressedLocal()
         {
             if (!selectedP1.HasValue || !selectedP2.HasValue) return;
 
@@ -237,7 +614,8 @@ namespace Botte.Core
             // Hide the optional draw prep button as the 2 draws are now obligatory
             if (drawPrepButton != null) drawPrepButton.gameObject.SetActive(false);
 
-            SetAllButtonsInteractable(true);
+            EnsureTurnAndTimerUI();
+            SetAllButtonsInteractable(IsMyTurn());
             LogAction($"Battaglia iniziata! {GetStyledName(gameState.player1)} vs {GetStyledName(gameState.player2)}.");
 
             // Draw starting hands (Warrior: 3E/1I, Rogue: 2E/2I, Mage/Necro: 1E/2S/1I)
@@ -304,7 +682,109 @@ namespace Botte.Core
                 LogAction($"=== Fase Finale di {GetStyledName(active)} ===");
             }
 
+            // --- Reset and start timer ---
+            if (gameState.phase == GamePhase.Preparation)
+            {
+                phaseTimer = 30f;
+                timerActive = true;
+            }
+            else if (gameState.phase == GamePhase.Combat)
+            {
+                phaseTimer = 60f;
+                timerActive = true;
+            }
+            else if (gameState.phase == GamePhase.EndPhase)
+            {
+                phaseTimer = 20f;
+                timerActive = true;
+            }
+            else
+            {
+                timerActive = false;
+                UpdateTimerText(0);
+            }
+
+            SetAllButtonsInteractable(IsMyTurn());
             RefreshAll();
+        }
+
+        private void Update()
+        {
+            if (gameState != null && battleUI != null && battleUI.battleScreen.activeSelf)
+            {
+                if (RelayManager.IsMultiplayer)
+                {
+                    if (Unity.Netcode.NetworkManager.Singleton.IsServer && timerActive)
+                    {
+                        phaseTimer -= Time.deltaTime;
+                        int secondsLeft = Mathf.CeilToInt(phaseTimer);
+                        if (secondsLeft != lastSentSeconds)
+                        {
+                            lastSentSeconds = secondsLeft;
+                            RelayManager.Instance.SendTimerUpdate(secondsLeft);
+                        }
+
+                        if (phaseTimer <= 0)
+                        {
+                            timerActive = false;
+                            OnTimerExpired();
+                        }
+                    }
+                }
+                else
+                {
+                    // Local timer
+                    if (timerActive)
+                    {
+                        phaseTimer -= Time.deltaTime;
+                        int secondsLeft = Mathf.CeilToInt(phaseTimer);
+                        UpdateTimerText(secondsLeft);
+
+                        if (phaseTimer <= 0)
+                        {
+                            timerActive = false;
+                            OnTimerExpired();
+                        }
+                    }
+                }
+            }
+        }
+
+        private void OnTimerExpired()
+        {
+            if (RelayManager.IsMultiplayer)
+            {
+                if (Unity.Netcode.NetworkManager.Singleton.IsServer)
+                {
+                    if (gameState.phase == GamePhase.Preparation)
+                    {
+                        ExecuteAction(GameplayActionType.FinishPrep);
+                    }
+                    else if (gameState.phase == GamePhase.Combat)
+                    {
+                        ExecuteAction(GameplayActionType.EndTurn);
+                    }
+                    else if (gameState.phase == GamePhase.EndPhase)
+                    {
+                        ExecuteAction(GameplayActionType.Sleep);
+                    }
+                }
+            }
+            else
+            {
+                if (gameState.phase == GamePhase.Preparation)
+                {
+                    OnFinishPrepPressedLocal();
+                }
+                else if (gameState.phase == GamePhase.Combat)
+                {
+                    OnEndTurnPressedLocal();
+                }
+                else if (gameState.phase == GamePhase.EndPhase)
+                {
+                    OnSleepPressedLocal();
+                }
+            }
         }
 
         private void TriggerPrepDraw(HeroState hero, int drawNumber)
@@ -332,6 +812,12 @@ namespace Botte.Core
 
         public void OnEquipPrepPressed()
         {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.EquipPrep);
+        }
+
+        public void OnEquipPrepPressedLocal()
+        {
             if (gameState == null || gameState.phase != GamePhase.Preparation) return;
             bool isP1 = gameState.activePlayer == gameState.player1;
 
@@ -344,6 +830,13 @@ namespace Botte.Core
 
         // Left-clicking an equipment card in the Equipment book during Preparation equips it.
         public void OnEquipmentClicked(HeroState owner, EquipmentData equip)
+        {
+            if (!CanInteractWithOwner(owner)) return;
+            int idx = owner.equipmentBook.IndexOf(equip);
+            ExecuteAction(GameplayActionType.EquipmentClicked, idx);
+        }
+
+        public void OnEquipmentClickedLocal(HeroState owner, EquipmentData equip)
         {
             if (gameState == null || gameState.activePlayer != owner)
             {
@@ -402,13 +895,38 @@ namespace Botte.Core
 
         public void OnFinishPrepPressed()
         {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.FinishPrep);
+        }
+
+        public void OnFinishPrepPressedLocal()
+        {
             if (gameState == null || gameState.phase != GamePhase.Preparation) return;
+
+            // Automatically complete any remaining draws
+            int remainingDraws = 2 - prepDrawsThisPhase;
+            if (remainingDraws > 0)
+            {
+                for (int i = 0; i < remainingDraws; i++)
+                {
+                    DrawOneFromDeck(gameState.activePlayer, DeckChoice.Spell);
+                }
+                prepDrawsThisPhase = 2;
+                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
+            }
+
             gameState.AdvancePhase(); // -> Combat
             OnPhaseEntered();
         }
 
         // ---------- Combat ----------
         public void OnAttackPressed()
+        {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.Attack);
+        }
+
+        public void OnAttackPressedLocal()
         {
             if (gameState == null || gameState.phase != GamePhase.Combat) return;
 
@@ -424,6 +942,12 @@ namespace Botte.Core
 
         public void OnEndTurnPressed()
         {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.EndTurn);
+        }
+
+        public void OnEndTurnPressedLocal()
+        {
             if (gameState == null || gameState.phase != GamePhase.Combat) return;
             gameState.AdvancePhase(); // -> EndPhase
             OnPhaseEntered();
@@ -432,12 +956,24 @@ namespace Botte.Core
         // ---------- End phase ----------
         public void OnSleepPressed()
         {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.Sleep);
+        }
+
+        public void OnSleepPressedLocal()
+        {
             if (gameState == null || gameState.phase != GamePhase.EndPhase) return;
             turnManager.RunEndPhase(gameState.activePlayer, EndPhaseChoice.Rest);
             EndRoundForActive();
         }
 
         public void OnDrawExtraPressed()
+        {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.DrawExtra);
+        }
+
+        public void OnDrawExtraPressedLocal()
         {
             if (gameState == null || gameState.phase != GamePhase.EndPhase) return;
             // Draw 1 from a chosen deck, then end the round.
@@ -459,6 +995,13 @@ namespace Botte.Core
 
         // ---------- Spell card usage (left click) ----------
         public void OnCardClicked(HeroState owner, MagicData spell)
+        {
+            if (!CanInteractWithOwner(owner)) return;
+            int idx = owner.hand.IndexOf(spell);
+            ExecuteAction(GameplayActionType.CardClicked, idx);
+        }
+
+        public void OnCardClickedLocal(HeroState owner, MagicData spell)
         {
             if (gameState == null || gameState.activePlayer != owner)
             {
@@ -514,6 +1057,13 @@ namespace Botte.Core
         // ---------- Item card usage (left click) ----------
         public void OnItemClicked(HeroState owner, ItemData item)
         {
+            if (!CanInteractWithOwner(owner)) return;
+            int idx = owner.itemBook.IndexOf(item);
+            ExecuteAction(GameplayActionType.ItemClicked, idx);
+        }
+
+        public void OnItemClickedLocal(HeroState owner, ItemData item)
+        {
             if (gameState == null || gameState.activePlayer != owner)
             {
                 battleUI.AddLog("Non è il tuo turno!");
@@ -544,6 +1094,32 @@ namespace Botte.Core
 
         // ---------- Right click: discard a card from the active hero's books ----------
         public void OnCardRightClicked(HeroState owner, CardData card)
+        {
+            if (!CanInteractWithOwner(owner)) return;
+            int bookType = -1;
+            int idx = -1;
+            if (card is MagicData m && owner.hand.Contains(m))
+            {
+                bookType = 0;
+                idx = owner.hand.IndexOf(m);
+            }
+            else if (card is EquipmentData eq && owner.equipmentBook.Contains(eq))
+            {
+                bookType = 1;
+                idx = owner.equipmentBook.IndexOf(eq);
+            }
+            else if (card is ItemData item && owner.itemBook.Contains(item))
+            {
+                bookType = 2;
+                idx = owner.itemBook.IndexOf(item);
+            }
+            if (bookType != -1 && idx != -1)
+            {
+                ExecuteAction(GameplayActionType.CardRightClicked, bookType, idx);
+            }
+        }
+
+        public void OnCardRightClickedLocal(HeroState owner, CardData card)
         {
             if (gameState == null || gameState.activePlayer != owner)
             {
@@ -614,6 +1190,12 @@ namespace Botte.Core
 
         public void OnDeckChoice(DeckChoice deck)
         {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.DeckChoice, (int)deck);
+        }
+
+        public void OnDeckChoiceLocal(DeckChoice deck)
+        {
             if (pendingDrawHero == null) { if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false); return; }
 
             if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
@@ -659,6 +1241,13 @@ namespace Botte.Core
         }
 
         public void OnEquipSlotRightClicked(bool isPlayer1, EquipmentSlot slot)
+        {
+            HeroState owner = isPlayer1 ? gameState.player1 : gameState.player2;
+            if (!CanInteractWithOwner(owner)) return;
+            ExecuteAction(GameplayActionType.EquipSlotRightClicked, (int)slot, isPlayer1 ? 1 : 2);
+        }
+
+        public void OnEquipSlotRightClickedLocal(bool isPlayer1, EquipmentSlot slot)
         {
             if (gameState == null) return;
             HeroState owner = isPlayer1 ? gameState.player1 : gameState.player2;
@@ -888,8 +1477,6 @@ namespace Botte.Core
             CardData card = opponent.discardPile[idx];
             opponent.discardPile.RemoveAt(idx);
             
-            // Ignores spellbook size restriction (standard logic), but let's check MAX_BOOK_SIZE limit!
-            // Wait, "ignore spell book size restriction" is stated in the description of Saccheggio, so we bypass it!
             owner.hand.Add(card);
             LogAction($"{GetStyledName(owner)} ruba {card.cardName} dagli scarti di {GetStyledName(opponent)} (limite ignorato).");
         }
@@ -919,6 +1506,12 @@ namespace Botte.Core
         }
 
         public void OnPeekKeep()
+        {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.PeekKeep);
+        }
+
+        public void OnPeekKeepLocal()
         {
             battleUI.HidePeek();
             if (pendingPeekCard == null) return;
@@ -952,6 +1545,12 @@ namespace Botte.Core
 
         public void OnPeekDiscard()
         {
+            if (!CanInteract()) return;
+            ExecuteAction(GameplayActionType.PeekDiscard);
+        }
+
+        public void OnPeekDiscardLocal()
+        {
             battleUI.HidePeek();
             if (pendingPeekCard == null) return;
             HeroState hero = pendingDrawHero;
@@ -983,6 +1582,14 @@ namespace Botte.Core
         private void EndBattle(HeroState winner)
         {
             SetAllButtonsInteractable(false);
+            if (RelayManager.IsMultiplayer)
+            {
+                bool hostWon = winner == gameState.player1;
+                string endMsg = hostWon ? "Game Finished - Host Won" : "Game Finished - Client Won";
+                RelayManager.Instance.EndMultiplayerGame(endMsg);
+                return;
+            }
+
             if (battleUI != null)
             {
                 battleUI.winnerOverlay.SetActive(true);

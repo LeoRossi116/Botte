@@ -13,6 +13,8 @@ using TMPro;
 
 public class RelayManager : NetworkBehaviour
 {
+    public static RelayManager Instance { get; private set; }
+
     [Header("UI Panels")]
     [SerializeField] private GameObject mainMenuPanel;
     [SerializeField] private GameObject lobbyPanel;
@@ -27,6 +29,22 @@ public class RelayManager : NetworkBehaviour
 
     private UnityTransport _transport;
     private Coroutine _errorCoroutine;
+    private UnityEngine.UI.Button _startGameButton;
+
+    public static bool IsMultiplayer
+    {
+        get
+        {
+            return NetworkManager.Singleton != null && 
+                   NetworkManager.Singleton.IsListening && 
+                   NetworkManager.Singleton.ConnectedClientsIds.Count >= 2;
+        }
+    }
+
+    private void Awake()
+    {
+        Instance = this;
+    }
 
     // FIX: Use standard Unity Start so the script wakes up immediately when the scene loads
     private async void Start()
@@ -98,7 +116,8 @@ public class RelayManager : NetworkBehaviour
     {
         try
         {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(10); 
+            // Limit max connections to 1 (meaning 1 client + host = 2 players total)
+            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1); 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             
             RelayServerData relayServerData = allocation.ToRelayServerData("dtls");
@@ -110,6 +129,12 @@ public class RelayManager : NetworkBehaviour
             lobbyPanel.SetActive(true);
             generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
             
+            // Check host startGameButton visibility
+            if (_startGameButton != null)
+            {
+                _startGameButton.gameObject.SetActive(true);
+            }
+
             UpdateAndBroadcastPlayerList();
         }
         catch (RelayServiceException e)
@@ -135,6 +160,12 @@ public class RelayManager : NetworkBehaviour
             mainMenuPanel.SetActive(false);
             lobbyPanel.SetActive(true);
             generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
+
+            // Client cannot start the game
+            if (_startGameButton != null)
+            {
+                _startGameButton.gameObject.SetActive(false);
+            }
         }
         catch (RelayServiceException e)
         {
@@ -162,15 +193,29 @@ public class RelayManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
+            // Limit player count to 2
+            if (NetworkManager.Singleton.ConnectedClientsIds.Count > 2)
+            {
+                NetworkManager.Singleton.DisconnectClient(clientId, "Lobby is full!");
+                return;
+            }
             UpdateAndBroadcastPlayerList();
         }
     }
 
     private void OnPlayerDisconnected(ulong clientId)
     {
-        if (!NetworkManager.Singleton.IsServer && clientId == NetworkManager.ServerClientId)
+        if (!NetworkManager.Singleton.IsServer)
         {
-            Debug.Log("Host closed the room. Returning to main menu.");
+            string reason = NetworkManager.Singleton.DisconnectReason;
+            if (!string.IsNullOrEmpty(reason))
+            {
+                ShowTimedError(reason);
+            }
+            else
+            {
+                ShowTimedError("Disconnected from host.");
+            }
             ToMainMenu();
             return;
         }
@@ -210,7 +255,7 @@ public class RelayManager : NetworkBehaviour
     }
 
     // --- DISAPPEARING ERROR HANDLING ---
-    private void ShowTimedError(string message)
+    public void ShowTimedError(string message)
     {
         if (_errorCoroutine != null) StopCoroutine(_errorCoroutine);
         _errorCoroutine = StartCoroutine(ErrorTimerTextRoutine(message));
@@ -218,9 +263,22 @@ public class RelayManager : NetworkBehaviour
 
     private IEnumerator ErrorTimerTextRoutine(string errorMessage)
     {
-        errorStatusText.text = $"<color=red>Error: {errorMessage}</color>";
+        if (errorStatusText != null)
+        {
+            if (errorMessage.StartsWith("Game Finished", StringComparison.OrdinalIgnoreCase))
+            {
+                errorStatusText.text = $"<color=yellow>{errorMessage}</color>";
+            }
+            else
+            {
+                errorStatusText.text = $"<color=red>Error: {errorMessage}</color>";
+            }
+        }
         yield return new WaitForSeconds(3.0f);
-        errorStatusText.text = "";
+        if (errorStatusText != null)
+        {
+            errorStatusText.text = "";
+        }
     }
 
     public void AssignUIReferences(
@@ -237,5 +295,155 @@ public class RelayManager : NetworkBehaviour
         errorStatusText = errorText;
         generatedCodeText = codeText;
         playerListText = listText;
+
+        // Dynamically find and bind StartGameButton
+        if (lobbyPanel != null)
+        {
+            _startGameButton = lobbyPanel.transform.Find("StartGameButton")?.GetComponent<UnityEngine.UI.Button>();
+            if (_startGameButton != null)
+            {
+                _startGameButton.onClick.RemoveAllListeners();
+                _startGameButton.onClick.AddListener(OnStartGameButtonClicked);
+                _startGameButton.gameObject.SetActive(NetworkManager.Singleton.IsServer);
+            }
+        }
+    }
+
+    private void OnStartGameButtonClicked()
+    {
+        if (!NetworkManager.Singleton.IsServer) return;
+
+        int playerCount = NetworkManager.Singleton.ConnectedClientsIds.Count;
+        if (playerCount == 1)
+        {
+            // Only 1 player (Host) -> local game!
+            NetworkManager.Singleton.Shutdown();
+            lobbyPanel.SetActive(false);
+            var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+            if (bm != null)
+            {
+                bm.OnPlayMenuPressed();
+            }
+        }
+        else if (playerCount == 2)
+        {
+            // 2 players -> start multiplayer character select!
+            StartMultiplayerCharacterSelectClientRpc();
+        }
+    }
+
+    [ClientRpc]
+    private void StartMultiplayerCharacterSelectClientRpc()
+    {
+        if (lobbyPanel != null)
+        {
+            lobbyPanel.SetActive(false);
+        }
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null)
+        {
+            bm.OnPlayMenuPressed();
+        }
+    }
+
+    // --- GAMEPLAY SYNCHRONIZATION RPCS ---
+
+    public void SendHeroSelection(int player, int classIdx)
+    {
+        if (NetworkManager.Singleton.IsServer)
+        {
+            SelectHeroClientRpc(player, classIdx);
+        }
+        else
+        {
+            SelectHeroServerRpc(player, classIdx);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SelectHeroServerRpc(int player, int classIdx)
+    {
+        SelectHeroClientRpc(player, classIdx);
+    }
+
+    [ClientRpc]
+    private void SelectHeroClientRpc(int player, int classIdx)
+    {
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null)
+        {
+            bm.SelectClassLocal(player, classIdx);
+        }
+    }
+
+    public void SendStartBattle(int seed)
+    {
+        StartBattleClientRpc(seed);
+    }
+
+    [ClientRpc]
+    private void StartBattleClientRpc(int seed)
+    {
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null)
+        {
+            UnityEngine.Random.InitState(seed);
+            bm.OnStartBattlePressedLocal();
+        }
+    }
+
+    public void SendGameplayAction(Botte.Core.GameplayActionType actionType, int arg1, int arg2)
+    {
+        if (NetworkManager.Singleton.IsServer)
+        {
+            GameplayActionClientRpc(actionType, arg1, arg2);
+        }
+        else
+        {
+            GameplayActionServerRpc(actionType, arg1, arg2);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void GameplayActionServerRpc(Botte.Core.GameplayActionType actionType, int arg1, int arg2)
+    {
+        GameplayActionClientRpc(actionType, arg1, arg2);
+    }
+
+    [ClientRpc]
+    private void GameplayActionClientRpc(Botte.Core.GameplayActionType actionType, int arg1, int arg2)
+    {
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null)
+        {
+            bm.ExecuteActionLocal(actionType, arg1, arg2);
+        }
+    }
+
+    public void SendTimerUpdate(int secondsLeft)
+    {
+        UpdateTimerClientRpc(secondsLeft);
+    }
+
+    [ClientRpc]
+    private void UpdateTimerClientRpc(int secondsLeft)
+    {
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null)
+        {
+            bm.UpdateTimerText(secondsLeft);
+        }
+    }
+
+    public void EndMultiplayerGame(string message)
+    {
+        EndGameClientRpc(message);
+    }
+
+    [ClientRpc]
+    private void EndGameClientRpc(string message)
+    {
+        ShowTimedError(message);
+        ToMainMenu();
     }
 }
