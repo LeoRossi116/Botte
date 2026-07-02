@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
@@ -12,7 +11,7 @@ using Unity.Services.Relay.Models;
 using UnityEngine;
 using TMPro;
 
-public class RelayManager : MonoBehaviour
+public class RelayManager : NetworkBehaviour
 {
     [Header("UI Panels")]
     [SerializeField] private GameObject mainMenuPanel;
@@ -24,35 +23,38 @@ public class RelayManager : MonoBehaviour
 
     [Header("Lobby Panel Elements")]
     [SerializeField] private TextMeshProUGUI generatedCodeText;
-    [SerializeField] private TextMeshProUGUI playerListText; // SINGLE dynamic text element
+    [SerializeField] private TextMeshProUGUI playerListText;
 
     private UnityTransport _transport;
     private Coroutine _errorCoroutine;
 
+    // FIX: Use standard Unity Start so the script wakes up immediately when the scene loads
     private async void Start()
     {
         if (NetworkManager.Singleton != null)
         {
             _transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-            
-            // Re-render the player list whenever someone connects or leaves
-            NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerListVisuals;
-            NetworkManager.Singleton.OnClientDisconnectCallback += UpdatePlayerListVisuals;
         }
         else
         {
-            Debug.LogError("RelayManager requires a NetworkManager component.");
+            Debug.LogError("RelayManager: NetworkManager Singleton was not found in the scene.");
             return;
         }
 
         if (errorStatusText != null) errorStatusText.text = "";
 
+        // Initialize Unity Gaming Services right away so buttons are ready
         try
         {
-            await UnityServices.InitializeAsync();
+            if (UnityServices.State == ServicesInitializationState.Uninitialized)
+            {
+                await UnityServices.InitializeAsync();
+            }
+
             if (!AuthenticationService.Instance.IsSignedIn)
             {
                 await AuthenticationService.Instance.SignInAnonymouslyAsync();
+                Debug.Log($"Signed in anonymously. Player ID: {AuthenticationService.Instance.PlayerId}");
             }
         }
         catch (Exception e)
@@ -61,37 +63,54 @@ public class RelayManager : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
+    // Subscribe to network events only when the network actively starts
+    public override void OnNetworkSpawn()
     {
+        base.OnNetworkSpawn();
+        
         if (NetworkManager.Singleton != null)
         {
-            NetworkManager.Singleton.OnClientConnectedCallback -= UpdatePlayerListVisuals;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= UpdatePlayerListVisuals;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnected;
+
+            // If we are a client joining, the host will update us. 
+            // If we are the host, we update the list now.
+            if (NetworkManager.Singleton.IsServer)
+            {
+                UpdateAndBroadcastPlayerList();
+            }
+        }
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        base.OnNetworkDespawn();
+        
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnPlayerConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnPlayerDisconnected;
         }
     }
 
     // --- HOST LOGIC ---
     public async void StartHostSession()
     {
-        if (NetworkManager.Singleton.IsListening) NetworkManager.Singleton.Shutdown();
-
         try
         {
-            // Note: Increased allocation to allow more than 2 players based on your example
             Allocation allocation = await RelayService.Instance.CreateAllocationAsync(10); 
             string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
             
             RelayServerData relayServerData = allocation.ToRelayServerData("dtls");
             _transport.SetRelayServerData(relayServerData);
 
-            NetworkManager.Singleton.StartHost();
+            // ❌ REMOVE THIS LINE: NetworkManager.Singleton.StartHost(); (SceneUIManager handles it now)
 
             mainMenuPanel.SetActive(false);
             lobbyPanel.SetActive(true);
             generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
             
-            // Build the initial list (just the host)
-            UpdatePlayerListVisuals(NetworkManager.Singleton.LocalClientId);
+            UpdateAndBroadcastPlayerList();
         }
         catch (RelayServiceException e)
         {
@@ -100,26 +119,18 @@ public class RelayManager : MonoBehaviour
         }
     }
 
-    // --- JOIN LOGIC ---
+    // Update your Join function to remove the NetworkManager.Singleton.StartClient() line:
     public async void StartClientSession()
     {
-        if (NetworkManager.Singleton.IsListening) NetworkManager.Singleton.Shutdown();
-
         string joinCode = joinCodeInputField.text.Trim();
         
-        if (string.IsNullOrEmpty(joinCode) || joinCode.Length < 4)
-        {
-            ShowTimedError("Please enter a valid room code.");
-            return;
-        }
-
         try
         {
             JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
             RelayServerData relayServerData = joinAllocation.ToRelayServerData("dtls");
             _transport.SetRelayServerData(relayServerData);
 
-            NetworkManager.Singleton.StartClient();
+            // ❌ REMOVE THIS LINE: NetworkManager.Singleton.StartClient(); (SceneUIManager handles it now)
 
             mainMenuPanel.SetActive(false);
             lobbyPanel.SetActive(true);
@@ -146,24 +157,40 @@ public class RelayManager : MonoBehaviour
         mainMenuPanel.SetActive(true);
     }
 
-    // --- DYNAMIC PLAYER LIST RE-RENDER ---
-    private void UpdatePlayerListVisuals(ulong clientId)
+    // --- CONNECTION HANDLERS ---
+    private void OnPlayerConnected(ulong clientId)
     {
-        // If we are a client and get disconnected by the host, kick back to main menu
-        if (!NetworkManager.Singleton.IsServer && !NetworkManager.Singleton.IsConnectedClient)
+        if (NetworkManager.Singleton.IsServer)
         {
+            UpdateAndBroadcastPlayerList();
+        }
+    }
+
+    private void OnPlayerDisconnected(ulong clientId)
+    {
+        if (!NetworkManager.Singleton.IsServer && clientId == NetworkManager.ServerClientId)
+        {
+            Debug.Log("Host closed the room. Returning to main menu.");
             ToMainMenu();
             return;
         }
 
-        // Build the string dynamically
+        if (NetworkManager.Singleton.IsServer)
+        {
+            UpdateAndBroadcastPlayerList();
+        }
+    }
+
+    // --- NETWORK STRING BUILDER & SYNC ENGINE ---
+    private void UpdateAndBroadcastPlayerList()
+    {
+        if (!NetworkManager.Singleton.IsServer) return;
+
         string listBuilder = "Player List:\n";
 
-        // Netcode keeps a collection of all connected IDs. Loop through them.
         foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            // ID 0 (or the Server/Host ID) is always the Host
-            if (id == 0) 
+            if (id == NetworkManager.ServerClientId) 
             {
                 listBuilder += "    - Host\n";
             }
@@ -173,11 +200,16 @@ public class RelayManager : MonoBehaviour
             }
         }
 
-        // Apply the complete string block to our single text box
-        playerListText.text = listBuilder;
+        UpdatePlayerListClientRpc(listBuilder);
     }
 
-    // --- TIMED ERROR COROUTINE ---
+    [ClientRpc]
+    private void UpdatePlayerListClientRpc(string fullListText)
+    {
+        playerListText.text = fullListText;
+    }
+
+    // --- DISAPPEARING ERROR HANDLING ---
     private void ShowTimedError(string message)
     {
         if (_errorCoroutine != null) StopCoroutine(_errorCoroutine);
@@ -189,5 +221,21 @@ public class RelayManager : MonoBehaviour
         errorStatusText.text = $"<color=red>Error: {errorMessage}</color>";
         yield return new WaitForSeconds(3.0f);
         errorStatusText.text = "";
+    }
+
+    public void AssignUIReferences(
+        GameObject mainPanel, 
+        GameObject lobPanel, 
+        TMP_InputField inputField, 
+        TextMeshProUGUI errorText, 
+        TextMeshProUGUI codeText, 
+        TextMeshProUGUI listText)
+    {
+        mainMenuPanel = mainPanel;
+        lobbyPanel = lobPanel;
+        joinCodeInputField = inputField;
+        errorStatusText = errorText;
+        generatedCodeText = codeText;
+        playerListText = listText;
     }
 }

@@ -130,7 +130,6 @@ GameObject:
   - component: {fileID: 65539936}
   - component: {fileID: 65539935}
   - component: {fileID: 65539937}
-  - component: {fileID: 65539934}
   m_Layer: 0
   m_Name: NetworkManager
   m_TagString: Untagged
@@ -138,24 +137,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &65539934
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 65539933}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a2546fd6e022f5947ae9c4056f63da88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RelayManager
-  mainMenuPanel: {fileID: 249085382}
-  lobbyPanel: {fileID: 718296119}
-  joinCodeInputField: {fileID: 2063725039}
-  errorStatusText: {fileID: 1457422959}
-  generatedCodeText: {fileID: 1510307657}
-  playerListText: {fileID: 656774641}
 --- !u!114 &65539935
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -175,7 +156,7 @@ MonoBehaviour:
     PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
-      - {fileID: 11400000, guid: e239ded626e03e6468b650749a9037c3, type: 2}
+      - {fileID: 11400000, guid: d97251398b00621468df9fb9d4db2d10, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -951,9 +932,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 65539934}
-        m_TargetAssemblyTypeName: RelayManager, Assembly-CSharp
-        m_MethodName: StartClientSession
+      - m_Target: {fileID: 906840558}
+        m_TargetAssemblyTypeName: SceneUIManager, Assembly-CSharp
+        m_MethodName: ClickedJoin
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8545,6 +8526,57 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 899456695}
   m_CullTransparentMesh: 1
+--- !u!1 &906840557
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 906840559}
+  - component: {fileID: 906840558}
+  m_Layer: 0
+  m_Name: SceneUIManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &906840558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906840557}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6edaa7a96aa7084f86cd1e6c2786aec, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneUIManager
+  relayManagerPrefab: {fileID: 7511940761635458689, guid: 4b41bbdd02b6811458faedf8e56221b8, type: 3}
+  mainMenuPanel: {fileID: 249085382}
+  lobbyPanel: {fileID: 718296119}
+  joinCodeInputField: {fileID: 2063725039}
+  errorStatusText: {fileID: 1457422959}
+  generatedCodeText: {fileID: 1510307657}
+  playerListText: {fileID: 656774641}
+--- !u!4 &906840559
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 906840557}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &964149411
 GameObject:
   m_ObjectHideFlags: 0
@@ -13462,9 +13494,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 65539934}
-        m_TargetAssemblyTypeName: RelayManager, Assembly-CSharp
-        m_MethodName: ToMainMenu
+      - m_Target: {fileID: 906840558}
+        m_TargetAssemblyTypeName: SceneUIManager, Assembly-CSharp
+        m_MethodName: ClickedBack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -15381,9 +15413,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 65539934}
-        m_TargetAssemblyTypeName: RelayManager, Assembly-CSharp
-        m_MethodName: StartHostSession
+      - m_Target: {fileID: 906840558}
+        m_TargetAssemblyTypeName: SceneUIManager, Assembly-CSharp
+        m_MethodName: ClickedHost
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -17941,9 +17973,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 65539934}
-        m_TargetAssemblyTypeName: RelayManager, Assembly-CSharp
-        m_MethodName: ToMainMenu
+      - m_Target: {fileID: 906840558}
+        m_TargetAssemblyTypeName: SceneUIManager, Assembly-CSharp
+        m_MethodName: ClickedBack
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -19995,4 +20027,5 @@ SceneRoots:
   - {fileID: 601073362}
   - {fileID: 1295037236}
   - {fileID: 65539936}
+  - {fileID: 906840559}
   - {fileID: 1109870074}
