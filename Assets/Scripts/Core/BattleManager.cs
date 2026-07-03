@@ -87,6 +87,10 @@ namespace Botte.Core
         private TextMeshProUGUI turnCounterText;
         private TextMeshProUGUI timerText;
 
+        // Big centered "YOUR TURN / OPPONENT TURN" banner shown briefly at turn start.
+        private TextMeshProUGUI turnAnnounceText;
+        private Coroutine _turnAnnounceCoroutine;
+
         private void Start()
         {
             WireRuntimeListeners();
@@ -255,6 +259,83 @@ namespace Botte.Core
             {
                 timerText = timerTrans.GetComponent<TextMeshProUGUI>();
             }
+        }
+
+        // Creates (once) the large centered banner used for the turn announcement.
+        private void EnsureTurnAnnounceUI()
+        {
+            if (turnAnnounceText != null) return;
+
+            var battleScreen = GameObject.Find("Canvas/BattleScreen");
+            if (battleScreen == null) return;
+
+            var existing = battleScreen.transform.Find("TurnAnnounce");
+            if (existing != null)
+            {
+                turnAnnounceText = existing.GetComponent<TextMeshProUGUI>();
+                return;
+            }
+
+            var go = new GameObject("TurnAnnounce");
+            go.transform.SetParent(battleScreen.transform, false);
+            turnAnnounceText = go.AddComponent<TextMeshProUGUI>();
+            turnAnnounceText.fontSize = 64f;
+            turnAnnounceText.fontStyle = FontStyles.Bold;
+            turnAnnounceText.alignment = TextAlignmentOptions.Center;
+            turnAnnounceText.raycastTarget = false; // never block clicks
+            turnAnnounceText.enableWordWrapping = false;
+
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(0f, 120f);
+            rt.sizeDelta = new Vector2(760f, 120f);
+
+            go.SetActive(false);
+        }
+
+        // Announces whose turn it is: "YOUR TURN" / "OPPONENT TURN" in multiplayer,
+        // or the active hero's name in local hotseat mode. Auto-hides after 1.5s.
+        private void ShowTurnIndicator()
+        {
+            EnsureTurnAnnounceUI();
+            if (turnAnnounceText == null || gameState == null) return;
+
+            HeroState active = gameState.activePlayer;
+            string msg;
+            Color col;
+            if (RelayManager.IsMultiplayer)
+            {
+                if (IsMyTurn())
+                {
+                    msg = "YOUR TURN";
+                    col = new Color32(0x2e, 0xcc, 0x71, 0xff); // green
+                }
+                else
+                {
+                    msg = "OPPONENT TURN";
+                    col = new Color32(0xe9, 0x45, 0x60, 0xff); // red
+                }
+            }
+            else
+            {
+                msg = $"TURNO DI {active.data.heroName.ToUpper()}";
+                col = Color.white;
+            }
+
+            turnAnnounceText.text = msg;
+            turnAnnounceText.color = col;
+
+            if (_turnAnnounceCoroutine != null) StopCoroutine(_turnAnnounceCoroutine);
+            _turnAnnounceCoroutine = StartCoroutine(TurnIndicatorRoutine());
+        }
+
+        private System.Collections.IEnumerator TurnIndicatorRoutine()
+        {
+            turnAnnounceText.gameObject.SetActive(true);
+            yield return new WaitForSecondsRealtime(1.5f);
+            if (turnAnnounceText != null) turnAnnounceText.gameObject.SetActive(false);
         }
 
         public void UpdateTimerText(int secondsLeft)
@@ -633,6 +714,12 @@ namespace Botte.Core
             HeroState active = gameState.activePlayer;
             HeroState opponent = (active == gameState.player1) ? gameState.player2 : gameState.player1;
 
+            // A new turn always begins at the ResourceRecovery phase — announce it briefly.
+            if (gameState.phase == GamePhase.ResourceRecovery)
+            {
+                ShowTurnIndicator();
+            }
+
             if (gameState.phase == GamePhase.ResourceRecovery)
             {
                 turnManager.RunResourceRecoveryPhase(active, opponent);
@@ -801,7 +888,8 @@ namespace Botte.Core
                 }
             };
             string label = (drawNumber == 1) ? "1° Pescaggio Obbligatorio" : "2° Pescaggio Obbligatorio";
-            battleUI.ShowDrawChoice(label);
+            // Only the player actually drawing sees the draw popup (not the opponent).
+            if (IsMyTurn()) battleUI.ShowDrawChoice(label);
         }
 
         // ---------- Preparation ----------
@@ -1178,14 +1266,15 @@ namespace Botte.Core
             pendingDrawCount = count;
             pendingAfterDraws = after;
             pendingPeek = false;
-            if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
+            // Only the drawer sees the popup; the opponent's game state still syncs.
+            if (battleUI.drawChoicePanel != null && IsMyTurn()) battleUI.drawChoicePanel.SetActive(true);
         }
 
         private void RequestPeek(HeroState hero)
         {
             pendingDrawHero = hero;
             pendingPeek = true;
-            if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
+            if (battleUI.drawChoicePanel != null && IsMyTurn()) battleUI.drawChoicePanel.SetActive(true);
         }
 
         public void OnDeckChoice(DeckChoice deck)
@@ -1214,7 +1303,7 @@ namespace Botte.Core
 
             if (pendingDrawCount > 0)
             {
-                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(true);
+                if (battleUI.drawChoicePanel != null && IsMyTurn()) battleUI.drawChoicePanel.SetActive(true);
             }
             else
             {
@@ -1502,7 +1591,7 @@ namespace Botte.Core
             }
             pendingPeekDeck = deck;
             pendingPeekCard = top;
-            battleUI.ShowPeek(top.cardName);
+            if (IsMyTurn()) battleUI.ShowPeek(top.cardName);
         }
 
         public void OnPeekKeep()

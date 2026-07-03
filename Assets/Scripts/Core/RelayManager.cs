@@ -30,6 +30,15 @@ public class RelayManager : NetworkBehaviour
     private Coroutine _errorCoroutine;
     private UnityEngine.UI.Button _startGameButton;
 
+    // True while WE deliberately leave (leave lobby / normal game end). Used to
+    // suppress the misleading "disconnected" error that Shutdown would otherwise raise.
+    private bool _leavingIntentionally;
+
+    // Raw (uncolored) room code, kept so it can be copied to the clipboard on click.
+    private string _currentJoinCode = "";
+    private UnityEngine.UI.Button _copyCodeButton;
+    private Coroutine _copyFeedbackCoroutine;
+
     // --- LOBBY CHAT ---
     [Header("Lobby Chat Elements")]
     [SerializeField] private TMP_InputField chatInputField;
@@ -87,6 +96,10 @@ public class RelayManager : NetworkBehaviour
     // BEFORE this networked object is spawned. This only drives the lobby UI.
     public void ShowLobby(string joinCode, bool isHost)
     {
+        // Fresh lobby session: an incoming Shutdown from now on is unexpected unless we set this.
+        _leavingIntentionally = false;
+        _currentJoinCode = joinCode;
+
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (lobbyPanel != null) lobbyPanel.SetActive(true);
         if (generatedCodeText != null) generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
@@ -119,6 +132,10 @@ public class RelayManager : NetworkBehaviour
     // --- LEAVE / DISCONNECT LOGIC ---
     public void ToMainMenu()
     {
+        // We are leaving on purpose; don't let the resulting Shutdown raise a
+        // "disconnected" error over a victory / normal message.
+        _leavingIntentionally = true;
+
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
             NetworkManager.Singleton.Shutdown();
@@ -147,25 +164,42 @@ public class RelayManager : NetworkBehaviour
 
     private void OnPlayerDisconnected(ulong clientId)
     {
-        if (!NetworkManager.Singleton.IsServer)
-        {
-            string reason = NetworkManager.Singleton.DisconnectReason;
-            if (!string.IsNullOrEmpty(reason))
-            {
-                ShowTimedError(reason);
-            }
-            else
-            {
-                ShowTimedError("Disconnected from host.");
-            }
-            ToMainMenu();
-            return;
-        }
-
         if (NetworkManager.Singleton.IsServer)
         {
             UpdateAndBroadcastPlayerList();
+            return;
         }
+
+        // --- Client side ---
+
+        // If WE chose to leave (left the lobby, or the game ended normally), do NOT
+        // show a disconnect error. This preserves the victory / normal message and
+        // avoids the false "disconnection" text after a game finishes.
+        if (_leavingIntentionally)
+        {
+            return;
+        }
+
+        // Genuine unexpected disconnect. Pick a short, friendly message and never
+        // surface the raw (often very long) transport DisconnectReason string.
+        string reason = NetworkManager.Singleton.DisconnectReason;
+        string message;
+        if (!string.IsNullOrEmpty(reason) && reason.Length < 60)
+        {
+            // Short, human-authored reasons (e.g. "Lobby is full!") are worth showing.
+            message = reason;
+        }
+        else if (lobbyPanel != null && lobbyPanel.activeSelf)
+        {
+            message = "The host closed the lobby.";
+        }
+        else
+        {
+            message = "Connection to the host was lost.";
+        }
+
+        ShowTimedError(message);
+        ToMainMenu();
     }
 
     // --- NETWORK STRING BUILDER & SYNC ENGINE ---
@@ -250,6 +284,27 @@ public class RelayManager : NetworkBehaviour
         }
     }
 
+    // --- CLIPBOARD COPY (room code) ---
+    public void CopyCodeToClipboard()
+    {
+        if (string.IsNullOrEmpty(_currentJoinCode)) return;
+        GUIUtility.systemCopyBuffer = _currentJoinCode;
+
+        if (_copyFeedbackCoroutine != null) StopCoroutine(_copyFeedbackCoroutine);
+        _copyFeedbackCoroutine = StartCoroutine(CopyFeedbackRoutine());
+    }
+
+    private IEnumerator CopyFeedbackRoutine()
+    {
+        if (generatedCodeText != null)
+        {
+            generatedCodeText.text = "<color=#2ECC71>Copied to clipboard!</color>";
+            yield return new WaitForSeconds(1.0f);
+            if (generatedCodeText != null)
+                generatedCodeText.text = $"Room Code: <color=yellow>{_currentJoinCode}</color>";
+        }
+    }
+
     // --- DISAPPEARING ERROR HANDLING ---
     public void ShowTimedError(string message)
     {
@@ -264,6 +319,12 @@ public class RelayManager : NetworkBehaviour
             if (errorMessage.StartsWith("Game Finished", StringComparison.OrdinalIgnoreCase))
             {
                 errorStatusText.text = $"<color=yellow>{errorMessage}</color>";
+            }
+            else if (errorMessage.StartsWith("The host closed the lobby", StringComparison.OrdinalIgnoreCase)
+                  || errorMessage.StartsWith("Connection to the host was lost", StringComparison.OrdinalIgnoreCase))
+            {
+                // Friendly, non-alarming notice rather than a red "Error:".
+                errorStatusText.text = $"<color=#FFD54A>{errorMessage}</color>";
             }
             else
             {
@@ -291,6 +352,19 @@ public class RelayManager : NetworkBehaviour
         errorStatusText = errorText;
         generatedCodeText = codeText;
         playerListText = listText;
+
+        // Make the room-code label clickable so any player can copy the code.
+        if (generatedCodeText != null)
+        {
+            _copyCodeButton = generatedCodeText.GetComponent<UnityEngine.UI.Button>();
+            if (_copyCodeButton == null)
+            {
+                _copyCodeButton = generatedCodeText.gameObject.AddComponent<UnityEngine.UI.Button>();
+                _copyCodeButton.transition = UnityEngine.UI.Selectable.Transition.None;
+            }
+            _copyCodeButton.onClick.RemoveAllListeners();
+            _copyCodeButton.onClick.AddListener(CopyCodeToClipboard);
+        }
 
         // Dynamically find and bind StartGameButton
         if (lobbyPanel != null)

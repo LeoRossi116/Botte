@@ -17,7 +17,10 @@ public class SceneUIManager : MonoBehaviour
     [SerializeField] private NetworkObject relayManagerPrefab;
 
     [Header("Scene UI Layout References")]
+    [Tooltip("The title/landing page (Title + PLAY + OPTION + EXIT). This is the 'home' screen.")]
     [SerializeField] private GameObject mainMenuPanel;
+    [Tooltip("The connect page reached via PLAY (Host / Join / code input).")]
+    [SerializeField] private GameObject playPanel;
     [SerializeField] private GameObject lobbyPanel;
     [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private TextMeshProUGUI errorStatusText;
@@ -41,6 +44,18 @@ public class SceneUIManager : MonoBehaviour
         {
             Debug.LogError("SceneUIManager: NetworkManager Singleton was not found in the scene.");
         }
+
+        // Force any text typed (or pasted) into the code field to UPPERCASE so it
+        // matches the code shown to the host.
+        if (joinCodeInputField != null)
+        {
+            joinCodeInputField.onValidateInput = (string text, int charIndex, char addedChar) => char.ToUpper(addedChar);
+        }
+
+        // Initial menu state: show the title/landing page, hide everything else.
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+        if (playPanel != null) playPanel.SetActive(false);
+        if (lobbyPanel != null) lobbyPanel.SetActive(false);
 
         // Initialize Unity Gaming Services up front so hosting/joining is instant.
         await InitializeServicesAsync();
@@ -68,6 +83,49 @@ public class SceneUIManager : MonoBehaviour
     }
 
     // --- BUTTON ACTIONS ---
+
+    // Title page -> connect (play) page.
+    public void ClickedPlay()
+    {
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
+        if (lobbyPanel != null) lobbyPanel.SetActive(false);
+        if (playPanel != null) playPanel.SetActive(true);
+        if (errorStatusText != null) errorStatusText.text = "";
+
+        // The code field stays hidden until the player presses Join.
+        if (joinCodeInputField != null)
+        {
+            joinCodeInputField.text = "";
+            joinCodeInputField.gameObject.SetActive(false);
+        }
+    }
+
+    // Connect (play) page -> back to title page.
+    public void ClickedBackToMenu()
+    {
+        SafeShutdown();
+        if (playPanel != null) playPanel.SetActive(false);
+        if (lobbyPanel != null) lobbyPanel.SetActive(false);
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
+        if (errorStatusText != null) errorStatusText.text = "";
+    }
+
+    // Options button on the title page (not implemented yet, here for show).
+    public void ClickedOptions()
+    {
+        // Intentionally left blank for now.
+    }
+
+    // Exit button on the title page: quits the application.
+    public void ClickedExitGame()
+    {
+        SafeShutdown();
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 
     public async void ClickedHost()
     {
@@ -112,6 +170,7 @@ public class SceneUIManager : MonoBehaviour
                 generatedCodeText,
                 playerListText
             );
+            if (playPanel != null) playPanel.SetActive(false);
             activeRelayManager.ShowLobby(joinCode, true);
         }
         catch (Exception e)
@@ -139,9 +198,26 @@ public class SceneUIManager : MonoBehaviour
                 return;
             }
 
-            string joinCode = joinCodeInputField != null ? joinCodeInputField.text.Trim() : "";
+            // First Join press (or an empty field) reveals the code box instead of
+            // trying to connect. The box then stays visible for the player to type in.
+            if (joinCodeInputField != null && !joinCodeInputField.gameObject.activeSelf)
+            {
+                joinCodeInputField.gameObject.SetActive(true);
+                joinCodeInputField.text = "";
+                joinCodeInputField.ActivateInputField();
+                ShowError("Enter the room code, then press Join again.");
+                _isBusy = false;
+                return;
+            }
+
+            string joinCode = joinCodeInputField != null ? joinCodeInputField.text.Trim().ToUpper() : "";
             if (string.IsNullOrEmpty(joinCode))
             {
+                if (joinCodeInputField != null)
+                {
+                    joinCodeInputField.gameObject.SetActive(true);
+                    joinCodeInputField.ActivateInputField();
+                }
                 ShowError("Enter a room code first.");
                 _isBusy = false;
                 return;
@@ -208,6 +284,7 @@ public class SceneUIManager : MonoBehaviour
                 generatedCodeText,
                 playerListText
             );
+            if (playPanel != null) playPanel.SetActive(false);
             activeRelayManager.ShowLobby(joinCode, false);
         }
         else
@@ -227,6 +304,7 @@ public class SceneUIManager : MonoBehaviour
         {
             SafeShutdown();
             if (lobbyPanel != null) lobbyPanel.SetActive(false);
+            if (playPanel != null) playPanel.SetActive(false);
             if (mainMenuPanel != null) mainMenuPanel.SetActive(true);
         }
     }
