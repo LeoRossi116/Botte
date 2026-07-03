@@ -27,9 +27,15 @@ public class RelayManager : NetworkBehaviour
     [SerializeField] private TextMeshProUGUI generatedCodeText;
     [SerializeField] private TextMeshProUGUI playerListText;
 
-    private UnityTransport _transport;
     private Coroutine _errorCoroutine;
     private UnityEngine.UI.Button _startGameButton;
+
+    // --- LOBBY CHAT ---
+    [Header("Lobby Chat Elements")]
+    [SerializeField] private TMP_InputField chatInputField;
+    [SerializeField] private TextMeshProUGUI chatDisplayText;
+    private readonly System.Collections.Generic.Queue<string> _chatHistory = new System.Collections.Generic.Queue<string>();
+    private const int MaxChatMessages = 8;
 
     public static bool IsMultiplayer
     {
@@ -44,41 +50,6 @@ public class RelayManager : NetworkBehaviour
     private void Awake()
     {
         Instance = this;
-    }
-
-    // FIX: Use standard Unity Start so the script wakes up immediately when the scene loads
-    private async void Start()
-    {
-        if (NetworkManager.Singleton != null)
-        {
-            _transport = NetworkManager.Singleton.GetComponent<UnityTransport>();
-        }
-        else
-        {
-            Debug.LogError("RelayManager: NetworkManager Singleton was not found in the scene.");
-            return;
-        }
-
-        if (errorStatusText != null) errorStatusText.text = "";
-
-        // Initialize Unity Gaming Services right away so buttons are ready
-        try
-        {
-            if (UnityServices.State == ServicesInitializationState.Uninitialized)
-            {
-                await UnityServices.InitializeAsync();
-            }
-
-            if (!AuthenticationService.Instance.IsSignedIn)
-            {
-                await AuthenticationService.Instance.SignInAnonymouslyAsync();
-                Debug.Log($"Signed in anonymously. Player ID: {AuthenticationService.Instance.PlayerId}");
-            }
-        }
-        catch (Exception e)
-        {
-            ShowTimedError($"Services Setup Failed: {e.Message}");
-        }
     }
 
     // Subscribe to network events only when the network actively starts
@@ -111,66 +82,37 @@ public class RelayManager : NetworkBehaviour
         }
     }
 
-    // --- HOST LOGIC ---
-    public async void StartHostSession()
+    // --- LOBBY UI ENTRY ---
+    // Relay allocation and NetworkManager start are handled by SceneUIManager
+    // BEFORE this networked object is spawned. This only drives the lobby UI.
+    public void ShowLobby(string joinCode, bool isHost)
     {
-        try
+        if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
+        if (lobbyPanel != null) lobbyPanel.SetActive(true);
+        if (generatedCodeText != null) generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
+
+        if (_startGameButton != null)
         {
-            // Limit max connections to 1 (meaning 1 client + host = 2 players total)
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(1); 
-            string joinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-            
-            RelayServerData relayServerData = allocation.ToRelayServerData("dtls");
-            _transport.SetRelayServerData(relayServerData);
+            _startGameButton.gameObject.SetActive(isHost);
+        }
 
-            // ❌ REMOVE THIS LINE: NetworkManager.Singleton.StartHost(); (SceneUIManager handles it now)
+        // Reset chat for a fresh lobby session
+        _chatHistory.Clear();
+        if (chatDisplayText != null) chatDisplayText.text = "";
+        if (chatInputField != null) chatInputField.text = "";
 
-            mainMenuPanel.SetActive(false);
-            lobbyPanel.SetActive(true);
-            generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
-            
-            // Check host startGameButton visibility
-            if (_startGameButton != null)
-            {
-                _startGameButton.gameObject.SetActive(true);
-            }
+        // Now that UI references are assigned, apply any cached list and refresh.
+        if (playerListText != null) playerListText.text = _lastPlayerList;
 
+        if (isHost)
+        {
             UpdateAndBroadcastPlayerList();
         }
-        catch (RelayServiceException e)
+        else
         {
-            Debug.LogError($"Hosting Failed: {e.Message}");
-            ShowTimedError("Failed to create a room.");
-        }
-    }
-
-    // Update your Join function to remove the NetworkManager.Singleton.StartClient() line:
-    public async void StartClientSession()
-    {
-        string joinCode = joinCodeInputField.text.Trim();
-        
-        try
-        {
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-            RelayServerData relayServerData = joinAllocation.ToRelayServerData("dtls");
-            _transport.SetRelayServerData(relayServerData);
-
-            // ❌ REMOVE THIS LINE: NetworkManager.Singleton.StartClient(); (SceneUIManager handles it now)
-
-            mainMenuPanel.SetActive(false);
-            lobbyPanel.SetActive(true);
-            generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
-
-            // Client cannot start the game
-            if (_startGameButton != null)
-            {
-                _startGameButton.gameObject.SetActive(false);
-            }
-        }
-        catch (RelayServiceException e)
-        {
-            Debug.LogError($"Joining Failed: {e.Message}");
-            ShowTimedError("Lobby not found! Check your code.");
+            // Ask the server to (re)broadcast the current player list now that
+            // this client's UI is ready to display it.
+            RequestPlayerListRefreshServerRpc();
         }
     }
 
@@ -248,10 +190,64 @@ public class RelayManager : NetworkBehaviour
         UpdatePlayerListClientRpc(listBuilder);
     }
 
+    private string _lastPlayerList = "";
+
     [ClientRpc]
     private void UpdatePlayerListClientRpc(string fullListText)
     {
-        playerListText.text = fullListText;
+        _lastPlayerList = fullListText;
+        // UI references may not be assigned yet (e.g. RPC arriving during spawn),
+        // so guard against a null target.
+        if (playerListText != null)
+        {
+            playerListText.text = fullListText;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RequestPlayerListRefreshServerRpc()
+    {
+        UpdateAndBroadcastPlayerList();
+    }
+
+    // --- LOBBY TEXT CHAT ---
+    // Called by the Send button and by pressing Enter in the chat input field.
+    public void OnChatSubmit()
+    {
+        if (chatInputField == null) return;
+
+        string message = chatInputField.text.Trim();
+        chatInputField.text = "";
+        chatInputField.ActivateInputField();
+
+        if (string.IsNullOrEmpty(message)) return;
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) return;
+
+        string senderName = NetworkManager.Singleton.IsServer ? "Host" : "Guest";
+        SubmitChatMessageServerRpc(senderName, message);
+    }
+
+    private void OnChatSubmitString(string _)
+    {
+        OnChatSubmit();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SubmitChatMessageServerRpc(string sender, string message)
+    {
+        BroadcastChatMessageClientRpc(sender, message);
+    }
+
+    [ClientRpc]
+    private void BroadcastChatMessageClientRpc(string sender, string message)
+    {
+        _chatHistory.Enqueue($"<b><color=#FFD54A>{sender}:</color></b> {message}");
+        while (_chatHistory.Count > MaxChatMessages) _chatHistory.Dequeue();
+
+        if (chatDisplayText != null)
+        {
+            chatDisplayText.text = string.Join("\n", _chatHistory);
+        }
     }
 
     // --- DISAPPEARING ERROR HANDLING ---
@@ -305,6 +301,27 @@ public class RelayManager : NetworkBehaviour
                 _startGameButton.onClick.RemoveAllListeners();
                 _startGameButton.onClick.AddListener(OnStartGameButtonClicked);
                 _startGameButton.gameObject.SetActive(NetworkManager.Singleton.IsServer);
+            }
+
+            // Dynamically find and bind the lobby chat UI (children of "ChatPanel")
+            Transform chatPanel = lobbyPanel.transform.Find("ChatPanel");
+            if (chatPanel != null)
+            {
+                chatInputField = chatPanel.Find("ChatInput")?.GetComponent<TMP_InputField>();
+                chatDisplayText = chatPanel.Find("ChatDisplay")?.GetComponent<TextMeshProUGUI>();
+
+                var sendButton = chatPanel.Find("ChatSendButton")?.GetComponent<UnityEngine.UI.Button>();
+                if (sendButton != null)
+                {
+                    sendButton.onClick.RemoveAllListeners();
+                    sendButton.onClick.AddListener(OnChatSubmit);
+                }
+
+                if (chatInputField != null)
+                {
+                    chatInputField.onSubmit.RemoveListener(OnChatSubmitString);
+                    chatInputField.onSubmit.AddListener(OnChatSubmitString);
+                }
             }
         }
     }
