@@ -24,7 +24,12 @@ public enum SpellEffectType
     DrawChosenDeck,               // value = cards drawn from a player-chosen deck (pescata) [deferred]
     PeekChosenDeck,               // value = peek top card of a chosen deck, keep or discard (manipolazione) [deferred]
     StealOpponentDiscard,         // value = cards grabbed from opponent discard into own spellbook (saccheggio) [deferred]
-    EquipmentStub                 // logs an equipment-dependent effect that is not yet implemented
+    EquipmentStub,                // logs an equipment-dependent effect that is not yet implemented
+    // --- Appended item effects (order matters: serialized by index) ---
+    DrainManaOpponent,            // value = mana removed from opponent (dispersione, vuoto di mana)
+    LoseStamina,                  // value = stamina the caster pays (validated, travaso inverso)
+    GainMaxStrengthThisTurn,      // value = temporary +Strength this turn (forza bruta)
+    GainMaxAgilityThisTurn        // value = temporary +Agility (max stamina) this turn (scatto felino)
 }
 
 [System.Serializable]

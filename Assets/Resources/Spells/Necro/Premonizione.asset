@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b60508f7a338fac48be965ddfe676f0c, type: 3}
+  m_Name: Premonizione
+  m_EditorClassIdentifier: Assembly-CSharp::MagicData
+  cardName: Premonizione
+  cardType: 1
+  cardClass: 4
+  staminaCost: 0
+  manaCost: 1
+  rarity: 0
+  effectDescription: Pesca 1 carta da un mazzo a scelta.
+  magicType: 0
+  effects:
+  - type: 20
+    value: 1
+    duration: 0

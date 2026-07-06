@@ -30,6 +30,10 @@ public class SceneUIManager : MonoBehaviour
     [Header("Nickname Fields")]
     [SerializeField] private UnityEngine.UI.Button insertNameButton;
     [SerializeField] private TMP_InputField nicknameInputField;
+    [Tooltip("Checkmark button that confirms the typed nickname.")]
+    [SerializeField] private UnityEngine.UI.Button confirmNameButton;
+    [Tooltip("Button that clears the nickname input field.")]
+    [SerializeField] private UnityEngine.UI.Button clearNameButton;
 
     public static string LocalNickname { get; private set; } = "";
 
@@ -73,7 +77,20 @@ public class SceneUIManager : MonoBehaviour
                     nicknameInputField.gameObject.SetActive(true);
                     nicknameInputField.ActivateInputField();
                 }
+                SetNicknameControlsActive(true);
             });
+        }
+
+        // The confirm/clear controls start hidden and appear together with the field.
+        if (confirmNameButton != null)
+        {
+            confirmNameButton.onClick.AddListener(ClickedConfirmName);
+            confirmNameButton.gameObject.SetActive(false);
+        }
+        if (clearNameButton != null)
+        {
+            clearNameButton.onClick.AddListener(ClickedClearName);
+            clearNameButton.gameObject.SetActive(false);
         }
 
         // Initial menu state: show the title/landing page, hide everything else.
@@ -122,6 +139,7 @@ public class SceneUIManager : MonoBehaviour
             nicknameInputField.gameObject.SetActive(false);
             LocalNickname = "";
         }
+        SetNicknameControlsActive(false);
 
         // The code field is visible from the start so a wrong/empty code can be reported
         // the very first time Join is pressed (no two-step "press Join again" reveal).
@@ -130,6 +148,44 @@ public class SceneUIManager : MonoBehaviour
             joinCodeInputField.text = "";
             joinCodeInputField.gameObject.SetActive(true);
         }
+    }
+
+    // Shows/hides the confirm + clear buttons that accompany the nickname field.
+    private void SetNicknameControlsActive(bool active)
+    {
+        if (confirmNameButton != null) confirmNameButton.gameObject.SetActive(active);
+        if (clearNameButton != null) clearNameButton.gameObject.SetActive(active);
+    }
+
+    // Checkmark button: commits the typed nickname. Only complains about an empty
+    // name here (never on merely revealing the field).
+    public void ClickedConfirmName()
+    {
+        if (nicknameInputField == null) return;
+
+        LocalNickname = nicknameInputField.text.Trim();
+        if (string.IsNullOrEmpty(LocalNickname))
+        {
+            ShowError("insert your name before joining or hosting a game");
+            nicknameInputField.ActivateInputField();
+            return;
+        }
+
+        if (errorStatusText != null) errorStatusText.text = "";
+        nicknameInputField.DeactivateInputField();
+        Debug.Log($"Nickname confirmed: {LocalNickname}");
+    }
+
+    // Clears the nickname input field and the stored nickname.
+    public void ClickedClearName()
+    {
+        if (nicknameInputField != null)
+        {
+            nicknameInputField.text = "";
+            nicknameInputField.ActivateInputField();
+        }
+        LocalNickname = "";
+        if (errorStatusText != null) errorStatusText.text = "";
     }
 
     // Connect (play) page -> back to title page.

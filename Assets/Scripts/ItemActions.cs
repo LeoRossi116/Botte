@@ -10,13 +10,20 @@ public static class ItemActions
         if (item == null) return result;
 
         int manaCost = 0;
+        int staminaCost = 0;
         foreach (SpellEffect e in item.effects)
         {
             if (e.type == SpellEffectType.LoseMana) manaCost += e.value;
+            if (e.type == SpellEffectType.LoseStamina) staminaCost += e.value;
         }
         if (manaCost > 0 && user.currentMana < manaCost)
         {
             Debug.Log($"[Combat] {user.data.heroName} non ha abbastanza Mana per usare {item.cardName} (richiesti: {manaCost}, disponibili: {user.currentMana}).");
+            return result;
+        }
+        if (staminaCost > 0 && user.currentStamina < staminaCost)
+        {
+            Debug.Log($"[Combat] {user.data.heroName} non ha abbastanza Stamina per usare {item.cardName} (richiesti: {staminaCost}, disponibili: {user.currentStamina}).");
             return result;
         }
 

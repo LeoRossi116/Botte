@@ -218,6 +218,30 @@ public static class SpellActions
                 Debug.Log($"[Combat] {sourceName}: effetto legato all'equipaggiamento non ancora implementato.");
                 break;
             }
+            case SpellEffectType.DrainManaOpponent:
+            {
+                opponent.currentMana = Mathf.Max(0, opponent.currentMana - e.value);
+                Debug.Log($"[Combat] {opponent.data.heroName} perde {e.value} Mana ({opponent.currentMana}/{opponent.GetModifiedIntelligence()}).");
+                break;
+            }
+            case SpellEffectType.LoseStamina:
+            {
+                caster.currentStamina = Mathf.Max(0, caster.currentStamina - e.value);
+                Debug.Log($"[Combat] {caster.data.heroName} perde {e.value} Stamina ({caster.currentStamina}/{caster.GetModifiedAgility()}).");
+                break;
+            }
+            case SpellEffectType.GainMaxStrengthThisTurn:
+            {
+                caster.AddModifier(new StatModifier(sourceName, ModifierStat.Strength, e.value, ModifierDuration.EndOfThisTurn));
+                Debug.Log($"[Combat] {caster.data.heroName} ottiene +{e.value} Forza per questo turno.");
+                break;
+            }
+            case SpellEffectType.GainMaxAgilityThisTurn:
+            {
+                caster.AddModifier(new StatModifier(sourceName, ModifierStat.Agility, e.value, ModifierDuration.EndOfThisTurn));
+                Debug.Log($"[Combat] {caster.data.heroName} ottiene +{e.value} Rapidità per questo turno.");
+                break;
+            }
         }
     }
 }

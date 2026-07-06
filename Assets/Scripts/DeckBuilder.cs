@@ -63,13 +63,13 @@ public static class DeckBuilder
         switch (heroClass)
         {
             case HeroClass.Warrior:
-                return new string[] { "AffondoPoderoso", "ColpoMirato", "DifesaImperturbabile", "GridoDiGuerra", "PugnoDelPaladino", "Ristoro", "Terrore", "UrloDelBarbaro" };
+                return new string[] { "AffondoPoderoso", "Armageddon", "ColpoMirato", "DifesaImperturbabile", "Distruzione", "Fortezza", "Frenesia", "Furia", "GridoDiGuerra", "Guarigione", "GuarigioneDivina", "Impatto", "OndaDUrto", "PartoDellaSofferenza", "ProiezioneDelMartelloDistruttore", "PugnoDelPaladino", "RiflessiDiBattaglia", "Rigenerazione", "Ristoro", "Sacrificio", "SecondaPelle", "SeteDiBattaglia", "Slancio", "Spallata", "SpezzareLIncantesimo", "Tempra", "Terremoto", "Terrore", "UltimaDifesa", "UrloDelBarbaro" };
             case HeroClass.Mage:
-                return new string[] { "Concentrazione", "DardoDiFuoco", "Debolezza", "DrenaggioVitale", "Lentezza", "PallaDiFuoco", "ScudoArcano", "Teletrasporto" };
+                return new string[] { "BaglioreAccecante", "BarrieraDiMana", "Cataclisma", "CateneArcane", "Concentrazione", "DardoDiFuoco", "Debolezza", "Disincanto", "DrenaggioVitale", "EcoArcana", "FulmineIncatenato", "Incenerimento", "Intuizione", "Lentezza", "Meditazione", "OndaGelida", "PallaDiFuoco", "PotenziamentoArcano", "RisucchioDiMana", "Ruggine", "SapienzaArcana", "ScaricaElettrica", "ScheggiaDiGhiaccio", "ScudoArcano", "SigilloDiSilenzio", "Surriscaldamento", "Teletrasporto", "TempestaDiMeteore", "VampirismoArcano", "Vortice" };
             case HeroClass.Rogue:
-                return new string[] { "AffondoPerforante", "Elusione", "Gambetto", "PassoDOmbra", "Prontezza", "PuntoDebole", "RiflessiFelini", "VelenoRapido" };
+                return new string[] { "AffondoPerforante", "Agguato", "Bavaglio", "Borseggio", "Cancrena", "ColpoBasso", "ColpoGemello", "DoppioAffondo", "Elusione", "Fumogeno", "Gambetto", "Indebolimento", "IntingereLeLame", "LamaAvvelenata", "LameSottili", "MaestriaDelVeleno", "ManoLesta", "NubeTossica", "PassoDOmbra", "Prontezza", "PugnalataAlleSpalle", "PuntoDebole", "RiflessiFelini", "Sabotaggio", "SchivataAcrobatica", "TempestaDiLame", "TendereLAgguato", "TossinaParalizzante", "VelenoFulminante", "VelenoRapido" };
             case HeroClass.Necro:
-                return new string[] { "BanchettoDiAnime", "ComunioneOscura", "DrenaggioDiVita", "Maledizione", "PattoDiSangue", "TerroreMortale", "ToccoPutrido", "VeloDellaMorte" };
+                return new string[] { "AnimaInCambio", "AuraDiPutrefazione", "BanchettoDiAnime", "ComunioneOscura", "Contagio", "Debilitazione", "DrenaggioDiVita", "EvocaScheletro", "EvocaSpettro", "EvocaZombie", "FurtoDAnima", "GolemDOssa", "LegioneSpettrale", "Maledizione", "MaledizionePersistente", "OrdaDiNonMorti", "PattoDiSangue", "Peste", "Premonizione", "RaccoltaDOssa", "RecuperoMacabro", "RianimaIlCaduto", "RichiamoDalCimitero", "RitoProibito", "SeteDiMorte", "SignoreDeiNonMorti", "Tenebre", "TerroreMortale", "ToccoPutrido", "VeloDellaMorte" };
             default:
                 return new string[0];
         }
