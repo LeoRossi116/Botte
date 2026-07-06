@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 0
   staminaCost: 0
   manaCost: 0
+  rarity: 0
   effectDescription: +1 Stamina e +1 HP.
   category: 9
   target: 0

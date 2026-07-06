@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 2
+  rarity: 1
   effectDescription: Infligge 2 danni e recuperi 1 HP.
   magicType: 0
   effects:

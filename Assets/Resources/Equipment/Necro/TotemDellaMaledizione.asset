@@ -17,16 +17,17 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Ogni incantesimo applica 1 Veleno.
   equipType: 1
   slotType: 3
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements:
+  - stat: 1
+    value: 1
   specialEffect: 27
   effectValue: 1
   effectValue2: 0
   maxDurability: 0
-  requirements:
-  - stat: 1
-    value: 1

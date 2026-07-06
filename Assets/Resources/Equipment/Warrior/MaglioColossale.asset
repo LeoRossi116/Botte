@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 0
+  rarity: 3
   effectDescription: Applica 1 stordimento (-2 Stamina il prossimo turno).
   equipType: 2
   slotType: 5
@@ -25,6 +26,7 @@ MonoBehaviour:
   attributeMods:
   - attr: 2
     value: -1
+  requirements: []
   specialEffect: 6
   effectValue: 2
   effectValue2: 0

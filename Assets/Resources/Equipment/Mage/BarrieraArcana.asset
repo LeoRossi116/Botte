@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: All'inizio di ogni turno ottieni 1 Scudo.
   equipType: 0
   slotType: 0
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 12
   effectValue: 1
   effectValue2: 0

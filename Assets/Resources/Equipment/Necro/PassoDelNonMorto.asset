@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Diventi immune al Veleno.
   equipType: 1
   slotType: 2
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 29
   effectValue: 0
   effectValue2: 0

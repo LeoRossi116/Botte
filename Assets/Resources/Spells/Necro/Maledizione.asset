@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 2
+  rarity: 1
   effectDescription: Applica 1 Veleno e l'avversario ha -1 danno nel suo prossimo
     turno.
   magicType: 0

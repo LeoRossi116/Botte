@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 0
   staminaCost: 0
   manaCost: 0
+  rarity: 1
   effectDescription: Guarda la prima carta di un mazzo a scelta e decidi se tenerla
     o scartarla.
   category: 6

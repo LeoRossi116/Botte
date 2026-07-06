@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 0
+  rarity: 1
   effectDescription: Se scartato, infligge 3 danni.
   equipType: 2
   slotType: 4
   damageValue: 2
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 11
   effectValue: 3
   effectValue2: 0

@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Per ogni 2 Mana spesi ottieni 2 Scudo.
   equipType: 1
   slotType: 3
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 14
   effectValue: 0
   effectValue2: 0

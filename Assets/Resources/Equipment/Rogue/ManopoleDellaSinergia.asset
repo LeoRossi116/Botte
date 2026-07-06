@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Se hai usato almeno 2 tipi di carte diverse, ogni attacco di
     questo turno ha +1 danno.
   equipType: 1
@@ -24,6 +25,7 @@ MonoBehaviour:
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 23
   effectValue: 1
   effectValue2: 0

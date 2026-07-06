@@ -92,11 +92,12 @@ public class SceneUIManager : MonoBehaviour
         if (playPanel != null) playPanel.SetActive(true);
         if (errorStatusText != null) errorStatusText.text = "";
 
-        // The code field stays hidden until the player presses Join.
+        // The code field is visible from the start so a wrong/empty code can be reported
+        // the very first time Join is pressed (no two-step "press Join again" reveal).
         if (joinCodeInputField != null)
         {
             joinCodeInputField.text = "";
-            joinCodeInputField.gameObject.SetActive(false);
+            joinCodeInputField.gameObject.SetActive(true);
         }
     }
 
@@ -198,26 +199,15 @@ public class SceneUIManager : MonoBehaviour
                 return;
             }
 
-            // First Join press (or an empty field) reveals the code box instead of
-            // trying to connect. The box then stays visible for the player to type in.
+            // The code box is always visible, so validate the entered code directly. An
+            // empty field reports an error immediately (even on the very first press).
             if (joinCodeInputField != null && !joinCodeInputField.gameObject.activeSelf)
-            {
                 joinCodeInputField.gameObject.SetActive(true);
-                joinCodeInputField.text = "";
-                joinCodeInputField.ActivateInputField();
-                ShowError("Enter the room code, then press Join again.");
-                _isBusy = false;
-                return;
-            }
 
             string joinCode = joinCodeInputField != null ? joinCodeInputField.text.Trim().ToUpper() : "";
             if (string.IsNullOrEmpty(joinCode))
             {
-                if (joinCodeInputField != null)
-                {
-                    joinCodeInputField.gameObject.SetActive(true);
-                    joinCodeInputField.ActivateInputField();
-                }
+                if (joinCodeInputField != null) joinCodeInputField.ActivateInputField();
                 ShowError("Enter a room code first.");
                 _isBusy = false;
                 return;

@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Se i tuoi HP sono inferiori a quelli dell'avversario all'inizio
     di un round, ottieni +1 Mana extra.
   equipType: 1
@@ -26,6 +27,7 @@ MonoBehaviour:
   attributeMods:
   - attr: 2
     value: 1
+  requirements: []
   specialEffect: 30
   effectValue: 1
   effectValue2: 0

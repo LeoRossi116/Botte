@@ -17,16 +17,17 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Ogni danno da quest'arma ignora la difesa.
   equipType: 2
   slotType: 5
   damageValue: 3
   defenseValue: 0
   attributeMods: []
+  requirements:
+  - stat: 1
+    value: 3
   specialEffect: 9
   effectValue: 0
   effectValue2: 0
   maxDurability: 0
-  requirements:
-  - stat: 1
-    value: 3

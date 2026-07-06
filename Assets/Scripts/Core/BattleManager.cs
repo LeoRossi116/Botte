@@ -107,7 +107,10 @@ namespace Botte.Core
         private void WireRuntimeListeners()
         {
             if (playMenuButton != null) playMenuButton.onClick.AddListener(OnPlayMenuPressed);
-            if (exitMenuButton != null) exitMenuButton.onClick.AddListener(OnExitPressed);
+            // NOTE: exitMenuButton (the PlayPanel "Back" button) is intentionally NOT wired to
+            // OnExitPressed. That button is a "return to main menu" control handled by
+            // SceneUIManager.ClickedBackToMenu; wiring it to OnExitPressed here caused pressing
+            // "Back" to quit the whole game (end the simulation) instead of going to the menu.
 
             if (p1ClassButtons != null)
             {

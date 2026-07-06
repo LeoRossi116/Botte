@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 0
+  rarity: 1
   effectDescription: 
   equipType: 0
   slotType: 0
@@ -25,10 +26,10 @@ MonoBehaviour:
   attributeMods:
   - attr: 2
     value: -1
+  requirements:
+  - stat: 0
+    value: 3
   specialEffect: 0
   effectValue: 0
   effectValue2: 0
   maxDurability: 3
-  requirements:
-  - stat: 0
-    value: 3

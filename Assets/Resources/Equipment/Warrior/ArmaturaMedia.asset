@@ -17,16 +17,17 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 0
+  rarity: 0
   effectDescription: 
   equipType: 0
   slotType: 0
   damageValue: 0
   defenseValue: 2
   attributeMods: []
+  requirements:
+  - stat: 0
+    value: 2
   specialEffect: 0
   effectValue: 0
   effectValue2: 0
   maxDurability: 4
-  requirements:
-  - stat: 0
-    value: 2

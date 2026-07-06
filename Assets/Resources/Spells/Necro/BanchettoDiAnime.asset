@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 1
+  rarity: 0
   effectDescription: Pesca 2 carte dagli scarti e recuperi 3 HP.
   magicType: 0
   effects:

@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 0
+  rarity: 1
   effectDescription: Ottieni 1 HP per ogni attacco effettuato.
   equipType: 2
   slotType: 5
   damageValue: 2
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 24
   effectValue: 1
   effectValue2: 0

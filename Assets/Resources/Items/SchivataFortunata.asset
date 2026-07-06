@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 0
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Blocca completamente il prossimo attacco.
   category: 3
   target: 0

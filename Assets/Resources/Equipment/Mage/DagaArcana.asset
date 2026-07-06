@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 0
+  rarity: 1
   effectDescription: Se scartata, concede 2 Mana.
   equipType: 2
   slotType: 4
   damageValue: 1
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 10
   effectValue: 2
   effectValue2: 0

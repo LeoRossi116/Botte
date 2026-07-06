@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: 'Sacrificio: blocca interamente un danno e poi si rompe.'
   equipType: 0
   slotType: 1
   damageValue: 0
   defenseValue: 1
   attributeMods: []
+  requirements: []
   specialEffect: 1
   effectValue: 0
   effectValue2: 0

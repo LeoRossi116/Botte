@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 2
+  rarity: 0
   effectDescription: L'avversario perde 2 Stamina.
   magicType: 0
   effects:

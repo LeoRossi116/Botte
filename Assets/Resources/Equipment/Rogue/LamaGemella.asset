@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 0
+  rarity: 1
   effectDescription: 'Affondo Doppio: ogni attacco fisico colpisce due volte.'
   equipType: 2
   slotType: 4
   damageValue: 2
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 18
   effectValue: 0
   effectValue2: 0

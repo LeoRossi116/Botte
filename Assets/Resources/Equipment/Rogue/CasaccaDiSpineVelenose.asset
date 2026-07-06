@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Per ogni attacco fisico subito applica 1 Veleno all'avversario.
   equipType: 0
   slotType: 0
   damageValue: 0
   defenseValue: 1
   attributeMods: []
+  requirements: []
   specialEffect: 19
   effectValue: 1
   effectValue2: 0

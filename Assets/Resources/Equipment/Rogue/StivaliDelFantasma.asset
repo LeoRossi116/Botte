@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Ottieni 1 blocco ogni round.
   equipType: 1
   slotType: 2
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 22
   effectValue: 0
   effectValue2: 0

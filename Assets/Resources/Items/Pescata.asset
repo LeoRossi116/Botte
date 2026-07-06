@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 0
   staminaCost: 0
   manaCost: 0
+  rarity: 0
   effectDescription: Pesca una carta da un mazzo a scelta.
   category: 6
   target: 0

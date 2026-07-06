@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Puoi impugnare un'arma a due mani con una sola mano.
   equipType: 1
   slotType: 3
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 3
   effectValue: 0
   effectValue2: 0

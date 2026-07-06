@@ -1,4 +1,8 @@
 public enum HeroClass { Warrior, Mage, Rogue, Necro }
+
+// Card rarity governs how many copies of a card go into a deck.
+// NOTE: values are serialized in .asset files, so only append new entries at the end.
+public enum Rarity { Common, Uncommon, Rare, Legendary }
 public enum CardType { Equipment, Magic, Consumable }
 public enum CardClass { Shared, Warrior, Mage, Rogue, Necro }
 public enum EquipmentSlot { WeaponMain, WeaponOff, Head, Torso, Hands, Feet }

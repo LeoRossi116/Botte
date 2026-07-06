@@ -17,18 +17,19 @@ MonoBehaviour:
   cardClass: 4
   staminaCost: 0
   manaCost: 0
+  rarity: 3
   effectDescription: "Ottieni 2 HP e +2 danni se il nemico \xE8 avvelenato."
   equipType: 2
   slotType: 5
   damageValue: 3
   defenseValue: 0
   attributeMods: []
-  specialEffect: 26
-  effectValue: 2
-  effectValue2: 2
-  maxDurability: 0
   requirements:
   - stat: 1
     value: 4
   - stat: 0
     value: 3
+  specialEffect: 26
+  effectValue: 2
+  effectValue2: 2
+  maxDurability: 0

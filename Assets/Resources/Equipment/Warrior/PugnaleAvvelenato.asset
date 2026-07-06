@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 1
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Applica 1 Veleno ad ogni colpo.
   equipType: 2
   slotType: 4
   damageValue: 2
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 4
   effectValue: 1
   effectValue2: 0

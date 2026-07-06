@@ -14,7 +14,7 @@ public static class DeckBuilder
             MagicData card = Resources.Load<MagicData>($"Spells/{classFolderName}/{spellName}");
             if (card != null)
             {
-                deck.Add(card);
+                for (int i = 0; i < card.DeckCount; i++) deck.Add(card);
             }
             else
             {
@@ -31,7 +31,8 @@ public static class DeckBuilder
         ItemData[] items = Resources.LoadAll<ItemData>("Items");
         foreach (ItemData item in items)
         {
-            if (item != null) deck.Add(item);
+            if (item != null)
+                for (int i = 0; i < item.DeckCount; i++) deck.Add(item);
         }
         if (items.Length == 0) Debug.LogWarning("No ItemData assets found under Resources/Items.");
         return deck;
@@ -44,7 +45,8 @@ public static class DeckBuilder
         EquipmentData[] pieces = Resources.LoadAll<EquipmentData>($"Equipment/{heroClass}");
         foreach (EquipmentData eq in pieces)
         {
-            if (eq != null) deck.Add(eq);
+            if (eq != null)
+                for (int i = 0; i < eq.DeckCount; i++) deck.Add(eq);
         }
         if (pieces.Length == 0) Debug.LogWarning($"No EquipmentData assets found under Resources/Equipment/{heroClass}.");
         return deck;

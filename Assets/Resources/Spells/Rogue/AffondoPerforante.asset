@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 1
   manaCost: 1
+  rarity: 1
   effectDescription: Il prossimo attacco infligge +2 danni e non puo' essere bloccato.
   magicType: 0
   effects:

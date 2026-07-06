@@ -17,16 +17,17 @@ MonoBehaviour:
   cardClass: 3
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: "Se un attacco applica Veleno, applica 1 stack in pi\xF9."
   equipType: 0
   slotType: 1
   damageValue: 0
   defenseValue: 1
   attributeMods: []
+  requirements:
+  - stat: 1
+    value: 1
   specialEffect: 21
   effectValue: 1
   effectValue2: 0
   maxDurability: 0
-  requirements:
-  - stat: 1
-    value: 1

@@ -356,6 +356,10 @@ public class RelayManager : NetworkBehaviour
         // Make the room-code label clickable so any player can copy the code.
         if (generatedCodeText != null)
         {
+            // The label's TMP text had raycastTarget disabled, so the copy Button never
+            // received clicks. Enable it so clicking the code copies it to the clipboard.
+            generatedCodeText.raycastTarget = true;
+
             _copyCodeButton = generatedCodeText.GetComponent<UnityEngine.UI.Button>();
             if (_copyCodeButton == null)
             {

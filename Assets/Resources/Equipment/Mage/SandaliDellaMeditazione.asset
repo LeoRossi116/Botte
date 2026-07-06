@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: Se non attacchi durante un turno, ottieni +1 Mana extra il turno
     successivo.
   equipType: 1
@@ -26,6 +27,7 @@ MonoBehaviour:
   attributeMods:
   - attr: 1
     value: 1
+  requirements: []
   specialEffect: 16
   effectValue: 1
   effectValue2: 0

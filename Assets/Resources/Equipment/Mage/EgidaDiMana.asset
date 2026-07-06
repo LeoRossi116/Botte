@@ -17,12 +17,14 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 0
+  rarity: 2
   effectDescription: 50% ogni turno di ottenere 3 Scudo.
   equipType: 0
   slotType: 1
   damageValue: 0
   defenseValue: 0
   attributeMods: []
+  requirements: []
   specialEffect: 13
   effectValue: 3
   effectValue2: 50

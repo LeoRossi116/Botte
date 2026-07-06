@@ -17,6 +17,7 @@ MonoBehaviour:
   cardClass: 2
   staminaCost: 0
   manaCost: 3
+  rarity: 1
   effectDescription: Infligge 4 danni.
   magicType: 0
   effects:
