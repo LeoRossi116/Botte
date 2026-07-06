@@ -27,6 +27,12 @@ public class SceneUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI generatedCodeText;
     [SerializeField] private TextMeshProUGUI playerListText;
 
+    [Header("Nickname Fields")]
+    [SerializeField] private UnityEngine.UI.Button insertNameButton;
+    [SerializeField] private TMP_InputField nicknameInputField;
+
+    public static string LocalNickname { get; private set; } = "";
+
     private RelayManager activeRelayManager;
     private UnityTransport _transport;
     private Coroutine _errorCoroutine;
@@ -50,6 +56,24 @@ public class SceneUIManager : MonoBehaviour
         if (joinCodeInputField != null)
         {
             joinCodeInputField.onValidateInput = (string text, int charIndex, char addedChar) => char.ToUpper(addedChar);
+        }
+
+        if (nicknameInputField != null)
+        {
+            nicknameInputField.gameObject.SetActive(false);
+            nicknameInputField.onValueChanged.AddListener((val) => LocalNickname = val.Trim());
+        }
+
+        if (insertNameButton != null)
+        {
+            insertNameButton.onClick.AddListener(() =>
+            {
+                if (nicknameInputField != null)
+                {
+                    nicknameInputField.gameObject.SetActive(true);
+                    nicknameInputField.ActivateInputField();
+                }
+            });
         }
 
         // Initial menu state: show the title/landing page, hide everything else.
@@ -92,6 +116,13 @@ public class SceneUIManager : MonoBehaviour
         if (playPanel != null) playPanel.SetActive(true);
         if (errorStatusText != null) errorStatusText.text = "";
 
+        if (nicknameInputField != null)
+        {
+            nicknameInputField.text = "";
+            nicknameInputField.gameObject.SetActive(false);
+            LocalNickname = "";
+        }
+
         // The code field is visible from the start so a wrong/empty code can be reported
         // the very first time Join is pressed (no two-step "press Join again" reveal).
         if (joinCodeInputField != null)
@@ -132,6 +163,13 @@ public class SceneUIManager : MonoBehaviour
     {
         if (_isBusy) return;
         _isBusy = true;
+
+        if (nicknameInputField == null || !nicknameInputField.gameObject.activeSelf || string.IsNullOrEmpty(LocalNickname))
+        {
+            ShowError("insert your name before joining or hosting a game");
+            _isBusy = false;
+            return;
+        }
 
         try
         {
@@ -188,6 +226,13 @@ public class SceneUIManager : MonoBehaviour
     {
         if (_isBusy) return;
         _isBusy = true;
+
+        if (nicknameInputField == null || !nicknameInputField.gameObject.activeSelf || string.IsNullOrEmpty(LocalNickname))
+        {
+            ShowError("insert your name before joining or hosting a game");
+            _isBusy = false;
+            return;
+        }
 
         try
         {

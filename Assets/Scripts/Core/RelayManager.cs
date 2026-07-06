@@ -30,6 +30,8 @@ public class RelayManager : NetworkBehaviour
     private Coroutine _errorCoroutine;
     private UnityEngine.UI.Button _startGameButton;
 
+    private readonly System.Collections.Generic.Dictionary<ulong, string> _playerNames = new System.Collections.Generic.Dictionary<ulong, string>();
+
     // True while WE deliberately leave (leave lobby / normal game end). Used to
     // suppress the misleading "disconnected" error that Shutdown would otherwise raise.
     private bool _leavingIntentionally;
@@ -71,11 +73,18 @@ public class RelayManager : NetworkBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += OnPlayerConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnPlayerDisconnected;
 
+            _playerNames.Clear();
+
             // If we are a client joining, the host will update us. 
             // If we are the host, we update the list now.
             if (NetworkManager.Singleton.IsServer)
             {
+                _playerNames[NetworkManager.ServerClientId] = SceneUIManager.LocalNickname;
                 UpdateAndBroadcastPlayerList();
+            }
+            else
+            {
+                RegisterPlayerNameServerRpc(SceneUIManager.LocalNickname);
             }
         }
     }
@@ -166,6 +175,7 @@ public class RelayManager : NetworkBehaviour
     {
         if (NetworkManager.Singleton.IsServer)
         {
+            _playerNames.Remove(clientId);
             UpdateAndBroadcastPlayerList();
             return;
         }
@@ -202,6 +212,14 @@ public class RelayManager : NetworkBehaviour
         ToMainMenu();
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void RegisterPlayerNameServerRpc(string nickname, ServerRpcParams serverRpcParams = default)
+    {
+        ulong senderId = serverRpcParams.Receive.SenderClientId;
+        _playerNames[senderId] = nickname;
+        UpdateAndBroadcastPlayerList();
+    }
+
     // --- NETWORK STRING BUILDER & SYNC ENGINE ---
     private void UpdateAndBroadcastPlayerList()
     {
@@ -211,14 +229,16 @@ public class RelayManager : NetworkBehaviour
 
         foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            if (id == NetworkManager.ServerClientId) 
+            string name = "Player";
+            if (_playerNames.TryGetValue(id, out string nickname) && !string.IsNullOrEmpty(nickname))
             {
-                listBuilder += "    - Host\n";
+                name = nickname;
             }
-            else 
+            else
             {
-                listBuilder += "    - Client\n";
+                name = (id == NetworkManager.ServerClientId) ? "Host" : "Client";
             }
+            listBuilder += $"    - {name}\n";
         }
 
         UpdatePlayerListClientRpc(listBuilder);
@@ -257,7 +277,7 @@ public class RelayManager : NetworkBehaviour
         if (string.IsNullOrEmpty(message)) return;
         if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening) return;
 
-        string senderName = NetworkManager.Singleton.IsServer ? "Host" : "Guest";
+        string senderName = !string.IsNullOrEmpty(SceneUIManager.LocalNickname) ? SceneUIManager.LocalNickname : (NetworkManager.Singleton.IsServer ? "Host" : "Guest");
         SubmitChatMessageServerRpc(senderName, message);
     }
 
