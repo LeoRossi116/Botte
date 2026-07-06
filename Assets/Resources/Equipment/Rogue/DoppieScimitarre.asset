@@ -27,3 +27,6 @@ MonoBehaviour:
   effectValue: 0
   effectValue2: 0
   maxDurability: 0
+  requirements:
+  - stat: 0
+    value: 3

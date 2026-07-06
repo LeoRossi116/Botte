@@ -23,7 +23,7 @@ MonoBehaviour:
   damageValue: 0
   defenseValue: 0
   attributeMods:
-  - attr: 2
+  - attr: 1
     value: 1
   specialEffect: 17
   effectValue: 1

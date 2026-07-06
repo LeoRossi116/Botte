@@ -952,6 +952,12 @@ namespace Botte.Core
             }
             if (!owner.equipmentBook.Contains(equip)) return;
 
+            if (!EquipmentSystem.MeetsRequirements(owner, equip, out string reqMsg))
+            {
+                battleUI.AddLog(reqMsg);
+                return;
+            }
+
             HeroState opponent = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
             owner.equipmentBook.Remove(equip);
             var displaced = EquipmentSystem.Equip(owner, equip);

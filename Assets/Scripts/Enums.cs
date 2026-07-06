@@ -16,7 +16,12 @@ public enum EquipmentType { Armor, Utility, Weapon }
 public enum EquipSlotType { Torso, Helmet, Boots, Gloves, OneHandWeapon, TwoHandWeapon }
 
 // Which max-stat an equipment attribute modifies.
-public enum EquipAttribute { MaxHP, MaxMana, MaxStamina, Damage }
+// NOTE: values are serialized in .asset files, so only append new entries at the end.
+public enum EquipAttribute { MaxHP, MaxMana, MaxStamina, Damage, Strength }
+
+// The hero stat an equipment card requires the wearer to have (shown in hero select):
+// Strength, Intelligence (= max mana), Speed (= max stamina / agility).
+public enum RequirementStat { Strength, Intelligence, Speed }
 
 // Hardcoded special effects an equipment piece can grant.
 public enum EquipEffect

@@ -3,6 +3,63 @@ using UnityEngine;
 
 public static class EquipmentSystem
 {
+    // The hero's current (equipment-modified) value for a given requirement stat.
+    // Strength -> modified Strength, Intelligence -> modified max mana, Speed -> modified max stamina.
+    public static int GetStatValue(HeroState hero, RequirementStat stat)
+    {
+        switch (stat)
+        {
+            case RequirementStat.Strength: return hero.GetModifiedStrength();
+            case RequirementStat.Intelligence: return hero.GetModifiedIntelligence();
+            case RequirementStat.Speed: return hero.GetModifiedAgility();
+        }
+        return 0;
+    }
+
+    // Localized label for an equipment attribute modifier (matches hero-select terminology).
+    public static string AttributeLabel(EquipAttribute attr)
+    {
+        switch (attr)
+        {
+            case EquipAttribute.MaxHP: return "HP max";
+            case EquipAttribute.MaxMana: return "Intelligenza";
+            case EquipAttribute.MaxStamina: return "Velocità";
+            case EquipAttribute.Strength: return "Forza";
+            case EquipAttribute.Damage: return "Danno";
+        }
+        return attr.ToString();
+    }
+
+    // Localized label for a requirement stat (matches the hero-select terminology).
+    public static string StatLabel(RequirementStat stat)
+    {
+        switch (stat)
+        {
+            case RequirementStat.Strength: return "Forza";
+            case RequirementStat.Intelligence: return "Intelligenza";
+            case RequirementStat.Speed: return "Velocità";
+        }
+        return stat.ToString();
+    }
+
+    // Returns true if the hero meets every stat requirement of the equipment.
+    // When false, 'message' explains which requirement failed.
+    public static bool MeetsRequirements(HeroState hero, EquipmentData eq, out string message)
+    {
+        message = null;
+        if (eq == null || eq.requirements == null) return true;
+        foreach (var req in eq.requirements)
+        {
+            int have = GetStatValue(hero, req.stat);
+            if (have < req.value)
+            {
+                message = $"{hero.data.heroName} non può equipaggiare {eq.cardName}: richiede {StatLabel(req.stat)} {req.value} (attuale: {have}).";
+                return false;
+            }
+        }
+        return true;
+    }
+
     // Apply an equipment's permanent attribute modifiers, then clamp current resources.
     public static void ApplyAttributes(HeroState hero, EquipmentData eq)
     {
@@ -17,6 +74,8 @@ public static class EquipmentSystem
                     hero.activeModifiers.Add(new StatModifier(eq.cardName, ModifierStat.Intelligence, mod.value, ModifierDuration.Permanent)); break;
                 case EquipAttribute.MaxStamina:
                     hero.activeModifiers.Add(new StatModifier(eq.cardName, ModifierStat.Agility, mod.value, ModifierDuration.Permanent)); break;
+                case EquipAttribute.Strength:
+                    hero.activeModifiers.Add(new StatModifier(eq.cardName, ModifierStat.Strength, mod.value, ModifierDuration.Permanent)); break;
                 // Damage attribute is queried per attack, not stored as a modifier.
             }
         }

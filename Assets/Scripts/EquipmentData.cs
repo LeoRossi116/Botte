@@ -8,6 +8,13 @@ public class EquipAttributeMod
     public int value;
 }
 
+[System.Serializable]
+public class EquipRequirement
+{
+    public RequirementStat stat;   // which hero stat is required
+    public int value;              // minimum amount the hero must have to equip
+}
+
 [CreateAssetMenu(fileName = "NewEquipmentData", menuName = "Botte/EquipmentData")]
 public class EquipmentData : CardData
 {
@@ -18,6 +25,9 @@ public class EquipmentData : CardData
     public int defenseValue;             // armor (helmet/torso) reduces incoming damage
 
     public List<EquipAttributeMod> attributeMods = new List<EquipAttributeMod>();
+
+    // Stat requirements the hero must meet to equip this piece (empty = no requirement).
+    public List<EquipRequirement> requirements = new List<EquipRequirement>();
 
     public EquipEffect specialEffect = EquipEffect.None;
     public int effectValue;              // primary magnitude for the special effect

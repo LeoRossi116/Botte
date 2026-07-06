@@ -247,6 +247,51 @@ namespace Botte.UI
                 if (slot.label == null) continue;
                 slot.label.text = eq != null ? SlotText(hero, es, eq) : slot.placeholder;
             }
+
+            // Live hero stats (reflect equipment modifiers) shown while the equip window is open.
+            GameObject window = isPlayer1 ? p1EquipWindow : p2EquipWindow;
+            if (window != null) UpdateStatsReadout(window, hero);
+        }
+
+        // Lazily creates/updates a small stat panel below the equipped slots showing the hero's
+        // current (equipment-modified) Strength, Intelligence (mana) and Speed (stamina).
+        private void UpdateStatsReadout(GameObject window, HeroState hero)
+        {
+            var winRT = window.GetComponent<RectTransform>();
+            // Make sure the window is tall enough to contain the readout below the 3 slot rows.
+            if (winRT != null && winRT.sizeDelta.y < 238f)
+                winRT.sizeDelta = new Vector2(winRT.sizeDelta.x, 238f);
+
+            Transform t = window.transform.Find("StatsReadout");
+            TMP_Text txt;
+            if (t == null)
+            {
+                var go = new GameObject("StatsReadout", typeof(RectTransform));
+                go.transform.SetParent(window.transform, false);
+                var rt = go.GetComponent<RectTransform>();
+                rt.anchorMin = new Vector2(0f, 1f);
+                rt.anchorMax = new Vector2(0f, 1f);
+                rt.pivot = new Vector2(0f, 1f);
+                rt.anchoredPosition = new Vector2(2f, -176f);
+                rt.sizeDelta = new Vector2(108f, 58f);
+                txt = go.AddComponent<TextMeshProUGUI>();
+                txt.fontSize = 14f;
+                txt.color = Color.white;
+                txt.alignment = TextAlignmentOptions.TopLeft;
+                txt.textWrappingMode = TextWrappingModes.NoWrap;
+            }
+            else
+            {
+                txt = t.GetComponent<TMP_Text>();
+            }
+
+            if (txt != null)
+            {
+                txt.text =
+                    $"<b>Statistiche</b>\n" +
+                    $"Forza: {hero.GetModifiedStrength()}\n" +
+                    $"Int: {hero.GetModifiedIntelligence()}   Vel: {hero.GetModifiedAgility()}";
+            }
         }
 
         private string SlotText(HeroState hero, EquipmentSlot es, EquipmentData eq)
@@ -349,11 +394,20 @@ namespace Botte.UI
             {
                 if (card is EquipmentData eq)
                 {
-                    string stats = $"<i>{eq.equipType} · {eq.slotType}</i>\n";
+                    string stats = "";
+                    // Requirements shown first (directly below the cost line), if any.
+                    if (eq.requirements != null && eq.requirements.Count > 0)
+                    {
+                        string reqStr = "";
+                        foreach (var r in eq.requirements)
+                            reqStr += $"{EquipmentSystem.StatLabel(r.stat)} {r.value}  ";
+                        stats += $"<color=#E94560>Requisiti: {reqStr.Trim()}</color>\n";
+                    }
+                    stats += $"<i>{eq.equipType} · {eq.slotType}</i>\n";
                     if (eq.damageValue > 0) stats += $"Danno: {eq.damageValue}  ";
                     if (eq.defenseValue > 0) stats += $"Difesa: {eq.defenseValue}  ";
                     foreach (var m in eq.attributeMods)
-                        stats += $"{(m.value >= 0 ? "+" : "")}{m.value} {m.attr}  ";
+                        stats += $"{(m.value >= 0 ? "+" : "")}{m.value} {EquipmentSystem.AttributeLabel(m.attr)}  ";
                     stats += "\n";
                     if (eq.maxDurability > 0) stats += $"Durabilità: {eq.maxDurability}\n";
                     if (!string.IsNullOrEmpty(eq.effectDescription)) stats += eq.effectDescription;
