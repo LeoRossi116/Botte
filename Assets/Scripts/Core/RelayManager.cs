@@ -341,10 +341,16 @@ public class RelayManager : NetworkBehaviour
                 errorStatusText.text = $"<color=yellow>{errorMessage}</color>";
             }
             else if (errorMessage.StartsWith("The host closed the lobby", StringComparison.OrdinalIgnoreCase)
-                  || errorMessage.StartsWith("Connection to the host was lost", StringComparison.OrdinalIgnoreCase))
+                  || errorMessage.StartsWith("Connection to the host was lost", StringComparison.OrdinalIgnoreCase)
+                  || errorMessage.StartsWith("You left the game", StringComparison.OrdinalIgnoreCase))
             {
                 // Friendly, non-alarming notice rather than a red "Error:".
                 errorStatusText.text = $"<color=#FFD54A>{errorMessage}</color>";
+            }
+            else if (errorMessage.StartsWith("The opponent has left the game", StringComparison.OrdinalIgnoreCase))
+            {
+                // Victory-by-forfeit notice.
+                errorStatusText.text = $"<color=#2ECC71>{errorMessage}</color>";
             }
             else
             {
@@ -559,6 +565,53 @@ public class RelayManager : NetworkBehaviour
     private void EndGameClientRpc(string message)
     {
         ShowTimedError(message);
+        ToMainMenu();
+    }
+
+    // --- MID-MATCH QUIT ---
+    // Called by the player who presses the in-game Quit button. The other (remaining)
+    // player is told the opponent left and is declared the winner; both return to the
+    // main menu. Falls back to a plain local return if we are not actually networked.
+    public void QuitMatchToMenu()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+        {
+            var bmLocal = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+            if (bmLocal != null) bmLocal.ForceReturnToMainMenu();
+            return;
+        }
+
+        ulong quitterId = NetworkManager.Singleton.LocalClientId;
+        if (NetworkManager.Singleton.IsServer)
+        {
+            QuitMatchClientRpc(quitterId);
+        }
+        else
+        {
+            QuitMatchServerRpc(quitterId);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void QuitMatchServerRpc(ulong quitterId)
+    {
+        QuitMatchClientRpc(quitterId);
+    }
+
+    [ClientRpc]
+    private void QuitMatchClientRpc(ulong quitterId)
+    {
+        bool iQuit = NetworkManager.Singleton.LocalClientId == quitterId;
+        string message = iQuit
+            ? "You left the game."
+            : "The opponent has left the game. You win!";
+
+        ShowTimedError(message);
+
+        // Reset battle UI locally, then tear down the network session and show the menu.
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null) bm.ForceReturnToMainMenu();
+
         ToMainMenu();
     }
 }

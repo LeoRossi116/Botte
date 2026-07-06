@@ -62,6 +62,13 @@ namespace Botte.Core
         public Button playMenuButton;
         public Button exitMenuButton;
 
+        [Header("In-Game Options Window")]
+        public Button optionsButton;          // top-left gear/menu button shown during battle
+        public GameObject optionsPanel;        // centered modal window (starts hidden)
+        public Button optionsCloseButton;      // the "X" that closes the window
+        public Button optionsSettingsButton;   // settings entry (placeholder for now)
+        public Button optionsQuitButton;       // red "quit match" button
+
         private GameState gameState;
         private TurnManager turnManager;
         private int prepDrawsThisPhase;
@@ -154,6 +161,67 @@ namespace Botte.Core
 
                 if (battleUI.p1ShowEquipButton != null) battleUI.p1ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(true));
                 if (battleUI.p2ShowEquipButton != null) battleUI.p2ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(false));
+            }
+
+            // --- In-game options window ---
+            if (optionsButton != null) optionsButton.onClick.AddListener(OpenOptions);
+            if (optionsCloseButton != null) optionsCloseButton.onClick.AddListener(CloseOptions);
+            if (optionsSettingsButton != null) optionsSettingsButton.onClick.AddListener(OnOptionsSettings);
+            if (optionsQuitButton != null) optionsQuitButton.onClick.AddListener(OnOptionsQuit);
+            if (optionsPanel != null) optionsPanel.SetActive(false);
+        }
+
+        // ---------- In-game options window ----------
+        private void OpenOptions()
+        {
+            if (optionsPanel != null) optionsPanel.SetActive(true);
+        }
+
+        public void CloseOptions()
+        {
+            if (optionsPanel != null) optionsPanel.SetActive(false);
+        }
+
+        // Settings entry — no settings system exists yet, so this is an inert placeholder.
+        private void OnOptionsSettings()
+        {
+            Debug.Log("[Options] Settings pressed (no settings system implemented yet).");
+        }
+
+        // Red "quit match" button. In multiplayer, the opponent is told the player left,
+        // is declared the winner, and both return to the main menu. In local play we just
+        // abandon the match and go back to the main menu.
+        private void OnOptionsQuit()
+        {
+            CloseOptions();
+
+            if (RelayManager.IsMultiplayer && RelayManager.Instance != null)
+            {
+                RelayManager.Instance.QuitMatchToMenu();
+            }
+            else
+            {
+                ForceReturnToMainMenu();
+            }
+        }
+
+        // Tears down the current match locally and returns to the main menu WITHOUT
+        // touching networking (RelayManager handles the network side when needed).
+        public void ForceReturnToMainMenu()
+        {
+            gameState = null;
+            turnManager = null;
+            timerActive = false;
+
+            if (optionsPanel != null) optionsPanel.SetActive(false);
+            if (battleUI != null)
+            {
+                battleUI.ClearHands();
+                if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
+                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
+                if (battleUI.characterSelectPanel != null) battleUI.characterSelectPanel.SetActive(false);
+                if (battleUI.battleScreen != null) battleUI.battleScreen.SetActive(false);
+                if (battleUI.mainMenuPanel != null) battleUI.mainMenuPanel.SetActive(true);
             }
         }
 
