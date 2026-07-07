@@ -24,6 +24,35 @@ namespace Botte.UI
         public TMP_Text p2StatusText;
         public RectTransform p2HandArea;
 
+        [Header("Hero Visuals (Left = local hero, Right = opponent)")]
+        public UnityEngine.UI.Image p1HeroImage;
+        public UnityEngine.UI.Image p2HeroImage;
+        public HeroSpriteAnimator p1HeroAnim;
+        public HeroSpriteAnimator p2HeroAnim;
+
+        [Header("Stat Bar Fills (Mana/Stamina; HP fills declared above)")]
+        public RectTransform p1ManaBarFill;
+        public RectTransform p1StaminaBarFill;
+        public RectTransform p2ManaBarFill;
+        public RectTransform p2StaminaBarFill;
+
+        [Header("Hero Hover Popups")]
+        public GameObject p1HeroPopup;
+        public TMP_Text p1HeroPopupText;
+        public GameObject p2HeroPopup;
+        public TMP_Text p2HeroPopupText;
+
+        [Header("Scoreboard (top-center)")]
+        public TMP_Text scoreTurnText;
+        public TMP_Text scoreWhoseTurnText;
+        public TMP_Text scoreTimerText;
+
+        [Header("Shared Inspect Box (single, bottom-center)")]
+        public GameObject inspectPanel;
+        public TMP_Text inspectName;
+        public TMP_Text inspectCost;
+        public TMP_Text inspectEffect;
+
         [Header("Center Panel")]
         public TMP_Text turnText;
         public TMP_Text phaseText;
@@ -85,14 +114,72 @@ namespace Botte.UI
         public bool p2EquipVisible;
 
         // Desc panel layout: full width when slots hidden, narrow (right of slots) when shown.
-        private static readonly Vector2 DescPosFull = new Vector2(0f, -238f);
-        private static readonly Vector2 DescSizeFull = new Vector2(340f, 176f);
-        private static readonly Vector2 DescPosRight = new Vector2(78f, -238f);
-        private static readonly Vector2 DescSizeRight = new Vector2(184f, 176f);
+        private static readonly Vector2 DescPosFull = new Vector2(0f, 0f);
+        private static readonly Vector2 DescSizeFull = new Vector2(400f, 160f);
+        private static readonly Vector2 DescPosRight = new Vector2(0f, 0f);
+        private static readonly Vector2 DescSizeRight = new Vector2(400f, 160f);
 
         // Currently displayed book per player.
         public BookType p1SelectedBook = BookType.Spell;
         public BookType p2SelectedBook = BookType.Spell;
+
+        private bool referencesMapped = false;
+
+        public void MapUIReferences()
+        {
+            if (referencesMapped) return;
+
+            if (RelayManager.IsMultiplayer && Unity.Netcode.NetworkManager.Singleton != null && !Unity.Netcode.NetworkManager.Singleton.IsServer)
+            {
+                // We are Client!
+                // Swap all p1 and p2 references, because P2 is the local player (left side) and P1 is the remote player (right side).
+                Swap(ref p1HeroNameText, ref p2HeroNameText);
+                Swap(ref p1HPBarFill, ref p2HPBarFill);
+                Swap(ref p1HPText, ref p2HPText);
+                Swap(ref p1ManaText, ref p2ManaText);
+                Swap(ref p1StaminaText, ref p2StaminaText);
+                Swap(ref p1StatusText, ref p2StatusText);
+                Swap(ref p1HandArea, ref p2HandArea);
+                Swap(ref p1HeroImage, ref p2HeroImage);
+                Swap(ref p2HeroImage, ref p1HeroImage);
+                Swap(ref p1HeroAnim, ref p2HeroAnim);
+                Swap(ref p2HeroAnim, ref p1HeroAnim);
+                Swap(ref p1ManaBarFill, ref p2ManaBarFill);
+                Swap(ref p1StaminaBarFill, ref p2StaminaBarFill);
+                Swap(ref p2ManaBarFill, ref p1ManaBarFill);
+                Swap(ref p2StaminaBarFill, ref p1StaminaBarFill);
+                Swap(ref p1HeroPopup, ref p2HeroPopup);
+                Swap(ref p1HeroPopupText, ref p2HeroPopupText);
+                Swap(ref p2HeroPopup, ref p1HeroPopup);
+                Swap(ref p2HeroPopupText, ref p1HeroPopupText);
+                Swap(ref p1DescPanel, ref p2DescPanel);
+                Swap(ref p1DescName, ref p2DescName);
+                Swap(ref p1DescCost, ref p2DescCost);
+                Swap(ref p1DescEffect, ref p2DescEffect);
+                Swap(ref p2DescPanel, ref p1DescPanel);
+                Swap(ref p2DescName, ref p1DescName);
+                Swap(ref p2DescCost, ref p1DescCost);
+                Swap(ref p2DescEffect, ref p1DescEffect);
+                Swap(ref p1ClassButtons, ref p2ClassButtons);
+                Swap(ref p1BookButtons, ref p2BookButtons);
+                Swap(ref p1BookLabel, ref p2BookLabel);
+                Swap(ref p1EquipSlots, ref p2EquipSlots);
+                Swap(ref p1WeaponConnector, ref p2WeaponConnector);
+                Swap(ref p2WeaponConnector, ref p1WeaponConnector);
+                Swap(ref p1EquipWindow, ref p2EquipWindow);
+                Swap(ref p2EquipWindow, ref p1EquipWindow);
+                Swap(ref p1ShowEquipButton, ref p2ShowEquipButton);
+                Swap(ref p2ShowEquipButton, ref p1ShowEquipButton);
+            }
+            referencesMapped = true;
+        }
+
+        private void Swap<T>(ref T a, ref T b)
+        {
+            T temp = a;
+            a = b;
+            b = temp;
+        }
 
         // Color coding for each hero class.
         public static string GetClassColor(HeroClass hc)
@@ -114,6 +201,7 @@ namespace Botte.UI
 
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
+            MapUIReferences();
             TMP_Text nameText = isPlayer1 ? p1HeroNameText : p2HeroNameText;
             RectTransform hpFill = isPlayer1 ? p1HPBarFill : p2HPBarFill;
             TMP_Text hpText = isPlayer1 ? p1HPText : p2HPText;
@@ -146,6 +234,7 @@ namespace Botte.UI
         // Displays the contents of the currently selected book for the given player.
         public void RefreshBook(HeroState hero, bool isPlayer1)
         {
+            MapUIReferences();
             Transform area = isPlayer1 ? p1HandArea : p2HandArea;
             if (area == null || cardPrefab == null) return;
 
@@ -209,6 +298,7 @@ namespace Botte.UI
         // two weapon squares into one wider rectangle; this reverts when the weapon is removed.
         public void RefreshEquipment(HeroState hero, bool isPlayer1)
         {
+            MapUIReferences();
             EquipSlotUI[] slots = isPlayer1 ? p1EquipSlots : p2EquipSlots;
             GameObject connector = isPlayer1 ? p1WeaponConnector : p2WeaponConnector;
             if (connector != null) connector.SetActive(false); // legacy orange connector no longer used
@@ -311,6 +401,7 @@ namespace Botte.UI
 
         public void SetEquipmentSlotsVisible(bool isPlayer1, bool visible)
         {
+            MapUIReferences();
             if (isPlayer1) p1EquipVisible = visible; else p2EquipVisible = visible;
 
             GameObject window = isPlayer1 ? p1EquipWindow : p2EquipWindow;
