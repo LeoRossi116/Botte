@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 1
   effectDescription: L'avversario non puo equipaggiare nuove carte nel suo prossimo
     turno.
+  cardTexture: {fileID: 6406000303001137208, guid: 42398bb02cdc2584d83c243353d27d13, type: 3}
   magicType: 0
   effects: []

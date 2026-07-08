@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Rap 7] Il prossimo attacco con arma a una mano colpisce
     due volte.'
+  cardTexture: {fileID: -6826027506003773740, guid: 9511e6fc42503a840b40371703c20a2b, type: 3}
   magicType: 2
   effects: []

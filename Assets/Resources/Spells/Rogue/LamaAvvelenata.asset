@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Finche resta in gioco, i tuoi attacchi con arma applicano 1
     Veleno.
+  cardTexture: {fileID: 8084465015003024144, guid: 2520a3efe17a8444c9e4027eb134d352, type: 3}
   magicType: 1
   effects: []

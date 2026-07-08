@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: +1 Difesa finche resta in gioco.
+  cardTexture: {fileID: 7369318217192139780, guid: 1a0d2b21b8d10d5499deeb9e1ca1aa50, type: 3}
   magicType: 1
   effects: []

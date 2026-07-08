@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Int 2] I tuoi attacchi costano 1 Stamina in meno (minimo
     1) finche resta in gioco.'
+  cardTexture: {fileID: -3953976528367988052, guid: 644fd14d3e7ddda4da22e9b9f2c1b7d6, type: 3}
   magicType: 1
   effects: []

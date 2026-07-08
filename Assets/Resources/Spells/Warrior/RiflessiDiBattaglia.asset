@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 2
   effectDescription: +1 Rapidita (massimo Stamina) finche resta in gioco.
+  cardTexture: {fileID: -6154268992062334387, guid: 49490224eb02fc44f8f90be8c84079a2, type: 3}
   magicType: 1
   effects: []

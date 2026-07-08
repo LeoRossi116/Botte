@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Se non attacchi durante un turno, ottieni +1 Mana extra il turno
     successivo.
+  cardTexture: {fileID: 4950255785553394668, guid: aa3a0a032f22e224e9da324ec792043e, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

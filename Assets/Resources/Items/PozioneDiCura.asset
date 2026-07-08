@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Guadagni 4 HP.
+  cardTexture: {fileID: 3516414176497030420, guid: c67003531c26cd34d908739f84ae5f60, type: 3}
   category: 1
   target: 0
   effects:

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: Infliggi 3 danni che ignorano la Difesa.
+  cardTexture: {fileID: 1105780908726329807, guid: 115305cafffa44944911138c0c8c9815, type: 3}
   magicType: 0
   effects:
   - type: 0

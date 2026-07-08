@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: Applica 1 Veleno; se gia avvelenato, applicane 3.
+  cardTexture: {fileID: -1840926495202054520, guid: d3ceba540e9c2844db547b0ce4fe445e, type: 3}
   magicType: 0
   effects:
   - type: 11

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Infligge 1 danno.
+  cardTexture: {fileID: 7581445410060938126, guid: 30e4872ead1786b4da870fd007eab6ff, type: 3}
   category: 0
   target: 1
   effects:

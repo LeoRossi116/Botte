@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Se l'avversario ha gia subito danno questo turno, il prossimo
     attacco infligge il doppio.
+  cardTexture: {fileID: -727958347176825636, guid: ac94dd9978897a24a905a2b9149164e2, type: 3}
   magicType: 0
   effects: []

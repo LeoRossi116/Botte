@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Guarda la prima carta di un mazzo a scelta e decidi se tenerla
     o scartarla.
+  cardTexture: {fileID: 706722168541641350, guid: 44f2e3d70ee04ac4685d16faef2f3c26, type: 3}
   category: 6
   target: 2
   effects:

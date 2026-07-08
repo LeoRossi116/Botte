@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Il prossimo attacco non puo' essere bloccato.
+  cardTexture: {fileID: 4702576066208313253, guid: ee0ce359a0a82df43a63a997f1589b09, type: 3}
   magicType: 0
   effects:
   - type: 8

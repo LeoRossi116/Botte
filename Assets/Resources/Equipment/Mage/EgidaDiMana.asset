@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 50% ogni turno di ottenere 3 Scudo.
+  cardTexture: {fileID: 4968442479031692326, guid: 74ab919cf31e6564a9d32cf788fbd863, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

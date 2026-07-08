@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 0
   effectDescription: Applica 2 Veleno all'avversario.
+  cardTexture: {fileID: 1259519749870942242, guid: ca57d6a16a02582438b22f45ca17dffe, type: 3}
   magicType: 0
   effects:
   - type: 11

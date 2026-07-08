@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Finche nel libro, all'inizio del turno avversario applica 1
     Veleno.
+  cardTexture: {fileID: -3297554074982194634, guid: a48ced73621a25f4184e7da1b0a501e4, type: 3}
   magicType: 1
   effects: []

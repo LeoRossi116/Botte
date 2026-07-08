@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Int 4] Esaurisci tutto il Mana; infliggi danni pari al
     Mana esaurito. (Costo: tutto il Mana)'
+  cardTexture: {fileID: -7298878432623845079, guid: fe25c1785f6016e48a8c8ec04acdc58b, type: 3}
   magicType: 2
   effects: []

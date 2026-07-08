@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 3
   effectDescription: '[Req: Int 4] Finche nel libro, le tue Evocazioni infliggono
     +1.'
+  cardTexture: {fileID: 2666457386069994529, guid: 3958b829c969a8d49b5c42001ed4ec54, type: 3}
   magicType: 1
   effects: []

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 0
   effectDescription: +1 danno per ogni attacco di questo turno.
+  cardTexture: {fileID: 3076871064308420400, guid: 19f0cdc00930aac40b1193b9eea7f31a, type: 3}
   magicType: 0
   effects:
   - type: 7

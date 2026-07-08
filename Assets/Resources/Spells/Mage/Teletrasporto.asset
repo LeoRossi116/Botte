@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Non puoi subire danni nel prossimo turno (999 scudo).
+  cardTexture: {fileID: 4957735015585842873, guid: fc205bf18032b8745beaaaccb0585552, type: 3}
   magicType: 0
   effects:
   - type: 9

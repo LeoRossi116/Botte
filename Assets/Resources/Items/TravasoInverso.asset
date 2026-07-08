@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Perdi 2 Stamina, guadagni 2 Mana fino a fine turno (devi avere
     la Stamina, niente negativi).
+  cardTexture: {fileID: 8114266421035480265, guid: d2edf90a80134674aa4264237751fd65, type: 3}
   category: 2
   target: 0
   effects:

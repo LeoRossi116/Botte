@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Infliggi 2 danni e applica Stun (l'avversario perde 2 Stamina).
+  cardTexture: {fileID: 7513255233959925342, guid: 88a640947133e394397a9a9d3965b5fc, type: 3}
   magicType: 0
   effects:
   - type: 0

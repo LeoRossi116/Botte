@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Infliggi 2 danni; l'avversario ha -1 Rapidita fino al suo prossimo
     turno.
+  cardTexture: {fileID: 8805086955785809271, guid: daae60e1f9933964fb38a865d2e46337, type: 3}
   magicType: 0
   effects:
   - type: 0

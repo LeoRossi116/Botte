@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: "+2 Rapidit\xE0 fino a fine turno."
+  cardTexture: {fileID: 2168861862466453060, guid: 0e0c29aa5c8c14144b192df39f542247, type: 3}
   category: 5
   target: 0
   effects:

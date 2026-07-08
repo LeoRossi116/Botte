@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 2
   effectDescription: Perdi 3 HP e infliggi 5 danni.
+  cardTexture: {fileID: -145690423191834735, guid: a1b359b77b058fd4d8f5a0af8e5b260e, type: 3}
   magicType: 0
   effects:
   - type: 2

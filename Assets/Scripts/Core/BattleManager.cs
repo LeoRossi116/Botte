@@ -146,18 +146,10 @@ namespace Botte.Core
 
             if (battleUI != null)
             {
-                if (battleUI.p1BookButtons != null)
-                    for (int i = 0; i < battleUI.p1BookButtons.Length; i++)
-                    {
-                        int idx = i;
-                        if (battleUI.p1BookButtons[i] != null) battleUI.p1BookButtons[i].onClick.AddListener(() => OnBookSelected(true, idx));
-                    }
-                if (battleUI.p2BookButtons != null)
-                    for (int i = 0; i < battleUI.p2BookButtons.Length; i++)
-                    {
-                        int idx = i;
-                        if (battleUI.p2BookButtons[i] != null) battleUI.p2BookButtons[i].onClick.AddListener(() => OnBookSelected(false, idx));
-                    }
+                // NOTE: The book selector buttons are wired later, in EnsureBookButtonsWired(),
+                // once BattleUI has applied the client/host reference swap. Wiring them here (at
+                // Start, before the swap) made the physical LEFT buttons control the wrong player
+                // and highlight the opposite side for the client.
 
                 if (battleUI.p1ShowEquipButton != null) battleUI.p1ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(true));
                 if (battleUI.p2ShowEquipButton != null) battleUI.p2ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(false));
@@ -251,6 +243,35 @@ namespace Botte.Core
             battleUI.ToggleEquipmentSlots(isPlayer1);
             if (gameState != null)
                 battleUI.RefreshEquipment(isPlayer1 ? gameState.player1 : gameState.player2, isPlayer1);
+        }
+
+        private bool bookButtonsWired;
+
+        // Wires the book selector buttons AFTER BattleUI's client/host reference swap has been
+        // applied, so the physical LEFT buttons always drive the local player (and highlight the
+        // left side) and the RIGHT buttons drive the opponent. Safe to call multiple times.
+        private void EnsureBookButtonsWired()
+        {
+            if (bookButtonsWired || battleUI == null) return;
+
+            battleUI.MapUIReferences();
+
+            if (battleUI.p1BookButtons != null)
+                for (int i = 0; i < battleUI.p1BookButtons.Length; i++)
+                {
+                    int idx = i;
+                    if (battleUI.p1BookButtons[i] != null)
+                        battleUI.p1BookButtons[i].onClick.AddListener(() => OnBookSelected(true, idx));
+                }
+            if (battleUI.p2BookButtons != null)
+                for (int i = 0; i < battleUI.p2BookButtons.Length; i++)
+                {
+                    int idx = i;
+                    if (battleUI.p2BookButtons[i] != null)
+                        battleUI.p2BookButtons[i].onClick.AddListener(() => OnBookSelected(false, idx));
+                }
+
+            bookButtonsWired = true;
         }
 
         public void OnBookSelected(bool isPlayer1, int bookIdx)
@@ -765,6 +786,9 @@ namespace Botte.Core
 
             // Hide the optional draw prep button as the 2 draws are now obligatory
             if (drawPrepButton != null) drawPrepButton.gameObject.SetActive(false);
+
+            // Wire the book selector buttons now that the client/host UI swap has been applied.
+            EnsureBookButtonsWired();
 
             EnsureTurnAndTimerUI();
             SetAllButtonsInteractable(IsMyTurn());
@@ -1758,8 +1782,7 @@ namespace Botte.Core
 
             if (battleUI != null)
             {
-                battleUI.winnerOverlay.SetActive(true);
-                battleUI.winnerText.text = $"{winner.data.heroName} vince!";
+                battleUI.ShowWinner($"{winner.data.heroName} vince!");
                 LogAction($"{GetStyledName(winner)} vince! Partita conclusa.");
             }
         }

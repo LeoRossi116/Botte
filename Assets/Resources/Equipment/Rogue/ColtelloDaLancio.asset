@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Se scartato, infligge 3 danni.
+  cardTexture: {fileID: -5894530870091430710, guid: 1a1708f4d3224084e89d5cd64d345707, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

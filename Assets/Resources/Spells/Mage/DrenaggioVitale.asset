@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Infligge 2 danni e recuperi 1 HP.
+  cardTexture: {fileID: -1110114898944406449, guid: 8de48e3aaf5aa1a49bd8b42d17385125, type: 3}
   magicType: 0
   effects:
   - type: 0

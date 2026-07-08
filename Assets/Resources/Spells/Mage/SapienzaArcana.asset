@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Pesca 2 carte da un mazzo a scelta, poi scartane 1.
+  cardTexture: {fileID: 2019208228756660150, guid: b212d8ac2c816e643bd8866dfbab8d8a, type: 3}
   magicType: 0
   effects:
   - type: 20

@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Rap 7] Giocabile solo se agisci per primo: infliggi 4
     danni.'
+  cardTexture: {fileID: 4413575514361328003, guid: df4204f02f2c61044901e362008b79b6, type: 3}
   magicType: 0
   effects:
   - type: 0

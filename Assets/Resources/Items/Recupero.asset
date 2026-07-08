@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Riprendi in mano una tua carta dalla pila degli scarti.
+  cardTexture: {fileID: -1313920156490283018, guid: 91f2735f7d270dd45bbeafd6164daff8, type: 3}
   category: 7
   target: 0
   effects:

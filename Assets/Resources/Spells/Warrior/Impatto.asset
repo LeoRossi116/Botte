@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 1
   rarity: 0
   effectDescription: Il prossimo attacco applica Stun.
+  cardTexture: {fileID: 5646173734096199482, guid: 9c8e8b3638a603449a2bc3aff7472dc1, type: 3}
   magicType: 0
   effects: []

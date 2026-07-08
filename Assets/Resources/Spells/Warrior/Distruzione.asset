@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Arma a 2 mani] Distruggi 1 equipaggiamento. Utilizzabile
     solo se impugni un''arma a due mani.'
+  cardTexture: {fileID: 1873707202161052059, guid: 843b282ffe40f3849b480c7f0ff989f5, type: 3}
   magicType: 2
   effects: []

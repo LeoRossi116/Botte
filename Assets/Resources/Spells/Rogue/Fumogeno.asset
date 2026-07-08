@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Previeni tutto il danno del prossimo attacco; l'avversario perde
     1 Stamina.
+  cardTexture: {fileID: -6547364736004220160, guid: 5a6547eed2e62dd4c887db76667ae11e, type: 3}
   magicType: 0
   effects:
   - type: 10

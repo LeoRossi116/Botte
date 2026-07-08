@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Lancia una magia Istantanea o un consumabile da una pila degli
     scarti (anche avversaria), poi esiliala.
+  cardTexture: {fileID: -8769234995305531436, guid: 4d67a27c091cca04e9c907408a236f2e, type: 3}
   magicType: 2
   effects: []

@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Il prossimo danno da magia di questo turno infligge +3.
+  cardTexture: {fileID: 5555099142661501164, guid: 3d17a5fd780554243a78f134db07771d, type: 3}
   magicType: 0
   effects: []

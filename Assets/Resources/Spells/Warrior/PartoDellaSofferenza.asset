@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 0
   effectDescription: Perdi 1 HP; il prossimo attacco infligge +1 danno.
+  cardTexture: {fileID: -8036104525210402511, guid: 0b1de41eeeda8ad44a3b7d993490c8fe, type: 3}
   magicType: 0
   effects:
   - type: 2

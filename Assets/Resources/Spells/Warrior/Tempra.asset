@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Previeni i prossimi 2 danni che subisci questo turno.
+  cardTexture: {fileID: 5158010520322543646, guid: 6f9e9477d52aa7844940ff7f88855154, type: 3}
   magicType: 0
   effects:
   - type: 9

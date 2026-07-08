@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Previeni tutto il danno del prossimo attacco; poi scarta un
     tuo equipaggiamento.
+  cardTexture: {fileID: -568120273091472698, guid: 4674cec482949c441b0309ce725ce08f, type: 3}
   magicType: 0
   effects:
   - type: 10

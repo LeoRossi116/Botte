@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: +1 Scudo per ogni attacco fisico subito.
+  cardTexture: {fileID: -848430419727645363, guid: d7ef64f374cfe964c8617d56a630848f, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

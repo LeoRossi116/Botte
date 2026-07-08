@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: 'Paga meta dei tuoi HP attuali (arrotonda giu): infliggi quel
     valore all''avversario.'
+  cardTexture: {fileID: 8601455164457242570, guid: e249e596a7070444b9e650feeb2610eb, type: 3}
   magicType: 3
   effects: []

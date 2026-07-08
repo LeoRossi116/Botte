@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 0
   effectDescription: Ottieni 3 scudo per questo turno.
+  cardTexture: {fileID: -8082261829295048364, guid: cfa750c5742a6414aa76546e91697601, type: 3}
   magicType: 0
   effects:
   - type: 9

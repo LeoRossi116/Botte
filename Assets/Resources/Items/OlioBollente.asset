@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Infliggi 2 danni; +1 se il bersaglio indossa almeno un'armatura.
+  cardTexture: {fileID: -5225616474305836120, guid: 1caee9674c378084e83e4050416a7edd, type: 3}
   category: 0
   target: 1
   effects:

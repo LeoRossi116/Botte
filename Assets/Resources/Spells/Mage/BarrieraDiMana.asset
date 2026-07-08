@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 3
   rarity: 2
   effectDescription: A inizio turno ottieni Scudo 1.
+  cardTexture: {fileID: 7674409597125315377, guid: d89c73c9445a7a2448bcd4fc060b4e3d, type: 3}
   magicType: 1
   effects:
   - type: 9

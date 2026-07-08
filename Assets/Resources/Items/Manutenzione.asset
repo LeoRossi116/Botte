@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: "Tutti i tuoi slot armatura ottengono uno stack di durabilit\xE0
     (utile quando l'equipaggiamento sar\xE0 aggiunto)."
+  cardTexture: {fileID: -9061663644012433872, guid: 989b8ff19527fe842b3c51bcf6ee9ff4, type: 3}
   category: 4
   target: 0
   effects:

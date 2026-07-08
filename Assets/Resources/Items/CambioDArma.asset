@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Scambia l'arma equipaggiata con un'arma nel libro equipaggiamento.
+  cardTexture: {fileID: 7776828360710615996, guid: ea143b9f14cf4f645ab8ae7711c87471, type: 3}
   category: 4
   target: 0
   effects:

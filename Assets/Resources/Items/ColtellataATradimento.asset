@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Infliggi 2 danni.
+  cardTexture: {fileID: -6837060043060211310, guid: 38f580e6555f88e439100abdbb2130e9, type: 3}
   category: 0
   target: 1
   effects:

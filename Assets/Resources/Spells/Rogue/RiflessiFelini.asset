@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 2
   effectDescription: 'Aura: blocca il primo attacco di ogni turno mentre e'' attiva.'
+  cardTexture: {fileID: -6093066632544188878, guid: 8e15491572c803d48aee1e315be92f9d, type: 3}
   magicType: 1
   effects:
   - type: 16

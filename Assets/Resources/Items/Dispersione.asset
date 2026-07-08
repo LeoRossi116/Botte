@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: L'avversario perde 1 Mana.
+  cardTexture: {fileID: 1031126762409718669, guid: 0f2a38864dbe1ae4cb7e0bedfb63eec0, type: 3}
   category: 2
   target: 1
   effects:

@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Rap 6] Guarda la mano dell''avversario e scegli 1 carta
     che dovra scartare.'
+  cardTexture: {fileID: 7629186332574519313, guid: 7d7bc5ba09a2a37468f48f9963b5f6ab, type: 3}
   magicType: 2
   effects: []

@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Finche nel libro, ogni volta che una carta finisce negli scarti
     dell'avversario, lui subisce 1 danno.
+  cardTexture: {fileID: -8733421105666868071, guid: a217e1169b64bf44eb566ed1ddb5f4a6, type: 3}
   magicType: 1
   effects: []

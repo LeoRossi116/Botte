@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: "Ignora l'effetto speciale dell'arma avversaria per il prossimo
     attacco (quando l'equipaggiamento sar\xE0 aggiunto)."
+  cardTexture: {fileID: -8761365046146698737, guid: 00d2f9838f62cb049a0664e913b6d070, type: 3}
   category: 3
   target: 1
   effects:

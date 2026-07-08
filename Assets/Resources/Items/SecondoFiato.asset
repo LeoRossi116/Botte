@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Guadagni 3 Stamina.
+  cardTexture: {fileID: -7013677769259392429, guid: 89a824b95aede4141b9e653cddc24709, type: 3}
   category: 2
   target: 0
   effects:

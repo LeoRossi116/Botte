@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Prendi a caso 1 carta dalla pila degli scarti dell'avversario
     e mettila nella tua mano.
+  cardTexture: {fileID: -8255890291484648289, guid: 79d8530a24f6aa947a0f862475311131, type: 3}
   magicType: 0
   effects:
   - type: 22

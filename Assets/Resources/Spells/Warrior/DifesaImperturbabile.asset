@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 0
   effectDescription: Riduce di 1 il prossimo danno subito (blocca 1 danno, non l'intero
     attacco).
+  cardTexture: {fileID: -4738304426489827726, guid: 13106b09af97089449ae36655003b1c2, type: 3}
   magicType: 0
   effects:
   - type: 9

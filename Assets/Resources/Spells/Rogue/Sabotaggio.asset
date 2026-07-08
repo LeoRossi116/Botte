@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: L'avversario scarta 1 carta a caso dalla mano.
+  cardTexture: {fileID: -3715834259284143017, guid: fc9d266e17018474f8a1e5d36be33be9, type: 3}
   magicType: 0
   effects: []

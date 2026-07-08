@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Il tuo prossimo attacco infligge +1 danno.
+  cardTexture: {fileID: -6834650628384281429, guid: a7941089a8f34cf43bc359e6b70461f2, type: 3}
   category: 3
   target: 0
   effects:

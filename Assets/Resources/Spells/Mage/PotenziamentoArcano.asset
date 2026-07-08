@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 3
   rarity: 2
   effectDescription: '[Req: Int 3] Le tue magie di danno infliggono +1.'
+  cardTexture: {fileID: -5557452998804041538, guid: ddbb5daace1a783468bfad3fd1562e30, type: 3}
   magicType: 1
   effects: []

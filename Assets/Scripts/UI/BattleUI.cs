@@ -30,6 +30,11 @@ namespace Botte.UI
         public HeroSpriteAnimator p1HeroAnim;
         public HeroSpriteAnimator p2HeroAnim;
 
+        [Tooltip("Hero portrait per class, indexed by HeroClass (0=Warrior, 1=Mage, 2=Rogue, 3=Necro). " +
+                 "Assign these manually. Used when a HeroData has no explicit heroTexture. " +
+                 "The correct portrait is chosen automatically based on the selected hero.")]
+        public Sprite[] heroClassTextures = new Sprite[4];
+
         [Header("Stat Bar Fills (Mana/Stamina; HP fills declared above)")]
         public RectTransform p1ManaBarFill;
         public RectTransform p1StaminaBarFill;
@@ -146,8 +151,6 @@ namespace Botte.UI
                 Swap(ref p2HeroAnim, ref p1HeroAnim);
                 Swap(ref p1ManaBarFill, ref p2ManaBarFill);
                 Swap(ref p1StaminaBarFill, ref p2StaminaBarFill);
-                Swap(ref p2ManaBarFill, ref p1ManaBarFill);
-                Swap(ref p2StaminaBarFill, ref p1StaminaBarFill);
                 Swap(ref p1HeroPopup, ref p2HeroPopup);
                 Swap(ref p1HeroPopupText, ref p2HeroPopupText);
                 Swap(ref p2HeroPopup, ref p1HeroPopup);
@@ -181,6 +184,36 @@ namespace Botte.UI
             b = temp;
         }
 
+        // True when the given player side is the LOCAL player (shown on the left):
+        // player1 for the host / single-player, player2 for a connected client.
+        public bool IsLocalPlayerSide(bool isPlayer1)
+        {
+            bool clientSide = RelayManager.IsMultiplayer
+                && Unity.Netcode.NetworkManager.Singleton != null
+                && !Unity.Netcode.NetworkManager.Singleton.IsServer;
+            return isPlayer1 != clientSide;
+        }
+
+        // A hand-area reference points at the ScrollRect "Content" (Content < Viewport < HandArea).
+        // Returns the HandArea root GameObject so it can be shown/hidden as a whole.
+        private GameObject GetHandAreaRoot(RectTransform content)
+        {
+            if (content == null) return null;
+            if (content.parent != null && content.parent.parent != null)
+                return content.parent.parent.gameObject;
+            return content.gameObject;
+        }
+
+        // Shows the end-of-match winner overlay, forcing it to the top of the draw/raycast
+        // order so its buttons are visible and clickable (it is authored as the first sibling).
+        public void ShowWinner(string text)
+        {
+            if (winnerOverlay == null) return;
+            winnerOverlay.transform.SetAsLastSibling();
+            winnerOverlay.SetActive(true);
+            if (winnerText != null) winnerText.text = text;
+        }
+
         // Color coding for each hero class.
         public static string GetClassColor(HeroClass hc)
         {
@@ -199,27 +232,62 @@ namespace Botte.UI
             return $"<color={GetClassColor(hc)}>{name}</color>";
         }
 
+        // Resolves the portrait to use for a hero: an explicit HeroData.heroTexture wins,
+        // otherwise the per-class mapping is used so each chosen hero shows a different image.
+        private Sprite GetHeroTexture(HeroData data)
+        {
+            if (data == null) return null;
+            if (data.heroTexture != null) return data.heroTexture;
+            int idx = (int)data.heroClass;
+            if (heroClassTextures != null && idx >= 0 && idx < heroClassTextures.Length)
+                return heroClassTextures[idx];
+            return null;
+        }
+
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
             MapUIReferences();
             TMP_Text nameText = isPlayer1 ? p1HeroNameText : p2HeroNameText;
             RectTransform hpFill = isPlayer1 ? p1HPBarFill : p2HPBarFill;
             TMP_Text hpText = isPlayer1 ? p1HPText : p2HPText;
-            TMP_Text manaText = isPlayer1 ? p1ManaText : p2ManaText;
-            TMP_Text staminaText = isPlayer1 ? p1StaminaText : p2StaminaText;
             TMP_Text statusText = isPlayer1 ? p1StatusText : p2StatusText;
+            RectTransform manaFill = isPlayer1 ? p1ManaBarFill : p2ManaBarFill;
+            RectTransform staminaFill = isPlayer1 ? p1StaminaBarFill : p2StaminaBarFill;
 
             var bm = Object.FindFirstObjectByType<Botte.Core.BattleManager>();
             bool isActive = bm != null && bm.IsHeroActive(hero);
             string styledName = GetClassColorizedName(hero.data.heroClass, hero.data.heroName);
             nameText.text = isActive ? $"<b>▶ {styledName} ◀</b>" : styledName;
 
+            // Show the portrait for the chosen hero. Prefer a HeroData-level texture, otherwise
+            // fall back to the per-class mapping. The frame animator (when it has real art) owns
+            // the image instead, so we skip static assignment in that case.
+            UnityEngine.UI.Image heroImg = isPlayer1 ? p1HeroImage : p2HeroImage;
+            HeroSpriteAnimator heroAnim = isPlayer1 ? p1HeroAnim : p2HeroAnim;
+            if (heroImg != null && (heroAnim == null || !heroAnim.HasArt))
+            {
+                Sprite portrait = GetHeroTexture(hero.data);
+                if (portrait != null)
+                {
+                    heroImg.sprite = portrait;
+                    heroImg.color = Color.white;
+                    heroImg.preserveAspect = true;
+                }
+            }
+
             hpText.text = $"HP: {hero.currentHP} / {hero.GetModifiedMaxHP()}";
-            manaText.text = $"Mana: {hero.currentMana} / {hero.GetModifiedIntelligence()}";
-            staminaText.text = $"Stamina: {hero.currentStamina} / {hero.GetModifiedAgility()}";
 
             float hpPct = hero.data.maxHP > 0 ? (float)hero.currentHP / hero.data.maxHP : 0f;
             hpFill.anchorMax = new Vector2(Mathf.Clamp01(hpPct), 1f);
+
+            // Mana (blue) and Stamina (beige) are shown as bars beneath the HP bar.
+            int manaMax = hero.GetModifiedIntelligence();
+            float manaPct = manaMax > 0 ? (float)hero.currentMana / manaMax : 0f;
+            if (manaFill != null) manaFill.anchorMax = new Vector2(Mathf.Clamp01(manaPct), 1f);
+
+            int staminaMax = hero.GetModifiedAgility();
+            float staminaPct = staminaMax > 0 ? (float)hero.currentStamina / staminaMax : 0f;
+            if (staminaFill != null) staminaFill.anchorMax = new Vector2(Mathf.Clamp01(staminaPct), 1f);
 
             string statusStr = "";
             if (hero.poisonStacks > 0) statusStr += $"Veleno({hero.poisonStacks}) ";
@@ -235,7 +303,18 @@ namespace Botte.UI
         public void RefreshBook(HeroState hero, bool isPlayer1)
         {
             MapUIReferences();
-            Transform area = isPlayer1 ? p1HandArea : p2HandArea;
+            RectTransform area = isPlayer1 ? p1HandArea : p2HandArea;
+            TMP_Text bookLabel = isPlayer1 ? p1BookLabel : p2BookLabel;
+
+            // The single bottom panel only ever shows the LOCAL player's book. The two hand
+            // areas overlap, so the remote player's area (and its label) are hidden entirely,
+            // otherwise it would cover the local player's cards.
+            bool local = IsLocalPlayerSide(isPlayer1);
+            GameObject areaRoot = GetHandAreaRoot(area);
+            if (areaRoot != null) areaRoot.SetActive(local);
+            if (bookLabel != null) bookLabel.gameObject.SetActive(local);
+            if (!local) return;
+
             if (area == null || cardPrefab == null) return;
 
             for (int i = area.childCount - 1; i >= 0; i--)

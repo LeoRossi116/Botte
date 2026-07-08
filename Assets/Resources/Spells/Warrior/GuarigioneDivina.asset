@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 3
   rarity: 2
   effectDescription: Recupera 4 HP.
+  cardTexture: {fileID: 5414808268481034898, guid: 1b294799db8a4dc479b5d44c68f453bf, type: 3}
   magicType: 2
   effects:
   - type: 1

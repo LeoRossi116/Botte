@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Il bersaglio perde 1 Stamina.
+  cardTexture: {fileID: -7886253202782314935, guid: 37d56d7561979fc47bf9324b4ed13214, type: 3}
   category: 2
   target: 1
   effects:

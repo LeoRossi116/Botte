@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: 'Aura: l''avversario infligge -1 danno per ogni attacco mentre
     e'' attiva.'
+  cardTexture: {fileID: 5744600640235644170, guid: 298ba5cfee05b3b458e2e164aa859d7b, type: 3}
   magicType: 1
   effects:
   - type: 15

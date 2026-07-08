@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: +1 Stamina e +1 HP.
+  cardTexture: {fileID: 2542846251964716324, guid: 7e337dd08ce89a74589f36f2ec981223, type: 3}
   category: 9
   target: 0
   effects:

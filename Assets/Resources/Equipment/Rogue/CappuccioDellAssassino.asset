@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: "+1 danno se l'avversario \xE8 avvelenato."
+  cardTexture: {fileID: -8480487018473339399, guid: ed521fc8a48f7634593f16e0a3aee3d2, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

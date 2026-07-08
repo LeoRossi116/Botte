@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Previeni il prossimo danno che subisci.
+  cardTexture: {fileID: -5454919355440799494, guid: c4a5d61aa9692944a9fbe5bab5a3950a, type: 3}
   category: 3
   target: 0
   effects:

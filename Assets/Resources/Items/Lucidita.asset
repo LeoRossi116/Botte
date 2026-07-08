@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: +2 Mana per questo turno.
+  cardTexture: {fileID: -1774150375228760330, guid: 897122520d2c8e34588c3111b35c2d9e, type: 3}
   category: 5
   target: 0
   effects:

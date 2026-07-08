@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 2
   effectDescription: Finche resta in gioco, a inizio turno avversario applica 1 Veleno.
+  cardTexture: {fileID: 2839525865285441510, guid: 713a6b496fdce26469ffba19f4b6253e, type: 3}
   magicType: 1
   effects:
   - type: 11

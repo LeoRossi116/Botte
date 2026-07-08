@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Ottieni Scudo 2 (assorbe 2 danni, fino a fine turno).
+  cardTexture: {fileID: 1040450098820317854, guid: 90b182d2c44788a4793c4dc6a963bacc, type: 3}
   category: 3
   target: 0
   effects:

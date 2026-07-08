@@ -11,6 +11,10 @@ public class CardData : ScriptableObject
     public Rarity rarity = Rarity.Common;
     [TextArea] public string effectDescription;
 
+    [Header("Visual")]
+    [Tooltip("Optional card artwork. When set, the card is drawn using this sprite instead of the placeholder background/label.")]
+    public Sprite cardTexture;
+
     // Number of copies of this card that a deck should contain, based on its rarity.
     public static int CountForRarity(Rarity r)
     {

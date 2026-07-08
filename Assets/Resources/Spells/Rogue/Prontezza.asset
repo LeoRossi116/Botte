@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 0
   effectDescription: Pesca una carta dal mazzo a scelta (per ora solo Spell; Equip/Oggetti
     futuri).
+  cardTexture: {fileID: -5511781862531082709, guid: 622ce9f8b58f99e4b8a17683c9b37509, type: 3}
   magicType: 0
   effects:
   - type: 13

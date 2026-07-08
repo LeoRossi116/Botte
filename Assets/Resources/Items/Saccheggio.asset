@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Prendi una carta dagli scarti avversari e aggiungila al tuo
     libro incantesimi (ignora il limite del libro).
+  cardTexture: {fileID: -3563285574691825266, guid: 3b49056186c83974d92742301c2daf17, type: 3}
   category: 7
   target: 1
   effects:

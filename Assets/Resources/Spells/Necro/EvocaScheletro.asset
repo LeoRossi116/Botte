@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 0
   effectDescription: All'inizio del tuo turno, lo scheletro infligge 1 danno all'avversario.
+  cardTexture: {fileID: -6161663129053113181, guid: e65ea7bc52b82754492b5e0bdd110a98, type: 3}
   magicType: 0
   effects: []

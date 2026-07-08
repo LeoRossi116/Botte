@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Rimuove tutti gli stack di Veleno.
+  cardTexture: {fileID: -4702205776142315033, guid: bb27819aa730c414b840b4493fd95280, type: 3}
   category: 1
   target: 0
   effects:

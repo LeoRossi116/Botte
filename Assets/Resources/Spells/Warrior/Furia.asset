@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: 'Esegui 3 attacchi a mani nude (entrambe le mani) senza consumare
     Stamina. Esaurisce il Mana (minimo 1). [Costo Mana: tutto]'
+  cardTexture: {fileID: -3571045794138145675, guid: d1cf63ebf5b53714689f5dc28bc97b31, type: 3}
   magicType: 0
   effects: []

@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: "Dopo un colpo l'avversario non pu\xF2 lanciare incantesimi
     nel suo prossimo turno."
+  cardTexture: {fileID: -3222264286060365279, guid: c2b41b941f733234da9291f18e4857a5, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 3

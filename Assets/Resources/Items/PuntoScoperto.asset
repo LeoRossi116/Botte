@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Il tuo prossimo attacco ignora la Difesa.
+  cardTexture: {fileID: 3304990471483528652, guid: 9c10c00fcf93a8743ba7d287ed2097a7, type: 3}
   category: 3
   target: 0
   effects:

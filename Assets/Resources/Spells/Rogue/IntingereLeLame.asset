@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Il prossimo attacco applica 2 Veleno.
+  cardTexture: {fileID: 8088610916788465009, guid: 35c60aa61a78d5a4ca635f14283d2694, type: 3}
   magicType: 0
   effects:
   - type: 11

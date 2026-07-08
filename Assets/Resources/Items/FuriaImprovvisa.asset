@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 0
   effectDescription: Esegui subito 1 attacco a mani nude (1 danno) senza spendere
     Stamina.
+  cardTexture: {fileID: -8002485946382928836, guid: fd3c108eff1ec1d42b4dc66d8949c197, type: 3}
   category: 3
   target: 0
   effects:

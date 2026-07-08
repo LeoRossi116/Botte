@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: Il prossimo attacco ignora la difesa e non puo' essere bloccato.
+  cardTexture: {fileID: -8956293585014893804, guid: fd57fb0b7babcf0469f2b62703663f9b, type: 3}
   magicType: 0
   effects:
   - type: 8

@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: I tuoi attacchi con arma costano 1 Stamina in meno (minimo 1)
     fino a fine turno.
+  cardTexture: {fileID: 1767114256283334637, guid: af874be76cf59d74f8b8d6bc2d331ecd, type: 3}
   magicType: 0
   effects: []

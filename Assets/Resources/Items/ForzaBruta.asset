@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: +2 Forza fino a fine turno.
+  cardTexture: {fileID: 9186840544376752958, guid: 52ec14ccbb460424f87c3698d2871f5e, type: 3}
   category: 5
   target: 0
   effects:

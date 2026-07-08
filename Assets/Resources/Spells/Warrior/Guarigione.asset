@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 0
   effectDescription: 'Recupera 1 HP. Costo: esaurisce tutto il Mana. [Costo Mana:
     tutto]'
+  cardTexture: {fileID: 4322285074490493480, guid: 7a5533cf1ecc4a04fb2594e1fac2d118, type: 3}
   magicType: 0
   effects:
   - type: 1

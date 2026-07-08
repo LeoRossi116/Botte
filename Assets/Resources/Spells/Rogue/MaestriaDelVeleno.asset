@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 3
   effectDescription: '[Req: Int 2] Ogni volta che applichi Veleno ne applichi 1 in
     piu.'
+  cardTexture: {fileID: 913368220895690171, guid: 0c1365ec6d9c0ef44b3984a5552e4ee8, type: 3}
   magicType: 1
   effects: []

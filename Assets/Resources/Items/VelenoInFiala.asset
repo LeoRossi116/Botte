@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Applica 2 Veleno.
+  cardTexture: {fileID: -8485972721863726134, guid: 8f1fa0ce6c088db499ab33712719e296, type: 3}
   category: 0
   target: 1
   effects:

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Previeni il prossimo danno; l'avversario perde 1 Stamina.
+  cardTexture: {fileID: -1618983895031186842, guid: 6d7dd20eb8808d8428eb94d6252c35f6, type: 3}
   magicType: 0
   effects:
   - type: 10

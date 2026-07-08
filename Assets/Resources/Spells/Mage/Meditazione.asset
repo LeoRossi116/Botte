@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 2
   effectDescription: Recuperi +1 Mana extra a inizio turno.
+  cardTexture: {fileID: 4376040311563875279, guid: c73b564afeabb154aa1d2fdb5fe038fa, type: 3}
   magicType: 1
   effects: []

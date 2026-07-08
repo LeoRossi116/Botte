@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 4
   rarity: 2
   effectDescription: '[Req: Int 4] Evoca 2 scheletri (1 danno ciascuno a inizio turno).'
+  cardTexture: {fileID: 3491591622326000312, guid: 4cb294465b70adf4db19d7bba731d29a, type: 3}
   magicType: 2
   effects: []

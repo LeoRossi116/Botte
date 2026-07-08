@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 0
   effectDescription: Pesca 2 carte dagli scarti e recuperi 3 HP.
+  cardTexture: {fileID: 8360552220201226253, guid: 56c22197e3d1db04393778a21ed506f8, type: 3}
   magicType: 0
   effects:
   - type: 14

@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Tutti i giocatori (incluso te) perdono 3 Stamina.
+  cardTexture: {fileID: 4138507159461002405, guid: 35c90738e61c38b4aa6c58e0cee007f4, type: 3}
   magicType: 0
   effects: []

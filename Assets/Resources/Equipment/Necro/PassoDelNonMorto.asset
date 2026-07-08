@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Diventi immune al Veleno.
+  cardTexture: {fileID: -654910979664069681, guid: caf74b86c2bb76a43b4e2f1c1ba054a9, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

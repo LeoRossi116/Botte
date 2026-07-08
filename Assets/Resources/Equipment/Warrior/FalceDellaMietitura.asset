@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: "+3 danni se l'avversario \xE8 sotto il 50% degli HP."
+  cardTexture: {fileID: 1653470186265345731, guid: 24255162dc6b0d748ac2194ecec285b0, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 5

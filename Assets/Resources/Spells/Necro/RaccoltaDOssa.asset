@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Pesca 1 carta; se hai un'Evocazione in gioco, pescane 2.
+  cardTexture: {fileID: 5450379236550531711, guid: ec493b15e98e91945b84f173f35f67dc, type: 3}
   magicType: 0
   effects: []

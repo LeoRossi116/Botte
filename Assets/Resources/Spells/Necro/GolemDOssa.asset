@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Finche in gioco hai +2 Difesa. Puoi sacrificarlo per prevenire
     tutto il danno di un attacco.
+  cardTexture: {fileID: -8807963272941949551, guid: c915166627b40584281e9e73f664a52c, type: 3}
   magicType: 0
   effects: []

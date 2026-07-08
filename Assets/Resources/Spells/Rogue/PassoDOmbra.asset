@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: Blocca il prossimo attacco e guadagni 1 Stamina.
+  cardTexture: {fileID: -5534085650788941244, guid: 4285e726bb9b26249936c02a69e5d3aa, type: 3}
   magicType: 0
   effects:
   - type: 10

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Guadagni 2 Mana.
+  cardTexture: {fileID: 6425399290567057517, guid: f963871f63612f747a4168041dadabde, type: 3}
   magicType: 0
   effects:
   - type: 3

@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: 'Sacrifica una tua Evocazione: infliggi 3 danni e recupera 2
     HP.'
+  cardTexture: {fileID: -6305219731119729144, guid: dbe6a7ec4d32f7447a2f6749be74ded6, type: 3}
   magicType: 2
   effects:
   - type: 0

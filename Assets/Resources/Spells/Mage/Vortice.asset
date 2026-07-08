@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 3
   rarity: 1
   effectDescription: L'avversario perde 3 Stamina e 1 Mana.
+  cardTexture: {fileID: -3365560878445317279, guid: 4bc39dddd333ed44ea40aea8a4fe36f4, type: 3}
   magicType: 0
   effects:
   - type: 5

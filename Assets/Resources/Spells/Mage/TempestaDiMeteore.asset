@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 5
   rarity: 3
   effectDescription: '[Req: Int 4] Infliggi 6 danni.'
+  cardTexture: {fileID: 8157297083587846831, guid: 8f95e24e04ce5f94d879a1c035ec2eb9, type: 3}
   magicType: 2
   effects:
   - type: 0

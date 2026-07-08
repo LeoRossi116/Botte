@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 3
   rarity: 2
   effectDescription: Finche nel libro, quando infliggi danno recuperi 1 HP (1/turno).
+  cardTexture: {fileID: -6540390455855700006, guid: 3b17c61144049cf4088e70ba794e5109, type: 3}
   magicType: 1
   effects: []

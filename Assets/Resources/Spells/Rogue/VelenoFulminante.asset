@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 2
   effectDescription: Infliggi danno pari ai segnalini Veleno sull'avversario.
+  cardTexture: {fileID: -8115651125367666938, guid: 53c394158b9e8d142963ee0943024f44, type: 3}
   magicType: 2
   effects: []

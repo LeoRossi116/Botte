@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: All'inizio del tuo turno infliggi 1 danno per ogni tua Evocazione
     in gioco.
+  cardTexture: {fileID: -2597963905969009156, guid: 52d7987a5400db9409e6fcb12f729ce9, type: 3}
   magicType: 0
   effects: []

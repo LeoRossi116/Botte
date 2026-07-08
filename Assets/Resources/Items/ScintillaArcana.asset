@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: 'Riattiva una tua magia esausta: puoi rilanciarla subito pagandone
     il costo.'
+  cardTexture: {fileID: -5261715886377032514, guid: d32e786dfc72af241a75e3bb22a298b9, type: 3}
   category: 7
   target: 0
   effects:

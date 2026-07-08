@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 1
   effectDescription: 'Applica Silenzio: l''avversario non lancia magie nel suo prossimo
     turno.'
+  cardTexture: {fileID: -8795450631105437095, guid: 483ddcaa30948fa4fb9bccff1b80f11f, type: 3}
   magicType: 0
   effects: []

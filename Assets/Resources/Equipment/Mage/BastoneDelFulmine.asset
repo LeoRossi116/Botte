@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ogni danno da quest'arma ignora la difesa.
+  cardTexture: {fileID: -182282602201464250, guid: 16a194101e70ee544bfe79258dd02aac, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 3

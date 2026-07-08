@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: Esegui subito 2 attacchi con un'arma equipaggiata.
+  cardTexture: {fileID: 2974364218121986847, guid: d1b27f5e5f6f78741aa46a9e861864af, type: 3}
   magicType: 0
   effects: []

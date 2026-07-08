@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Evoca come scheletro (1 danno a inizio turno) una carta dalla
     tua pila degli scarti.
+  cardTexture: {fileID: 6573293753959007503, guid: 036d16cd01724a04192713f8f1443f86, type: 3}
   magicType: 0
   effects: []

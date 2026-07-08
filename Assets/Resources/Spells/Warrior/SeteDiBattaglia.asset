@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Int 2] Finche in gioco: quando infliggi danno con un
     attacco recuperi 1 HP (1/turno).'
+  cardTexture: {fileID: 3652820395058663742, guid: ea2ca6d96dd6b854683013c444a75e9c, type: 3}
   magicType: 1
   effects: []

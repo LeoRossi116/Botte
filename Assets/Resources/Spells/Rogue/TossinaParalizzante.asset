@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 1
   rarity: 1
   effectDescription: Applica 1 Veleno e Stun (l'avversario perde 2 Stamina).
+  cardTexture: {fileID: -5744409625823180483, guid: b2fc3b5558abe8b41a1b0fd8244a7cce, type: 3}
   magicType: 0
   effects:
   - type: 11

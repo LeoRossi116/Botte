@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Annulla la prossima magia che l'avversario lancia in questo
     round.
+  cardTexture: {fileID: -186343912040386229, guid: f6b8975f547804949ba89fec2a482b21, type: 3}
   category: 8
   target: 1
   effects:

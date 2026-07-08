@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Sacrifica una tua arma; infliggi all'avversario danno pari al
     danno dell'arma sacrificata.
+  cardTexture: {fileID: 6409148842792900898, guid: 89f872c954478784899482403be8900e, type: 3}
   magicType: 0
   effects: []

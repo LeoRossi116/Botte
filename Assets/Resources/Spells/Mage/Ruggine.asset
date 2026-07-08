@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 3
   rarity: 2
   effectDescription: L'avversario ha -1 Difesa su tutte le sue armature.
+  cardTexture: {fileID: -7264765168986822121, guid: efae8a9d6a2b7204b9d0ffc174a2ceb6, type: 3}
   magicType: 1
   effects: []

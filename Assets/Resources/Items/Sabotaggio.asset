@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: "L'effetto speciale di un equipaggiamento avversario casuale
     \xE8 disabilitato fino al prossimo round."
+  cardTexture: {fileID: -3715834259284143017, guid: 0015e0e000320b748afa9d88137419f2, type: 3}
   category: 4
   target: 1
   effects:

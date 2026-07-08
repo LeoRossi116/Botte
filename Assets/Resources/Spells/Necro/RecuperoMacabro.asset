@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Rimetti in mano una tua carta dalla pila degli scarti.
+  cardTexture: {fileID: 8636134503434957736, guid: 4f983d438d972fe4cae576e405707074, type: 3}
   magicType: 0
   effects:
   - type: 14

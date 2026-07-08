@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Se i tuoi HP sono inferiori a quelli dell'avversario all'inizio
     di un round, ottieni +1 Mana extra.
+  cardTexture: {fileID: -5053003710381193873, guid: f77d9f82fb308144085397ce2bef7915, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

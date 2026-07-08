@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Perdi 2 HP e guadagni 3 Mana.
+  cardTexture: {fileID: -2869741221751400590, guid: a645a7399a7c03043b54fd3efc5699d4, type: 3}
   magicType: 0
   effects:
   - type: 2

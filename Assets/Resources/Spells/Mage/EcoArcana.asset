@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 2
   effectDescription: '[Req: Int 3] Ripeti l''effetto dell''ultima magia lanciata
     questo turno.'
+  cardTexture: {fileID: 5150917832859596822, guid: b6e3744bd0dd93f4aaeb14151d499f97, type: 3}
   magicType: 2
   effects: []

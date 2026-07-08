@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 3
   effectDescription: 'Distruggi TUTTI gli equipaggiamenti (entrambi i giocatori)
     e sacrifica i tuoi; esaurisci tutta la Stamina. [Costo Stamina: tutta]'
+  cardTexture: {fileID: 6917200100226001912, guid: a76a109efd948d54c81abbaa65d750e3, type: 3}
   magicType: 3
   effects: []

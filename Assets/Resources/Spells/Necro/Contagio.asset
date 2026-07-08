@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Raddoppia il Veleno presente sull'avversario.
+  cardTexture: {fileID: 623036536810781360, guid: 971a2802101e97d4583a75a45b9b013b, type: 3}
   magicType: 0
   effects: []

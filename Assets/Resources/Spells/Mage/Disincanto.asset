@@ -20,5 +20,6 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Un equipaggiamento dell'avversario e disattivato fino al suo
     prossimo turno.
+  cardTexture: {fileID: -7340030822810318440, guid: 9f564d16b1d7af9499dbf090f3916452, type: 3}
   magicType: 0
   effects: []

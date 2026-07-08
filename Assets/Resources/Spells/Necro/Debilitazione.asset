@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Finche nel libro, l'avversario ha -1 Forza.
+  cardTexture: {fileID: -4148083744628191174, guid: 401c186d1ebfb814f999e3e672b24fb4, type: 3}
   magicType: 1
   effects:
   - type: 15

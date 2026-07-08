@@ -19,5 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: All'inizio del tuo turno recuperi 1 HP.
+  cardTexture: {fileID: 8680033692150982902, guid: 1472720d3bc7b6c4fbf3774a803ed60e, type: 3}
   magicType: 0
   effects: []

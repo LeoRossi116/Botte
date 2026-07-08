@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Applica 1 Veleno e l'avversario ha -1 danno nel suo prossimo
     turno.
+  cardTexture: {fileID: -4195136000514509005, guid: c1017d6c12ed5674a88de47b570f9dd9, type: 3}
   magicType: 0
   effects:
   - type: 11

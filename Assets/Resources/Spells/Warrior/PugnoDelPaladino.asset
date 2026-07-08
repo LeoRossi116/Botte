@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 2
   rarity: 0
   effectDescription: Infligge 3 danni immediati.
+  cardTexture: {fileID: 3542200480237936244, guid: a6d4f3901b8debd419f528050d863317, type: 3}
   magicType: 0
   effects:
   - type: 0

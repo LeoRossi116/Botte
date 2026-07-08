@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 1
   effectDescription: Infliggi 3 danni; +2 se l'avversario ha gia subito Stun questo
     turno.
+  cardTexture: {fileID: 4239882670577267882, guid: f2b333d2c05fc424cb8f5fe75ee51c31, type: 3}
   magicType: 0
   effects:
   - type: 0
