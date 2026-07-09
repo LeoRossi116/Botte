@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 1/turno un attacco applica 1 Veleno extra.
+  cardTexture: {fileID: -3871367191032190236, guid: 640d64443dc108541ab2d35ee02ab104, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

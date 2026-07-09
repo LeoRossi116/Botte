@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Se avversario ha Veleno, +1 danno.
+  cardTexture: {fileID: 6183033464389438399, guid: 9d38e49eec4f00f4caf76c723439adf0, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

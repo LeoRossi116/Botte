@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Ignora 1 Difesa.
+  cardTexture: {fileID: -3299209024439101174, guid: 945ca692c3a265b478b2ae2a97945584, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 3

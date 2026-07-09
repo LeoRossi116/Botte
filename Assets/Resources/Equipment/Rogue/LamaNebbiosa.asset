@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Dopo l'attacco ottieni Schivata 1.
+  cardTexture: {fileID: 7640686731607286571, guid: 6a86ae43ec4f50745a89250304466dc0, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

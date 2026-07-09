@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: "Se un attacco applica Veleno, applica 1 stack in pi\xF9."
-  cardTexture: {fileID: -6550919193040873191, guid: 4b196d5486220b94cbc0429c4b8d1f67, type: 3}
+  cardTexture: {fileID: 479528944097917947, guid: 747c5844675afa1458e58ef6017c1b8a, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

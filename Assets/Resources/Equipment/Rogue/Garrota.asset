@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Applica 2 Veleno; avversario recupera 1 Stamina in meno il prossimo
     turno.
+  cardTexture: {fileID: -8367369030200640844, guid: 73a09811829bc7245bf97b54302958bd, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 0

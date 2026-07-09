@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando applichi Veleno, guadagni 1 Stamina (1/turno).
+  cardTexture: {fileID: 2304704052834740065, guid: 67673bce9f013104e8ecc1407e89c6dc, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Per ogni attacco fisico subito applica 1 Veleno all'avversario.
-  cardTexture: {fileID: 2646709184514308604, guid: 6bb30f04be0934943bf3a68527642c6f, type: 3}
+  cardTexture: {fileID: -898298477138178879, guid: 0a827e313aba9cd4584e63b7b8420a66, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

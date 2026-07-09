@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 'Schivata: previeni il primo danno subito ogni turno.'
+  cardTexture: {fileID: -8910036465777196179, guid: 8cfbe700065fd7745a6e8ffe3f03ed4b, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

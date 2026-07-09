@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ottieni 1 blocco ogni round.
+  cardTexture: {fileID: 7158481113039318066, guid: f319e278076ca614cbf0e0c0aa66e272, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

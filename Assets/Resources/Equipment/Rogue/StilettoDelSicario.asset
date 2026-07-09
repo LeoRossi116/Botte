@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: "+3 danni contro bersaglio gi\xE0 avvelenato."
+  cardTexture: {fileID: -7224324170580147550, guid: 3b31b93056b6e1243a72704d280d8316, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

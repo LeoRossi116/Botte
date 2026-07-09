@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Previene 1 danno fisico per attacco subito.
+  cardTexture: {fileID: -2832236513280803448, guid: 0777a14eaeed9b24dad844d0c73b3198, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

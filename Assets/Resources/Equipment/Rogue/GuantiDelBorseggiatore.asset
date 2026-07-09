@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Quando infliggi danno, 1/turno l'avversario scarta 1 carta a
     caso.
+  cardTexture: {fileID: -5206633058725439305, guid: d394df269ad0f3c41af21bab97a89103, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ogni attacco fisico colpisce due volte.
+  cardTexture: {fileID: -814107783755236466, guid: f83448195b456ec46816d6e4bae0c9be, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 2

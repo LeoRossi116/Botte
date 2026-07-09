@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando infliggi danno, peschi 1 carta (1/turno).
+  cardTexture: {fileID: -955732143562230845, guid: 3466470dfa1885347aa6e8eead422f8d, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

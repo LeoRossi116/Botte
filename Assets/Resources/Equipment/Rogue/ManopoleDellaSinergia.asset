@@ -20,7 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Se hai usato almeno 2 tipi di carte diverse, ogni attacco di
     questo turno ha +1 danno.
-  cardTexture: {fileID: 5330075115057884968, guid: 454571c196fbc4a4caf803539f7e4d43, type: 3}
+  cardTexture: {fileID: -4463656953562078134, guid: 51488497f38b2c74db22ef980c9ef723, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

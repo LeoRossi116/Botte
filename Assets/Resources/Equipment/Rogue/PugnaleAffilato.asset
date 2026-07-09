@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: 
+  cardTexture: {fileID: -485610023357662304, guid: c42abeebcee0339469ffe08d166060d9, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

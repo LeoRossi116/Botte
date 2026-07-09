@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: "Se hai pi\xF9 Stamina dell'avversario, +1 danno."
+  cardTexture: {fileID: 976203807580840620, guid: f15b8631acdfb404cb29a5679fda002d, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2
