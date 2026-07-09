@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Immune ai malus di tipo Stun.
+  cardTexture: {fileID: -765920293261745244, guid: e0ec2a0292c09344c847fadbcb4199ac, type: 3}
   equipType: 1
   slotType: 2
   damageValue: 0

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: +2 danni contro avversario senza armatura equipaggiata.
+  cardTexture: {fileID: 5480631327884048, guid: 0298eb95d254e20439544b0dd525ea3f, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 3

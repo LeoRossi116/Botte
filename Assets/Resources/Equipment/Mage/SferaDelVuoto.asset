@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 3
   effectDescription: '1x per partita: la prossima magia non costa Mana.'
+  cardTexture: {fileID: 4580614801823105052, guid: 5bc49690d79b2584480de47adc1bd53d, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 3
   effectDescription: "Ottieni 2 HP e +2 danni se il nemico \xE8 avvelenato."
-  cardTexture: {fileID: -7950709796585483804, guid: 9f9a682d8f9cc234ca6dd9c3bef9167e, type: 3}
+  cardTexture: {fileID: 3415293314383765047, guid: 7e27f2971ce813947b44d587bd1da247, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 3

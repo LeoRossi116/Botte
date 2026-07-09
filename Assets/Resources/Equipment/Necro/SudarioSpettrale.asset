@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: La prima volta ogni turno che subisci danno, previenine 1.
+  cardTexture: {fileID: -795462667928454440, guid: 10935581528eab54abc1912322e2fac4, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

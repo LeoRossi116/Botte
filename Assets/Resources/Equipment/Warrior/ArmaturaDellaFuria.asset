@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Ogni turno ti infligge 1 danno diretto. Ogni tuo attacco infligge
     +1.
+  cardTexture: {fileID: -3320230096846493967, guid: 2cecd8a0265abb54397aba1a62d22e02, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

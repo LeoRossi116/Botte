@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ogni stack di Veleno infligge +1 danno.
-  cardTexture: {fileID: 2252646844882355362, guid: d4fafa888d515864caafe646690cb497, type: 3}
+  cardTexture: {fileID: -1749092073807428796, guid: baf5c9a65d2ad8042ae31727573e67ec, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

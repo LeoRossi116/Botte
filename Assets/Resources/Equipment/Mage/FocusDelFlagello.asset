@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Potenza magica +2.
+  cardTexture: {fileID: 3505072108939585518, guid: ce7e788c1708a264a9552d66652985e3, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 0

@@ -22,8 +22,14 @@ namespace Botte.UI
         public float fps = 8f;
         [SerializeField] private Image image;
 
+        [Header("Hero Class Sprites (Manual Setup)")]
+        public Sprite warriorSprite;
+        public Sprite mageSprite;
+        public Sprite rogueSprite;
+        public Sprite necroSprite;
+
         private readonly Dictionary<State, Sprite[]> _frames = new Dictionary<State, Sprite[]>();
-        private State _current = State.Idle;
+private State _current = State.Idle;
         private int _frameIndex;
         private float _timer;
         private bool _setup;
@@ -49,14 +55,39 @@ namespace Botte.UI
         // Loads all state frames for the given hero from Resources. Safe to call repeatedly.
         public void Setup(string hero)
         {
+            if (_setup && heroName == hero) return;
+
             heroName = hero;
             _frames.Clear();
             LoadState(State.Idle, "idle");
             LoadState(State.Attacking, "attacking");
             LoadState(State.Death, "death");
             LoadState(State.Victory, "victory");
+
+            // If no animation frames were loaded for Idle, use the manually assigned sprite
+            if (!_frames.ContainsKey(State.Idle) || _frames[State.Idle] == null || _frames[State.Idle].Length == 0)
+            {
+                Sprite fallbackSprite = GetManualSprite(hero);
+                if (fallbackSprite != null)
+                {
+                    _frames[State.Idle] = new Sprite[] { fallbackSprite };
+                }
+            }
+
             _setup = true;
             SetState(State.Idle);
+        }
+
+        private Sprite GetManualSprite(string hero)
+        {
+            if (string.IsNullOrEmpty(hero)) return null;
+
+            if (hero.Equals("Warrior", System.StringComparison.OrdinalIgnoreCase)) return warriorSprite;
+            if (hero.Equals("Mage", System.StringComparison.OrdinalIgnoreCase)) return mageSprite;
+            if (hero.Equals("Rogue", System.StringComparison.OrdinalIgnoreCase)) return rogueSprite;
+            if (hero.Equals("Necro", System.StringComparison.OrdinalIgnoreCase)) return necroSprite;
+
+            return null;
         }
 
         private void LoadState(State s, string stateName)

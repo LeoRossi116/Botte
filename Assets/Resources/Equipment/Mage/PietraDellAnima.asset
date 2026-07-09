@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 1/turno una magia costa 1 Mana in meno (min 1).
+  cardTexture: {fileID: 1238028962567514581, guid: 05e2b10491852354cb9154ed76c3c958, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

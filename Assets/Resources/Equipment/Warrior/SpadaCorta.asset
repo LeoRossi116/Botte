@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: 'Affilata: +1 danno al primo attacco del turno.'
+  cardTexture: {fileID: -7327972745761655013, guid: 63a67a777c521fc4290fd356f49a0232, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

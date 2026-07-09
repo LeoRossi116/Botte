@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: La prima volta ogni turno, previeni 1 danno fisico.
+  cardTexture: {fileID: 90234938565451105, guid: a1018c5fc38316d44984cbe8b2805a45, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

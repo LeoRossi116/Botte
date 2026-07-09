@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: A inizio del tuo turno l'avversario perde 1 Mana.
+  cardTexture: {fileID: -6588583510103925329, guid: 4a8a5e29daf74094ebf068a933360f76, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

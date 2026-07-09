@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: 'Equip: perdi 1 HP. Quando subisci danno, chi te l''ha inflitto
     subisce 1.'
+  cardTexture: {fileID: 1634695155902239993, guid: ab51df8041ab09d4f96feb9334c9abc9, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

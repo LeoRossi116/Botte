@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando infliggi danno con un attacco, recuperi 1 HP (1/turno).
+  cardTexture: {fileID: 3598129492054294756, guid: cd3745dd8a1fb8449babdc343f4a1cd1, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

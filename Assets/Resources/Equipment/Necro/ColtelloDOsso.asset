@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: 'Sacrifica: infliggi 2 danni.'
+  cardTexture: {fileID: -7220696619476459886, guid: 96c14007770f87c4284ec08a2e81b678, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

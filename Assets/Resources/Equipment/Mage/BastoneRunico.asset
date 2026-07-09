@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: +1 danno dagli incantesimi.
-  cardTexture: {fileID: 4520789221216167838, guid: d31899f636e60674883cc70419151458, type: 3}
+  cardTexture: {fileID: 1682768458616548706, guid: 20463dbb65e6b51409f5e81f8eeb4fd1, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 2

@@ -35,6 +35,15 @@ namespace Botte.UI
                  "The correct portrait is chosen automatically based on the selected hero.")]
         public Sprite[] heroClassTextures = new Sprite[4];
 
+        [Header("Opponent Cards (top panel)")]
+        [Tooltip("Card-back art per hero class, indexed by HeroClass (0=Warrior, 1=Mage, 2=Rogue, 3=Necro). " +
+                 "Assign these manually, exactly like the hero portraits above. The sprite shown on the " +
+                 "opponent's card slots is chosen automatically based on the opponent's selected hero.")]
+        public Sprite[] oppCardTextures = new Sprite[4];
+        [Tooltip("The opponent card-slot Images in the top panel (OppCard_Slot_0/1/2). " +
+                 "These always represent the opponent (they are not swapped for the client).")]
+        public UnityEngine.UI.Image[] oppCardSlots;
+
         [Header("Stat Bar Fills (Mana/Stamina; HP fills declared above)")]
         public RectTransform p1ManaBarFill;
         public RectTransform p1StaminaBarFill;
@@ -146,33 +155,22 @@ namespace Botte.UI
                 Swap(ref p1StatusText, ref p2StatusText);
                 Swap(ref p1HandArea, ref p2HandArea);
                 Swap(ref p1HeroImage, ref p2HeroImage);
-                Swap(ref p2HeroImage, ref p1HeroImage);
                 Swap(ref p1HeroAnim, ref p2HeroAnim);
-                Swap(ref p2HeroAnim, ref p1HeroAnim);
                 Swap(ref p1ManaBarFill, ref p2ManaBarFill);
                 Swap(ref p1StaminaBarFill, ref p2StaminaBarFill);
                 Swap(ref p1HeroPopup, ref p2HeroPopup);
                 Swap(ref p1HeroPopupText, ref p2HeroPopupText);
-                Swap(ref p2HeroPopup, ref p1HeroPopup);
-                Swap(ref p2HeroPopupText, ref p1HeroPopupText);
                 Swap(ref p1DescPanel, ref p2DescPanel);
                 Swap(ref p1DescName, ref p2DescName);
                 Swap(ref p1DescCost, ref p2DescCost);
                 Swap(ref p1DescEffect, ref p2DescEffect);
-                Swap(ref p2DescPanel, ref p1DescPanel);
-                Swap(ref p2DescName, ref p1DescName);
-                Swap(ref p2DescCost, ref p1DescCost);
-                Swap(ref p2DescEffect, ref p1DescEffect);
                 Swap(ref p1ClassButtons, ref p2ClassButtons);
                 Swap(ref p1BookButtons, ref p2BookButtons);
                 Swap(ref p1BookLabel, ref p2BookLabel);
                 Swap(ref p1EquipSlots, ref p2EquipSlots);
                 Swap(ref p1WeaponConnector, ref p2WeaponConnector);
-                Swap(ref p2WeaponConnector, ref p1WeaponConnector);
                 Swap(ref p1EquipWindow, ref p2EquipWindow);
-                Swap(ref p2EquipWindow, ref p1EquipWindow);
                 Swap(ref p1ShowEquipButton, ref p2ShowEquipButton);
-                Swap(ref p2ShowEquipButton, ref p1ShowEquipButton);
             }
             referencesMapped = true;
         }
@@ -244,6 +242,37 @@ namespace Botte.UI
             return null;
         }
 
+        // Resolves the card-back sprite to use for a given hero class (manual per-class mapping).
+        private Sprite GetOppCardTexture(HeroData data)
+        {
+            if (data == null || oppCardTextures == null) return null;
+            int idx = (int)data.heroClass;
+            if (idx >= 0 && idx < oppCardTextures.Length) return oppCardTextures[idx];
+            return null;
+        }
+
+        // Shows the opponent's card-back art on every top-panel card slot, chosen from the
+        // opponent hero's class. Mirrors the manual-sprite approach used for hero portraits:
+        // if no sprite is assigned for that class, the slot keeps its placeholder appearance.
+        public void RefreshOpponentCards(HeroData oppData)
+        {
+            if (oppCardSlots == null) return;
+            Sprite art = GetOppCardTexture(oppData);
+            if (art == null) return; // graceful fallback: leave placeholder untouched
+
+            foreach (var slot in oppCardSlots)
+            {
+                if (slot == null) continue;
+                slot.sprite = art;
+                slot.color = Color.white;
+                slot.preserveAspect = true;
+
+                // Hide the "Opp Card" placeholder label once real art is shown.
+                var placeholder = slot.transform.Find("Text");
+                if (placeholder != null) placeholder.gameObject.SetActive(false);
+            }
+        }
+
         public void RefreshHero(HeroState hero, bool isPlayer1)
         {
             MapUIReferences();
@@ -253,6 +282,8 @@ namespace Botte.UI
             TMP_Text statusText = isPlayer1 ? p1StatusText : p2StatusText;
             RectTransform manaFill = isPlayer1 ? p1ManaBarFill : p2ManaBarFill;
             RectTransform staminaFill = isPlayer1 ? p1StaminaBarFill : p2StaminaBarFill;
+            TMP_Text manaText = isPlayer1 ? p1ManaText : p2ManaText;
+            TMP_Text staminaText = isPlayer1 ? p1StaminaText : p2StaminaText;
 
             var bm = Object.FindFirstObjectByType<Botte.Core.BattleManager>();
             bool isActive = bm != null && bm.IsHeroActive(hero);
@@ -264,6 +295,45 @@ namespace Botte.UI
             // the image instead, so we skip static assignment in that case.
             UnityEngine.UI.Image heroImg = isPlayer1 ? p1HeroImage : p2HeroImage;
             HeroSpriteAnimator heroAnim = isPlayer1 ? p1HeroAnim : p2HeroAnim;
+
+            // Face direction is decided by the PHYSICAL side, not the logical player
+            // index: the local hero (always shown on the LEFT) faces right (+1) and the
+            // opponent (always on the RIGHT) faces left (-1). Because the client swaps the
+            // p1/p2 references, using IsLocalPlayerSide keeps both host and client correct.
+            float faceX = IsLocalPlayerSide(isPlayer1) ? 1f : -1f;
+            if (heroImg != null)
+            {
+                Vector3 scale = heroImg.transform.localScale;
+                scale.x = faceX;
+                heroImg.transform.localScale = scale;
+
+                // Keep the equip toggle button pinned to the bottom-right of the sprite with
+                // upright text, independent of the sprite's mirror. It is moved OUT of the
+                // (mirrored) sprite onto the HeroPanel so it never inherits the horizontal flip.
+                Button eqBtn = isPlayer1 ? p1ShowEquipButton : p2ShowEquipButton;
+                RectTransform sprtRT = heroImg.transform as RectTransform;
+                if (eqBtn != null && sprtRT != null && sprtRT.parent != null)
+                {
+                    var brt = eqBtn.GetComponent<RectTransform>();
+                    Transform heroPanel = sprtRT.parent; // "HeroPanel"
+                    if (brt.parent != heroPanel) brt.SetParent(heroPanel, false);
+                    brt.localScale = Vector3.one;
+                    brt.anchorMin = new Vector2(0.5f, 0.5f);
+                    brt.anchorMax = new Vector2(0.5f, 0.5f);
+                    brt.pivot = new Vector2(0.5f, 0.5f);
+                    Vector2 half = sprtRT.sizeDelta * 0.5f;
+                    brt.anchoredPosition = new Vector2(
+                        sprtRT.anchoredPosition.x + half.x - 20f,
+                        sprtRT.anchoredPosition.y - half.y + 22f);
+                    brt.SetAsLastSibling();
+                }
+            }
+
+            if (heroAnim != null && hero.data != null)
+            {
+                heroAnim.Setup(hero.data.heroClass.ToString());
+            }
+
             if (heroImg != null && (heroAnim == null || !heroAnim.HasArt))
             {
                 Sprite portrait = GetHeroTexture(hero.data);
@@ -284,10 +354,17 @@ namespace Botte.UI
             int manaMax = hero.GetModifiedIntelligence();
             float manaPct = manaMax > 0 ? (float)hero.currentMana / manaMax : 0f;
             if (manaFill != null) manaFill.anchorMax = new Vector2(Mathf.Clamp01(manaPct), 1f);
+            if (manaText != null) manaText.text = $"Mana: {hero.currentMana} / {manaMax}";
 
             int staminaMax = hero.GetModifiedAgility();
             float staminaPct = staminaMax > 0 ? (float)hero.currentStamina / staminaMax : 0f;
             if (staminaFill != null) staminaFill.anchorMax = new Vector2(Mathf.Clamp01(staminaPct), 1f);
+            if (staminaText != null) staminaText.text = $"Stam: {hero.currentStamina} / {staminaMax}";
+
+            // The top-panel card slots always show the OPPONENT (the non-local side). Uses the
+            // same manual per-class sprite mechanism as the hero portraits.
+            if (!IsLocalPlayerSide(isPlayer1))
+                RefreshOpponentCards(hero.data);
 
             string statusStr = "";
             if (hero.poisonStacks > 0) statusStr += $"Veleno({hero.poisonStacks}) ";

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando lanci una magia guadagni 1 HP.
+  cardTexture: {fileID: 5991479353725639291, guid: c02cf003ae0c53c4c8158da6ffa49d8a, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

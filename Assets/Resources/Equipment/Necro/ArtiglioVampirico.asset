@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: 'Drain: recuperi 1 HP quando colpisci (1/turno).'
+  cardTexture: {fileID: 4557123973412976606, guid: 175ea17bc44a37949a451d6883ee49a4, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

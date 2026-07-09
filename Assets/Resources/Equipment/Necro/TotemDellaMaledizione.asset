@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ogni incantesimo applica 1 Veleno.
-  cardTexture: {fileID: -8878636172022405428, guid: 0b9b861c3581d1849903283edd886b28, type: 3}
+  cardTexture: {fileID: 5665007735314373674, guid: ea38a8cf0fea9804abb0193f3d0f5287, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

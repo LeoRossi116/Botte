@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando un tuo Veleno infligge danno, recuperi 1 HP (1/turno).
+  cardTexture: {fileID: -7045646380924632747, guid: 2290117bdb2b0a7499a64f7f19bd5245, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

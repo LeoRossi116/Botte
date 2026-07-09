@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Se scartata, concede 2 Mana.
-  cardTexture: {fileID: -8922753787270309389, guid: a6efb1faf7b3b5d4eb4f6020c2d7577e, type: 3}
+  cardTexture: {fileID: -6781191878766391511, guid: 35f942092111d4649a2a238b884af1d4, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

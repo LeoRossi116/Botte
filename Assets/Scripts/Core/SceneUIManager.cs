@@ -22,6 +22,8 @@ public class SceneUIManager : MonoBehaviour
     [Tooltip("The connect page reached via PLAY (Host / Join / code input).")]
     [SerializeField] private GameObject playPanel;
     [SerializeField] private GameObject lobbyPanel;
+    [Tooltip("The OPTIONS modal opened from the title screen (OPZIONI + ESCI + X close). Starts hidden.")]
+    [SerializeField] private GameObject optionsPanel;
     [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private TextMeshProUGUI errorStatusText;
     [SerializeField] private TextMeshProUGUI generatedCodeText;
@@ -199,9 +201,10 @@ public class SceneUIManager : MonoBehaviour
     }
 
     // Options button on the title page (not implemented yet, here for show).
+    // The in-game OPTIONS window lives on the battle panel instead (see BattleManager).
     public void ClickedOptions()
     {
-        // Intentionally left blank for now.
+        // Intentionally left blank for now (placeholder for future settings).
     }
 
     // Exit button on the title page: quits the application.

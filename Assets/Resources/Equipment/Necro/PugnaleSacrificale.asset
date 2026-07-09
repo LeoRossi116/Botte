@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Ogni attacco ha +2 danni ma perdi 1 HP.
-  cardTexture: {fileID: -7752795146161335627, guid: 7a6cdac803d3b0f439fec2290665cead, type: 3}
+  cardTexture: {fileID: 5048460872257315962, guid: 09daea9ccf014e9499b7d2bd05498d28, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

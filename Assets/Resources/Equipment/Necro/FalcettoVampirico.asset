@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Drain 1 (1/turno) e applica 1 Veleno.
+  cardTexture: {fileID: -6289882479742583591, guid: 8db2bba30f0dc864ca6eff6e6de2aa36, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

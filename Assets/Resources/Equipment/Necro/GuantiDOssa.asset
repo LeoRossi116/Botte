@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: +1 al danno inferto.
+  cardTexture: {fileID: 5249601956000580881, guid: 2b5d147cf794ef0429ad4d0bf997ae8d, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

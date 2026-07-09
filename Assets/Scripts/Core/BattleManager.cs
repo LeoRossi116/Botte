@@ -136,24 +136,18 @@ namespace Botte.Core
                 }
             }
             if (startBattleButton != null) startBattleButton.onClick.AddListener(OnStartBattlePressed);
-            if (restartButton != null) restartButton.onClick.AddListener(OnRestartPressed);
-            if (exitButton != null) exitButton.onClick.AddListener(OnExitPressed);
+            // NOTE: restartButton (LOBBY/RIGIOCA) and exitButton (ESCI) are wired dynamically in
+            // ShowEndGameScreen() so their behaviour matches local vs multiplayer context.
             if (drawChoiceSpellButton != null) drawChoiceSpellButton.onClick.AddListener(() => OnDeckChoice(DeckChoice.Spell));
             if (drawChoiceEquipButton != null) drawChoiceEquipButton.onClick.AddListener(() => OnDeckChoice(DeckChoice.Equipment));
             if (drawChoiceItemButton != null) drawChoiceItemButton.onClick.AddListener(() => OnDeckChoice(DeckChoice.Item));
             if (peekKeepButton != null) peekKeepButton.onClick.AddListener(OnPeekKeep);
             if (peekDiscardButton != null) peekDiscardButton.onClick.AddListener(OnPeekDiscard);
 
-            if (battleUI != null)
-            {
-                // NOTE: The book selector buttons are wired later, in EnsureBookButtonsWired(),
-                // once BattleUI has applied the client/host reference swap. Wiring them here (at
-                // Start, before the swap) made the physical LEFT buttons control the wrong player
-                // and highlight the opposite side for the client.
-
-                if (battleUI.p1ShowEquipButton != null) battleUI.p1ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(true));
-                if (battleUI.p2ShowEquipButton != null) battleUI.p2ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(false));
-            }
+            // NOTE: The book selector buttons AND the equip toggle buttons are wired later, in
+            // EnsureBookButtonsWired(), once BattleUI has applied the client/host reference swap.
+            // Wiring them here (at Start, before the swap) made the physical LEFT buttons control
+            // the wrong player and highlight the opposite side for the client.
 
             // --- In-game options window ---
             if (optionsButton != null) optionsButton.onClick.AddListener(OpenOptions);
@@ -270,6 +264,13 @@ namespace Botte.Core
                     if (battleUI.p2BookButtons[i] != null)
                         battleUI.p2BookButtons[i].onClick.AddListener(() => OnBookSelected(false, idx));
                 }
+
+            // Equip toggle buttons must also be wired AFTER the swap so the physical LEFT button
+            // always drives (and highlights) the local player and the RIGHT button the opponent.
+            if (battleUI.p1ShowEquipButton != null)
+                battleUI.p1ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(true));
+            if (battleUI.p2ShowEquipButton != null)
+                battleUI.p2ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(false));
 
             bookButtonsWired = true;
         }
@@ -1772,18 +1773,122 @@ namespace Botte.Core
         private void EndBattle(HeroState winner)
         {
             SetAllButtonsInteractable(false);
+
             if (RelayManager.IsMultiplayer)
             {
-                bool hostWon = winner == gameState.player1;
-                string endMsg = hostWon ? "Game Finished - Host Won" : "Game Finished - Client Won";
-                RelayManager.Instance.EndMultiplayerGame(endMsg);
+                // The simulation runs on both peers, so only the SERVER broadcasts the winner.
+                // The server resolves the winner's real nickname (never "Host"/"Client") and the
+                // ClientRpc shows the winner window on both peers, still on the battle screen.
+                if (Unity.Netcode.NetworkManager.Singleton != null && Unity.Netcode.NetworkManager.Singleton.IsServer
+                    && RelayManager.Instance != null)
+                {
+                    bool hostWon = winner == gameState.player1;
+                    string winnerName = RelayManager.Instance.GetWinnerDisplayName(hostWon);
+                    RelayManager.Instance.BroadcastWinner(winnerName);
+                }
                 return;
             }
 
+            // Local (hotseat) play: announce the winning hero and offer replay / main menu.
+            ShowEndGameScreen(winner.data.heroName, false);
+        }
+
+        // Called on both peers via RelayManager's winner ClientRpc.
+        public void ShowNetworkWinner(string winnerName)
+        {
+            ShowEndGameScreen(winnerName, true);
+        }
+
+        // Shows the end-of-match window announcing the winner by name. The two buttons are
+        // configured for context: in multiplayer they are LOBBY (return to the same lobby, keeping
+        // the network session alive) and ESCI (leave to the main menu); in local play they are
+        // RIGIOCA (character select) and ESCI (main menu).
+        private void ShowEndGameScreen(string winnerName, bool multiplayer)
+        {
+            SetAllButtonsInteractable(false);
+            if (battleUI == null) return;
+
+            battleUI.ShowWinner($"{winnerName} vince!");
+            LogAction($"{winnerName} vince! Partita conclusa.");
+
+            // Left button.
+            if (restartButton != null)
+            {
+                restartButton.onClick.RemoveAllListeners();
+                restartButton.gameObject.SetActive(true);
+                restartButton.interactable = true;
+                var lt = restartButton.GetComponentInChildren<TMP_Text>();
+                if (multiplayer)
+                {
+                    if (lt != null) lt.text = "LOBBY";
+                    restartButton.onClick.AddListener(OnWinnerLobbyPressed);
+                }
+                else
+                {
+                    if (lt != null) lt.text = "RIGIOCA";
+                    restartButton.onClick.AddListener(OnRestartPressed);
+                }
+            }
+
+            // Right button is always ESCI (return to the main menu).
+            if (exitButton != null)
+            {
+                exitButton.onClick.RemoveAllListeners();
+                exitButton.gameObject.SetActive(true);
+                exitButton.interactable = true;
+                var et = exitButton.GetComponentInChildren<TMP_Text>();
+                if (et != null) et.text = "ESCI";
+                exitButton.onClick.AddListener(OnWinnerExitPressed);
+            }
+        }
+
+        // LOBBY: tears down the local battle view (without touching the network) and returns to
+        // the shared lobby. Because the session stays alive, both players who press LOBBY end up
+        // back in the same room.
+        private void OnWinnerLobbyPressed()
+        {
+            HideBattleForEnd();
+            if (RelayManager.IsMultiplayer && RelayManager.Instance != null)
+            {
+                RelayManager.Instance.ReturnToLobby();
+            }
+            else
+            {
+                if (battleUI != null && battleUI.mainMenuPanel != null)
+                    battleUI.mainMenuPanel.SetActive(true);
+            }
+        }
+
+        // ESCI: return to the main menu. In multiplayer this also shuts the network session down.
+        private void OnWinnerExitPressed()
+        {
+            HideBattleForEnd();
+            if (RelayManager.Instance != null && Unity.Netcode.NetworkManager.Singleton != null
+                && Unity.Netcode.NetworkManager.Singleton.IsListening)
+            {
+                RelayManager.Instance.ToMainMenu();
+            }
+            else if (battleUI != null && battleUI.mainMenuPanel != null)
+            {
+                battleUI.mainMenuPanel.SetActive(true);
+            }
+        }
+
+        // Hides all battle-related panels and clears match state, WITHOUT touching networking.
+        private void HideBattleForEnd()
+        {
+            gameState = null;
+            turnManager = null;
+            timerActive = false;
+
+            if (optionsPanel != null) optionsPanel.SetActive(false);
             if (battleUI != null)
             {
-                battleUI.ShowWinner($"{winner.data.heroName} vince!");
-                LogAction($"{GetStyledName(winner)} vince! Partita conclusa.");
+                battleUI.ClearHands();
+                if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
+                if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
+                if (battleUI.characterSelectPanel != null) battleUI.characterSelectPanel.SetActive(false);
+                if (battleUI.battleScreen != null) battleUI.battleScreen.SetActive(false);
             }
         }
 

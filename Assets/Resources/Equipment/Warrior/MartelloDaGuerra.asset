@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Applica 1 Stun.
+  cardTexture: {fileID: 352075925035699359, guid: df63626513279d94f8c6eeae19a06a76, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 6

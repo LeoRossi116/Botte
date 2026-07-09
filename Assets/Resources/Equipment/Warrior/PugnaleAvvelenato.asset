@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Applica 1 Veleno ad ogni colpo.
-  cardTexture: {fileID: -7245134172022882964, guid: 485b20fadee7283488098778babb54cf, type: 3}
+  cardTexture: {fileID: 5474866980746963702, guid: 60af6b78717db5d43ba086d72e3dec35, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 2

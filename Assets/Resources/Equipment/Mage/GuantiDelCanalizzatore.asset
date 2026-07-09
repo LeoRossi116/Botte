@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ogni turno ottieni 1 Mana extra.
-  cardTexture: {fileID: -5109929497555391307, guid: b056079b26319a140a03048e8fd46a12, type: 3}
+  cardTexture: {fileID: 4341693325182611687, guid: 0c26709ef74b48a4aa4e5e90cccdc3a4, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

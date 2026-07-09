@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando un tuo permanente viene sacrificato, recuperi 2 HP.
+  cardTexture: {fileID: -1653225171923351598, guid: 8f3dbff03a93bf24e843fade0e4a98c8, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

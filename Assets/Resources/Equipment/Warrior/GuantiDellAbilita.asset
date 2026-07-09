@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Riduce di 1 ogni azione basata sulla Stamina (min 1).
-  cardTexture: {fileID: 2336841814436799035, guid: 9b5c5711116109046a2a3d2068571ac2, type: 3}
+  cardTexture: {fileID: -2620890940590658401, guid: 0764a90cae107644485ce4e3a3f752b8, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

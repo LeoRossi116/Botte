@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: +2 al limite di mano.
+  cardTexture: {fileID: -6113135171135897139, guid: e55448fde0dca37479feb13bcec62bb2, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: Potenza magica +1; quando lanci una magia l'avversario prende
     1 Veleno.
+  cardTexture: {fileID: -5253492747824496004, guid: 65ec2a7ce1cc9314f83b0ae0c53b87c0, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 1

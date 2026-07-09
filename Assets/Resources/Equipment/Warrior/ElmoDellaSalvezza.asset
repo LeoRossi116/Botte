@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 'Sacrificio: blocca interamente un danno e poi si rompe.'
-  cardTexture: {fileID: -3090095998873750232, guid: ced397a08df5a584e8da96d081d0a5ce, type: 3}
+  cardTexture: {fileID: 3992770585576253617, guid: d2f1028aba3e9924e9031251fdb896f4, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

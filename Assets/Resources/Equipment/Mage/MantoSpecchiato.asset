@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando un tuo Scudo si rompe, infliggi 2 danni all'attaccante.
+  cardTexture: {fileID: -3279416365514787394, guid: bed78760f5de6f5439ee5629fec1f671, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

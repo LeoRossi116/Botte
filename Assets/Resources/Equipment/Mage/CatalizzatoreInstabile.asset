@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Magie +2 danno, ma perdi 1 HP a magia.
+  cardTexture: {fileID: -1142549467049258692, guid: 1ad6e1e7836e2d1468d5eaf37d8a4d90, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

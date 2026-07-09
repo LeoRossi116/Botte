@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: "Se a inizio combattimento hai pi\xF9 Stamina dell'avversario,
     +2 danni."
+  cardTexture: {fileID: 3010443144186831520, guid: 3755e996450feb04790653c0e95d8385, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 3

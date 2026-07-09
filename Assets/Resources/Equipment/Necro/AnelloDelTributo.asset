@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 2
   effectDescription: 'Sacrifica 1 HP: la tua prossima magia costa 1 Mana in meno
     (min 1).'
+  cardTexture: {fileID: 6045616123176275119, guid: c78df5ca4db32ae46843fffdeb9ee1b4, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

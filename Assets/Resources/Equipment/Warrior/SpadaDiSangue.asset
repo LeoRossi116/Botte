@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Ogni turno perdi 1 HP.
+  cardTexture: {fileID: -3953010267459010100, guid: b00748055fd6fb04f8380fb865f4faa6, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 5

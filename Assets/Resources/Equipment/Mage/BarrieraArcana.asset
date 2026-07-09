@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: All'inizio di ogni turno ottieni 1 Scudo.
-  cardTexture: {fileID: 2139439108150592050, guid: 456edeb35d9b67b4eb3de9f91e021918, type: 3}
+  cardTexture: {fileID: 5779711406535071525, guid: ab24b752822b9a741b3605ea4b422803, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

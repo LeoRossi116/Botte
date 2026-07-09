@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 3
   effectDescription: Applica 1 stordimento (-2 Stamina il prossimo turno).
-  cardTexture: {fileID: -1612530689689184393, guid: 66acc4f38932eab4c9e556f973c1d374, type: 3}
+  cardTexture: {fileID: 1915155476315360362, guid: 06c8a45a7c8eb4e439b033d831e8f308, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 8

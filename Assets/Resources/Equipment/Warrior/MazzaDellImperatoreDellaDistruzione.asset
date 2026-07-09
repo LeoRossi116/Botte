@@ -20,6 +20,7 @@ MonoBehaviour:
   rarity: 3
   effectDescription: Quando infliggi danno puoi sacrificare un oggetto per distruggerne
     un altro.
+  cardTexture: {fileID: -5112585117888968360, guid: cb3c27efc914f4847aba0ca7aa6195fd, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 5

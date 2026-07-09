@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando lanci una magia, infliggi 1 danno extra.
+  cardTexture: {fileID: -2462701899773818401, guid: c13c0f4d2f767564f97734adf222841a, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

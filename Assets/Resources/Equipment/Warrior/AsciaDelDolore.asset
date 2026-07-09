@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Quando infliggi danno perdi 1 HP.
+  cardTexture: {fileID: -4511358115718826070, guid: 425933e6ddd7b4d45808a0bcb7942eee, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 7

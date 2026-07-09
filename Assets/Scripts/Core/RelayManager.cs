@@ -556,6 +556,47 @@ public class RelayManager : NetworkBehaviour
         }
     }
 
+    // Resolves the winner's display name (the player's nickname), never the raw "Host"/"Client"
+    // labels. Called on the server, which is the only peer that knows every player's nickname.
+    public string GetWinnerDisplayName(bool hostWon)
+    {
+        ulong id = NetworkManager.ServerClientId;
+        if (!hostWon)
+        {
+            foreach (ulong cid in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                if (cid != NetworkManager.ServerClientId) { id = cid; break; }
+            }
+        }
+        if (_playerNames.TryGetValue(id, out string n) && !string.IsNullOrEmpty(n)) return n;
+        return hostWon ? "Host" : "Client";
+    }
+
+    // Server-only: tells both peers to show the winner window (still on the battle screen)
+    // announcing the given winner name. The network session is intentionally kept alive so
+    // players can choose to return to the same lobby.
+    public void BroadcastWinner(string winnerName)
+    {
+        if (!IsServer) return;
+        ShowWinnerClientRpc(winnerName);
+    }
+
+    [ClientRpc]
+    private void ShowWinnerClientRpc(string winnerName)
+    {
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null) bm.ShowNetworkWinner(winnerName);
+    }
+
+    // Returns to the shared lobby without tearing the network session down, so both players
+    // who choose LOBBY reconnect to the same room. The battle view is hidden by BattleManager.
+    public void ReturnToLobby()
+    {
+        if (string.IsNullOrEmpty(_currentJoinCode)) return;
+        bool isHost = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+        ShowLobby(_currentJoinCode, isHost);
+    }
+
     public void EndMultiplayerGame(string message)
     {
         EndGameClientRpc(message);

@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 'Sacrifica un oggetto: infliggi 3 danni.'
+  cardTexture: {fileID: 4118892446637060848, guid: 41691ab9e9edf7a4795951ac71da0a64, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 1

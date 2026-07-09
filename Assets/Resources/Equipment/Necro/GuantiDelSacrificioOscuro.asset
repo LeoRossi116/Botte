@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 'Sacrifica 3 HP: distruggi un equipaggiamento avversario (1/turno).'
+  cardTexture: {fileID: -6216831772278326808, guid: 4da4964e96f21864692b70f7e1b43035, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

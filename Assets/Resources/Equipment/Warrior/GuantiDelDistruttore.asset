@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: +2 ai danni causati dall'equipaggiamento.
+  cardTexture: {fileID: -5473691806583353715, guid: cd5e3ec1b2d234c47bf23c4621c79a6d, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

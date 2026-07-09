@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Potenza magica +1; magie da danno +1 extra al primo bersaglio.
+  cardTexture: {fileID: 7959763133731079527, guid: c85e9def5550ee74ca55e9e15dae281e, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

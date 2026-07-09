@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 'Affondo: il primo attacco del turno infligge +2.'
+  cardTexture: {fileID: -4082692089461226922, guid: dbb8d910d09ba5442a24c5e62cd04f6c, type: 3}
   equipType: 2
   slotType: 4
   damageValue: 4

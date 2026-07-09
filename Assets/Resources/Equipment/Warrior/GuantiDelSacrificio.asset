@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: 'Sacrifica: il prossimo attacco non costa Stamina.'
+  cardTexture: {fileID: -4033066208481533458, guid: f01bedf09d52fb3479f0bf44a48e0c62, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

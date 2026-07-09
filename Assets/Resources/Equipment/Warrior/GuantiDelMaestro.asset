@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: Puoi impugnare un'arma a due mani con una sola mano.
-  cardTexture: {fileID: 5550928448349503841, guid: bb09e85f9ebefa04a83cefe9f2280d6a, type: 3}
+  cardTexture: {fileID: 3896557288735662092, guid: 5e11f56d9f644dc4687cf6eeefb8dfad, type: 3}
   equipType: 1
   slotType: 3
   damageValue: 0

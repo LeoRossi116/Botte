@@ -1,2 +1,16 @@
 fileFormatVersion: 2
 guid: ed0602cf1f1482b4a9a387fe1a47b42a
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - image: {instanceID: 0}
+  - warriorSprite: {fileID: 3944610533857416082, guid: c2120471a8bdd0c448ec89a60dc3a164, type: 3}
+  - mageSprite: {fileID: 2971653748508199937, guid: 2a2f61f26120a214d80a6fff39d2ffdc, type: 3}
+  - rogueSprite: {fileID: 1504909034587979103, guid: f3053568d6a0b24449485cb65a56efdd, type: 3}
+  - necroSprite: {fileID: -5354513915433958192, guid: 3744800fc78fe3b4eba48b69bc895244, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

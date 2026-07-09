@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Ottieni 1 HP per ogni attacco effettuato.
-  cardTexture: {fileID: -6088287288863179126, guid: acd2554e7582c9243a018352199f6949, type: 3}
+  cardTexture: {fileID: 4708828491484319590, guid: 28b28018d36ff69458bf080412bfef6d, type: 3}
   equipType: 2
   slotType: 5
   damageValue: 2

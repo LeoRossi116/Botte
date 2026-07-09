@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Riduci di 1 il danno delle magie avversarie.
+  cardTexture: {fileID: 6211645466378342537, guid: 465e97b5fe17b8b45839d081b3227fdb, type: 3}
   equipType: 0
   slotType: 1
   damageValue: 0

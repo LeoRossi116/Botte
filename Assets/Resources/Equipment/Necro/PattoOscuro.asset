@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: A inizio turno puoi pagare 2 HP per +2 Mana.
+  cardTexture: {fileID: -9150440918613107582, guid: 988eb77bc26b5d742bd3d649f5eb3fdd, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0

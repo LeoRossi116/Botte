@@ -19,6 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 2
   effectDescription: I bersagli avvelenati perdono +1 HP a turno.
+  cardTexture: {fileID: 6123502761590213182, guid: 4a2601c20eb50324585912b9b6dba028, type: 3}
   equipType: 0
   slotType: 0
   damageValue: 0
