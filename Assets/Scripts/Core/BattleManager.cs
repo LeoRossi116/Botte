@@ -452,16 +452,20 @@ namespace Botte.Core
         public void UpdateTimerText(int secondsLeft)
         {
             EnsureTurnAndTimerUI();
-            if (timerText != null)
+
+            // The standalone "TIME: 45s" label is no longer used: the phase countdown is now
+            // shown as MM:SS directly to the right of the phase label in the top panel.
+            if (timerText != null && timerText.gameObject.activeSelf)
             {
-                if (secondsLeft > 0)
-                {
-                    timerText.text = $"TIME: {secondsLeft}s";
-                }
-                else
-                {
-                    timerText.text = "";
-                }
+                timerText.gameObject.SetActive(false);
+            }
+
+            // Append the remaining phase time (MM:SS) to the right of "Fase: <phase>".
+            if (battleUI != null && battleUI.phaseText != null && gameState != null)
+            {
+                int secs = Mathf.Max(0, secondsLeft);
+                string mmss = $"{secs / 60:00}:{secs % 60:00}";
+                battleUI.phaseText.text = $"Fase: {gameState.phase}    <color=#4EE1E1>{mmss}</color>";
             }
 
             if (turnCounterText != null && gameState != null)
@@ -1877,14 +1881,15 @@ namespace Botte.Core
             }
         }
 
-        // ESCI: return to the main menu. In multiplayer this also shuts the network session down.
+        // ESCI: return to the main menu. In multiplayer the host closes the shared lobby so BOTH
+        // players return to the menu; a client leaves on its own and the host stays in the lobby.
         private void OnWinnerExitPressed()
         {
             HideBattleForEnd();
             if (RelayManager.Instance != null && Unity.Netcode.NetworkManager.Singleton != null
                 && Unity.Netcode.NetworkManager.Singleton.IsListening)
             {
-                RelayManager.Instance.ToMainMenu();
+                RelayManager.Instance.LeaveMatchToMenu();
             }
             else if (battleUI != null && battleUI.mainMenuPanel != null)
             {

@@ -647,6 +647,45 @@ public class RelayManager : NetworkBehaviour
         ShowLobby(_currentJoinCode, isHost);
     }
 
+    // Winner-screen "ESCI" pressed by a player after a match ends.
+    // - HOST: closes the shared lobby for everyone; every peer tears the battle view down
+    //   and returns to the main menu, so both players end up on the menu together.
+    // - CLIENT: leaves on its own (disconnects); the host keeps the lobby alive and stays host.
+    // This preserves the host/client roles for players who choose LOBBY instead.
+    public void LeaveMatchToMenu()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsListening)
+        {
+            ToMainMenu();
+            return;
+        }
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            // Host closes the lobby for all peers (host included, via the ClientRpc body).
+            CloseLobbyClientRpc();
+        }
+        else
+        {
+            // Only this client leaves; the host remains in the lobby.
+            ToMainMenu();
+        }
+    }
+
+    // Runs on the host and every remaining client when the host closes the lobby. Each peer
+    // hides the battle/winner UI, then shuts its own session down and returns to the menu.
+    [ClientRpc]
+    private void CloseLobbyClientRpc()
+    {
+        // We are leaving on purpose: suppress the misleading "disconnected" error.
+        _leavingIntentionally = true;
+
+        var bm = UnityEngine.Object.FindFirstObjectByType<Botte.Core.BattleManager>();
+        if (bm != null) bm.ForceReturnToMainMenu();
+
+        ToMainMenu();
+    }
+
     public void EndMultiplayerGame(string message)
     {
         EndGameClientRpc(message);
