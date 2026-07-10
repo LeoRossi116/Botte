@@ -122,6 +122,8 @@ namespace Botte.UI
         public GameObject p2EquipWindow;
         public Button p1ShowEquipButton;
         public Button p2ShowEquipButton;
+        public TMP_Text p1StatsReadout;
+        public TMP_Text p2StatsReadout;
 
         // Whether the equipment slots are currently shown (per player). Hidden by default.
         public bool p1EquipVisible;
@@ -171,6 +173,7 @@ namespace Botte.UI
                 Swap(ref p1WeaponConnector, ref p2WeaponConnector);
                 Swap(ref p1EquipWindow, ref p2EquipWindow);
                 Swap(ref p1ShowEquipButton, ref p2ShowEquipButton);
+                Swap(ref p1StatsReadout, ref p2StatsReadout);
             }
             referencesMapped = true;
         }
@@ -516,49 +519,25 @@ namespace Botte.UI
             }
 
             // Live hero stats (reflect equipment modifiers) shown while the equip window is open.
-            GameObject window = isPlayer1 ? p1EquipWindow : p2EquipWindow;
-            if (window != null) UpdateStatsReadout(window, hero);
+            TMP_Text readout = isPlayer1 ? p1StatsReadout : p2StatsReadout;
+            if (readout != null) UpdateStatsReadout(readout, hero);
         }
 
-        // Lazily creates/updates a small stat panel below the equipped slots showing the hero's
+        // Updates the stat panel below the equipped slots showing the hero's
         // current (equipment-modified) Strength, Intelligence (mana) and Speed (stamina).
-        private void UpdateStatsReadout(GameObject window, HeroState hero)
+        private void UpdateStatsReadout(TMP_Text txt, HeroState hero)
         {
-            var winRT = window.GetComponent<RectTransform>();
+            if (txt == null) return;
+
+            var winRT = txt.transform.parent as RectTransform;
             // Make sure the window is tall enough to contain the readout below the 3 slot rows.
             if (winRT != null && winRT.sizeDelta.y < 238f)
                 winRT.sizeDelta = new Vector2(winRT.sizeDelta.x, 238f);
 
-            Transform t = window.transform.Find("StatsReadout");
-            TMP_Text txt;
-            if (t == null)
-            {
-                var go = new GameObject("StatsReadout", typeof(RectTransform));
-                go.transform.SetParent(window.transform, false);
-                var rt = go.GetComponent<RectTransform>();
-                rt.anchorMin = new Vector2(0f, 1f);
-                rt.anchorMax = new Vector2(0f, 1f);
-                rt.pivot = new Vector2(0f, 1f);
-                rt.anchoredPosition = new Vector2(2f, -176f);
-                rt.sizeDelta = new Vector2(108f, 58f);
-                txt = go.AddComponent<TextMeshProUGUI>();
-                txt.fontSize = 14f;
-                txt.color = Color.white;
-                txt.alignment = TextAlignmentOptions.TopLeft;
-                txt.textWrappingMode = TextWrappingModes.NoWrap;
-            }
-            else
-            {
-                txt = t.GetComponent<TMP_Text>();
-            }
-
-            if (txt != null)
-            {
-                txt.text =
-                    $"<b>Statistiche</b>\n" +
-                    $"Forza: {hero.GetModifiedStrength()}\n" +
-                    $"Int: {hero.GetModifiedIntelligence()}   Vel: {hero.GetModifiedAgility()}";
-            }
+            txt.text =
+                $"<b>Statistiche</b>\n" +
+                $"Forza: {hero.GetModifiedStrength()}\n" +
+                $"Int: {hero.GetModifiedIntelligence()}   Vel: {hero.GetModifiedAgility()}";
         }
 
         private string SlotText(HeroState hero, EquipmentSlot es, EquipmentData eq)

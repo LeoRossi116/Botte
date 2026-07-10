@@ -168,10 +168,28 @@ namespace Botte.Core
             if (optionsPanel != null) optionsPanel.SetActive(false);
         }
 
-        // Settings entry — no settings system exists yet, so this is an inert placeholder.
+        // Settings entry — opens the shared "Opzioni" settings modal (Tutorial toggle, etc.).
         private void OnOptionsSettings()
         {
-            Debug.Log("[Options] Settings pressed (no settings system implemented yet).");
+            if (Botte.UI.SettingsPanelController.Instance != null)
+                Botte.UI.SettingsPanelController.Instance.Open();
+            else
+                Debug.LogWarning("[Options] SettingsPanelController not found in scene.");
+        }
+
+        // Text shown by the in-battle "Fine Turno" (End Turn) tutorial tooltip. It describes the
+        // phase the End Turn action will move to, or that the opponent's turn begins when in the
+        // final phase. Uses the Italian phase names shown in the battle log.
+        public string GetEndTurnTutorialText()
+        {
+            if (gameState == null) return "Passa alla fase successiva";
+            switch (gameState.phase)
+            {
+                case GamePhase.Preparation: return "Passa alla Fase di Combattimento";
+                case GamePhase.Combat: return "Passa alla Fase Finale";
+                case GamePhase.EndPhase: return "Inizia il turno dell'Avversario";
+                default: return "Passa alla fase successiva";
+            }
         }
 
         // Red "quit match" button. In multiplayer, the opponent is told the player left,

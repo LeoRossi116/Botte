@@ -200,11 +200,14 @@ public class SceneUIManager : MonoBehaviour
         if (errorStatusText != null) errorStatusText.text = "";
     }
 
-    // Options button on the title page (not implemented yet, here for show).
-    // The in-game OPTIONS window lives on the battle panel instead (see BattleManager).
+    // Options button on the title page: opens the shared "Opzioni" settings modal
+    // (Tutorial toggle, etc.). The same modal is reachable from the in-game options window.
     public void ClickedOptions()
     {
-        // Intentionally left blank for now (placeholder for future settings).
+        if (Botte.UI.SettingsPanelController.Instance != null)
+            Botte.UI.SettingsPanelController.Instance.Open();
+        else
+            Debug.LogWarning("SceneUIManager: SettingsPanelController not found in scene.");
     }
 
     // Exit button on the title page: quits the application.
