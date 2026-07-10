@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Guarda la prima carta di un mazzo a tua scelta.
-  cardTexture: {fileID: -7636695857212663093, guid: 266fa8abd847cec43ba9cca1bb1d2c66, type: 3}
+  cardTexture: {fileID: 995706776877366251, guid: 266fa8abd847cec43ba9cca1bb1d2c66, type: 3}
   category: 6
   target: 0
   effects:

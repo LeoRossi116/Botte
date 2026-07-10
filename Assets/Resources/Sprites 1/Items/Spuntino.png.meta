@@ -3,8 +3,8 @@ guid: 7e337dd08ce89a74589f36f2ec981223
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2542846251964716324
-    second: Spuntino_0
+      213: -4850008695833854621
+    second: spuntino_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Spuntino_0
+      name: spuntino_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 4255ace81310a4320800000000000000
-      internalID: 2542846251964716324
+      spriteID: 36d744f99ce41bcb0800000000000000
+      internalID: -4850008695833854621
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Spuntino_0: 2542846251964716324
+      spuntino_0: -4850008695833854621
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

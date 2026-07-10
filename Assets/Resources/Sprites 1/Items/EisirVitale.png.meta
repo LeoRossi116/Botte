@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 18582b17224c9a647be92184ac7155ed
+guid: 0c9b4640e62a300408241e5b17c5e833
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8294493826979203958
-    second: ElisirVitale_0
+      213: -2701994945165311497
+    second: EisirVitale_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ElisirVitale_0
+      name: EisirVitale_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a84fb3b7fc904ec80800000000000000
-      internalID: -8294493826979203958
+      spriteID: 7f14584c9e5908ad0800000000000000
+      internalID: -2701994945165311497
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ElisirVitale_0: -8294493826979203958
+      EisirVitale_0: -2701994945165311497
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

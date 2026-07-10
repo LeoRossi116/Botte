@@ -182,6 +182,24 @@ namespace Botte.UI
             b = temp;
         }
 
+        // Resolves the display name to show for a battle side: the local player's nickname for
+        // the LEFT side, the opponent's nickname for the RIGHT side. In multiplayer the names
+        // come from RelayManager (replicated to both peers); otherwise it falls back to the
+        // locally-typed nickname for the local side and a generic label for the opponent.
+        private string ResolvePlayerName(bool localSide)
+        {
+            if (RelayManager.IsMultiplayer && RelayManager.Instance != null)
+            {
+                string n = localSide ? RelayManager.Instance.LocalPlayerName
+                                     : RelayManager.Instance.OpponentPlayerName;
+                if (!string.IsNullOrEmpty(n)) return n;
+            }
+
+            if (localSide)
+                return string.IsNullOrEmpty(SceneUIManager.LocalNickname) ? "Giocatore 1" : SceneUIManager.LocalNickname;
+            return "Avversario";
+        }
+
         // True when the given player side is the LOCAL player (shown on the left):
         // player1 for the host / single-player, player2 for a connected client.
         public bool IsLocalPlayerSide(bool isPlayer1)
@@ -287,7 +305,10 @@ namespace Botte.UI
 
             var bm = Object.FindFirstObjectByType<Botte.Core.BattleManager>();
             bool isActive = bm != null && bm.IsHeroActive(hero);
-            string styledName = GetClassColorizedName(hero.data.heroClass, hero.data.heroName);
+            // Show the PLAYER's name (local player on the left, opponent on the right) instead
+            // of the hero's name, keeping the hero-class color and the active-turn arrows.
+            string playerName = ResolvePlayerName(IsLocalPlayerSide(isPlayer1));
+            string styledName = GetClassColorizedName(hero.data.heroClass, playerName);
             nameText.text = isActive ? $"<b>▶ {styledName} ◀</b>" : styledName;
 
             // Show the portrait for the chosen hero. Prefer a HeroData-level texture, otherwise

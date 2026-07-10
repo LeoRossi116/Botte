@@ -3,8 +3,8 @@ guid: fd3c108eff1ec1d42b4dc66d8949c197
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8002485946382928836
-    second: FuriaImprovvisa_0
+      213: 9072601285831085699
+    second: furiaimprovvisa_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: FuriaImprovvisa_0
+      name: furiaimprovvisa_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c343ac54e6571f090800000000000000
-      internalID: -8002485946382928836
+      spriteID: 38ec6befcca58ed70800000000000000
+      internalID: 9072601285831085699
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      FuriaImprovvisa_0: -8002485946382928836
+      furiaimprovvisa_0: 9072601285831085699
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

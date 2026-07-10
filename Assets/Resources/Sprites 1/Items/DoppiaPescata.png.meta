@@ -3,8 +3,8 @@ guid: df8c39c586187ac4ab08bb77711eb440
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7871275481845950435
-    second: DoppiaPescata_0
+      213: -3200399867095247498
+    second: Doppiapescata_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: DoppiaPescata_0
+      name: Doppiapescata_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 3e76ba0d8536c3d60800000000000000
-      internalID: 7871275481845950435
+      spriteID: 675949ef645e593d0800000000000000
+      internalID: -3200399867095247498
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      DoppiaPescata_0: 7871275481845950435
+      Doppiapescata_0: -3200399867095247498
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

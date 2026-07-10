@@ -3,8 +3,8 @@ guid: d32e786dfc72af241a75e3bb22a298b9
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5261715886377032514
-    second: ScintillaArcana_0
+      213: 3620666904457841663
+    second: scintillaarcana_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ScintillaArcana_0
+      name: scintillaarcana_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: eb4a7737741aaf6b0800000000000000
-      internalID: -5261715886377032514
+      spriteID: ffb0932dd513f3230800000000000000
+      internalID: 3620666904457841663
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ScintillaArcana_0: -5261715886377032514
+      scintillaarcana_0: 3620666904457841663
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -3,8 +3,8 @@ guid: ee8f0ca8201c022448b2a61ff607d682
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 4015764069009700148
-    second: ElisirDiMana_0
+      213: 7449964187728433113
+    second: elisirdimana_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ElisirDiMana_0
+      name: elisirdimana_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 435b913f42cdab730800000000000000
-      internalID: 4015764069009700148
+      spriteID: 9df4fe605f6936760800000000000000
+      internalID: 7449964187728433113
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ElisirDiMana_0: 4015764069009700148
+      elisirdimana_0: 7449964187728433113
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -3,8 +3,8 @@ guid: 0015e0e000320b748afa9d88137419f2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3715834259284143017
-    second: Sabotaggio_0
+      213: -8141750482458167187
+    second: sabotaggio_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Sabotaggio_0
+      name: sabotaggio_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 7545423bd64be6cc0800000000000000
-      internalID: -3715834259284143017
+      spriteID: d683733b211b20f80800000000000000
+      internalID: -8141750482458167187
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Sabotaggio_0: -3715834259284143017
+      sabotaggio_0: -8141750482458167187
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -3,8 +3,8 @@ guid: 00d2f9838f62cb049a0664e913b6d070
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -8761365046146698737
-    second: Inceppamento_0
+      213: -1663043161870672364
+    second: inceppamento_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Inceppamento_0
+      name: inceppamento_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: f02f6e409e0696680800000000000000
-      internalID: -8761365046146698737
+      spriteID: 41e5e823e0fabe8e0800000000000000
+      internalID: -1663043161870672364
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Inceppamento_0: -8761365046146698737
+      inceppamento_0: -1663043161870672364
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

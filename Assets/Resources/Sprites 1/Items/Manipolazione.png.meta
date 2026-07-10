@@ -3,8 +3,8 @@ guid: 44f2e3d70ee04ac4685d16faef2f3c26
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 706722168541641350
-    second: Manipolazione_0
+      213: 2514148682895794657
+    second: manipolazione_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Manipolazione_0
+      name: manipolazione_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 68a71d26118cec900800000000000000
-      internalID: 706722168541641350
+      spriteID: 1e1258418ec04e220800000000000000
+      internalID: 2514148682895794657
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Manipolazione_0: 706722168541641350
+      manipolazione_0: 2514148682895794657
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

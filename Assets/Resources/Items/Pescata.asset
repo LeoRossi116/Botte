@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 0
   effectDescription: Pesca una carta da un mazzo a scelta.
-  cardTexture: {fileID: 8542978766099619357, guid: 9c2d566e6c268f74abf8e06db595f74f, type: 3}
+  cardTexture: {fileID: -2183159826481109284, guid: 9c2d566e6c268f74abf8e06db595f74f, type: 3}
   category: 6
   target: 0
   effects:

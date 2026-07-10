@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Guadagni 3 HP e rimuovi 1 Veleno.
-  cardTexture: {fileID: -8294493826979203958, guid: 18582b17224c9a647be92184ac7155ed, type: 3}
+  cardTexture: {fileID: -2701994945165311497, guid: 0c9b4640e62a300408241e5b17c5e833, type: 3}
   category: 1
   target: 0
   effects:

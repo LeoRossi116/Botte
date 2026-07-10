@@ -19,6 +19,6 @@ MonoBehaviour:
   manaCost: 2
   rarity: 1
   effectDescription: Distruggi un equipaggiamento che conferisce fino a 3 Difesa.
-  cardTexture: {fileID: 8738283705494772103, guid: 95f8e3cecc89dd5479f7e7bf5c5830bf, type: 3}
+  cardTexture: {fileID: 2174534295230047135, guid: d48b97846ce53d24db6c88ce74ab009d, type: 3}
   magicType: 2
   effects: []

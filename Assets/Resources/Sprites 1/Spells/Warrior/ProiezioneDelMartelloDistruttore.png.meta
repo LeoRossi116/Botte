@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 897122520d2c8e34588c3111b35c2d9e
+guid: d48b97846ce53d24db6c88ce74ab009d
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1774150375228760330
-    second: Lucidita_0
+      213: 2174534295230047135
+    second: ProiezioneDelMartelloDistruttore_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Lucidita_0
+      name: ProiezioneDelMartelloDistruttore_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 145
-        height: 175
+        width: 245
+        height: 197
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6fe1d5232a3f067e0800000000000000
-      internalID: -1774150375228760330
+      spriteID: f93671b9b6f7d2e10800000000000000
+      internalID: 2174534295230047135
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Lucidita_0: -1774150375228760330
+      ProiezioneDelMartelloDistruttore_0: 2174534295230047135
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -3,8 +3,8 @@ guid: 37d56d7561979fc47bf9324b4ed13214
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7886253202782314935
-    second: Sgambetto_0
+      213: -2605002625317689223
+    second: sgambetto_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Sgambetto_0
+      name: sgambetto_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 94e9f57ce766e8290800000000000000
-      internalID: -7886253202782314935
+      spriteID: 978aaf60aeb29dbd0800000000000000
+      internalID: -2605002625317689223
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Sgambetto_0: -7886253202782314935
+      sgambetto_0: -2605002625317689223
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

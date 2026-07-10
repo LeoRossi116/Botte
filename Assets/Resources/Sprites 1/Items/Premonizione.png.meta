@@ -3,8 +3,8 @@ guid: 266fa8abd847cec43ba9cca1bb1d2c66
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7636695857212663093
-    second: Premonizione_0
+      213: 995706776877366251
+    second: premonizione_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Premonizione_0
+      name: premonizione_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: bca542d2491050690800000000000000
-      internalID: -7636695857212663093
+      spriteID: beb7930c90671dd00800000000000000
+      internalID: 995706776877366251
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Premonizione_0: -7636695857212663093
+      premonizione_0: 995706776877366251
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

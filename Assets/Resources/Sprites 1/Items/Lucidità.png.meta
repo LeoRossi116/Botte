@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 95f8e3cecc89dd5479f7e7bf5c5830bf
+guid: 518ed808e93af504aa02c7081e68cd35
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 8738283705494772103
-    second: ProtezioneDelMartelloDistruttore_0
+      213: 4081437702528311171
+    second: "Lucidit\xE0_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ProtezioneDelMartelloDistruttore_0
+      name: "Lucidit\xE0_0"
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 245
-        height: 197
+        width: 145
+        height: 175
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 78999949bbe944970800000000000000
-      internalID: 8738283705494772103
+      spriteID: 38f161057fd24a830800000000000000
+      internalID: 4081437702528311171
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ProtezioneDelMartelloDistruttore_0: 8738283705494772103
+      "Lucidit\xE0_0": 4081437702528311171
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

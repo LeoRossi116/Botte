@@ -3,8 +3,8 @@ guid: 91f2735f7d270dd45bbeafd6164daff8
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -1313920156490283018
-    second: Recupero_0
+      213: 6753862676681090403
+    second: recupero_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Recupero_0
+      name: recupero_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 6f7cb21449404cde0800000000000000
-      internalID: -1313920156490283018
+      spriteID: 3656859225a8abd50800000000000000
+      internalID: 6753862676681090403
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Recupero_0: -1313920156490283018
+      recupero_0: 6753862676681090403
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

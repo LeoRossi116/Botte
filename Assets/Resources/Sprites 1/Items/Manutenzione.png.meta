@@ -3,8 +3,8 @@ guid: 989b8ff19527fe842b3c51bcf6ee9ff4
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -9061663644012433872
-    second: Manutenzione_0
+      213: 873605568593144429
+    second: manutenzione_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Manutenzione_0
+      name: manutenzione_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 03e21903de08e3280800000000000000
-      internalID: -9061663644012433872
+      spriteID: d6a2cc5d2abaf1c00800000000000000
+      internalID: 873605568593144429
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Manutenzione_0: -9061663644012433872
+      manutenzione_0: 873605568593144429
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

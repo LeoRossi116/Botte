@@ -32,6 +32,32 @@ public class RelayManager : NetworkBehaviour
 
     private readonly System.Collections.Generic.Dictionary<ulong, string> _playerNames = new System.Collections.Generic.Dictionary<ulong, string>();
 
+    // The two players' display names, replicated to EVERY peer (only the server owns the
+    // full _playerNames dictionary, so these mirror it to clients for in-battle name labels).
+    private string _hostName = "";
+    private string _clientName = "";
+
+    // Local player's display name (the nickname shown on the LEFT side of the battle screen).
+    public string LocalPlayerName
+    {
+        get
+        {
+            bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+            string n = isServer ? _hostName : _clientName;
+            return string.IsNullOrEmpty(n) ? SceneUIManager.LocalNickname : n;
+        }
+    }
+
+    // Opponent's display name (the nickname shown on the RIGHT side of the battle screen).
+    public string OpponentPlayerName
+    {
+        get
+        {
+            bool isServer = NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer;
+            return isServer ? _clientName : _hostName;
+        }
+    }
+
     // True while WE deliberately leave (leave lobby / normal game end). Used to
     // suppress the misleading "disconnected" error that Shutdown would otherwise raise.
     private bool _leavingIntentionally;
@@ -242,6 +268,30 @@ public class RelayManager : NetworkBehaviour
         }
 
         UpdatePlayerListClientRpc(listBuilder);
+
+        // Also replicate the resolved host/client display names to every peer so the
+        // battle screen can label each side with the correct player name.
+        string hostName = ResolveName(NetworkManager.ServerClientId);
+        string clientName = "";
+        foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            if (id != NetworkManager.ServerClientId) { clientName = ResolveName(id); break; }
+        }
+        SyncPlayerNamesClientRpc(hostName, clientName);
+    }
+
+    // Resolves a connected player's display name, falling back to Host/Client labels.
+    private string ResolveName(ulong id)
+    {
+        if (_playerNames.TryGetValue(id, out string n) && !string.IsNullOrEmpty(n)) return n;
+        return id == NetworkManager.ServerClientId ? "Host" : "Client";
+    }
+
+    [ClientRpc]
+    private void SyncPlayerNamesClientRpc(string hostName, string clientName)
+    {
+        _hostName = hostName;
+        _clientName = clientName;
     }
 
     private string _lastPlayerList = "";

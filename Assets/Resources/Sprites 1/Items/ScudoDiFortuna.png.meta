@@ -3,8 +3,8 @@ guid: 90b182d2c44788a4793c4dc6a963bacc
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 1040450098820317854
-    second: ScudoDiFortuna_0
+      213: 8097514390305920054
+    second: scudodifortuna_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,7 +113,7 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: ScudoDiFortuna_0
+      name: scudodifortuna_0
       rect:
         serializedVersion: 2
         x: 0
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e9284b23adb607e00800000000000000
-      internalID: 1040450098820317854
+      spriteID: 6345ccd7f66206070800000000000000
+      internalID: 8097514390305920054
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      ScudoDiFortuna_0: 1040450098820317854
+      scudodifortuna_0: 8097514390305920054
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -19,7 +19,7 @@ MonoBehaviour:
   manaCost: 0
   rarity: 1
   effectDescription: Perdi 2 Mana e guadagni 2 Stamina (se hai abbastanza Mana).
-  cardTexture: {fileID: 9174603679127246624, guid: 8d93e07281ce4d64d9fc8c4ce9bb2fa5, type: 3}
+  cardTexture: {fileID: 1900035268507339357, guid: 8d93e07281ce4d64d9fc8c4ce9bb2fa5, type: 3}
   category: 2
   target: 0
   effects:
