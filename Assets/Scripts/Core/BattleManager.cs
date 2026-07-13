@@ -594,15 +594,56 @@ namespace Botte.Core
         // ---------- Character select ----------
         private void ShowCharacterSelect()
         {
+            if (battleUI != null)
+            {
+                battleUI.MapUIReferences();
+            }
+
             selectedP1 = null;
             selectedP2 = null;
             if (startBattleButton != null) startBattleButton.interactable = false;
 
-            // Populate class-button labels dynamically so F shows the bare (unarmed) damage.
+            // Populate class-button labels dynamically.
             for (int i = 0; i < 4; i++)
             {
                 RefreshClassButtonLabel(p1ClassButtons, i, (HeroClass)i);
                 RefreshClassButtonLabel(p2ClassButtons, i, (HeroClass)i);
+            }
+
+            // Update character select headers with player names
+            var selectPanelCanvas = GameObject.Find("Canvas");
+            if (selectPanelCanvas != null)
+            {
+                var p1HeaderTrans = selectPanelCanvas.transform.Find("CharacterSelectPanel/P1Header");
+                var p2HeaderTrans = selectPanelCanvas.transform.Find("CharacterSelectPanel/P2Header");
+                if (p1HeaderTrans != null)
+                {
+                    var tmp = p1HeaderTrans.GetComponent<TextMeshProUGUI>();
+                    if (tmp != null)
+                    {
+                        string p1Name = "";
+                        if (RelayManager.IsMultiplayer && RelayManager.Instance != null)
+                            p1Name = RelayManager.Instance.LocalPlayerName;
+                        else
+                            p1Name = string.IsNullOrEmpty(SceneUIManager.LocalNickname) ? "Giocatore 1" : SceneUIManager.LocalNickname;
+                        
+                        tmp.text = p1Name.ToUpper();
+                    }
+                }
+                if (p2HeaderTrans != null)
+                {
+                    var tmp = p2HeaderTrans.GetComponent<TextMeshProUGUI>();
+                    if (tmp != null)
+                    {
+                        string p2Name = "";
+                        if (RelayManager.IsMultiplayer && RelayManager.Instance != null)
+                            p2Name = RelayManager.Instance.OpponentPlayerName;
+                        else
+                            p2Name = "Giocatore 2";
+                        
+                        tmp.text = p2Name.ToUpper();
+                    }
+                }
             }
 
             if (battleUI != null)
@@ -618,19 +659,20 @@ namespace Botte.Core
             {
                 bool amHost = Unity.Netcode.NetworkManager.Singleton.IsServer;
                 
-                // P1 can only be picked by Host, P2 only by Client
+                // Both Host and Client select using bottom-left buttons (p1ClassButtons),
+                // and the opponent's buttons (p2ClassButtons) are disabled on both sides.
                 if (p1ClassButtons != null)
                 {
                     for (int i = 0; i < p1ClassButtons.Length; i++)
                     {
-                        if (p1ClassButtons[i] != null) p1ClassButtons[i].interactable = amHost;
+                        if (p1ClassButtons[i] != null) p1ClassButtons[i].interactable = true;
                     }
                 }
                 if (p2ClassButtons != null)
                 {
                     for (int i = 0; i < p2ClassButtons.Length; i++)
                     {
-                        if (p2ClassButtons[i] != null) p2ClassButtons[i].interactable = !amHost;
+                        if (p2ClassButtons[i] != null) p2ClassButtons[i].interactable = false;
                     }
                 }
 
@@ -708,14 +750,29 @@ namespace Botte.Core
             HeroData d = GameManager.CreateHeroData(hc);
             var tmp = buttons[idx].GetComponentInChildren<TMP_Text>();
             if (tmp != null)
-                tmp.text = $"{d.heroName}\n{hc}\nHP{d.maxHP}  F{d.strength} M{d.intelligence} S{d.agility}";
+                tmp.text = $"{d.heroName}\n{hc}";
+
+            // Add or update hover tooltip component
+            var tooltip = buttons[idx].gameObject.GetComponent<Botte.UI.HeroCardTooltipHint>();
+            if (tooltip == null)
+            {
+                tooltip = buttons[idx].gameObject.AddComponent<Botte.UI.HeroCardTooltipHint>();
+            }
+            tooltip.tooltipText = $"HP: {d.maxHP}\nF (Forza): {d.strength}\nM (Magia): {d.intelligence}\nS (Stamina): {d.agility}";
         }
 
         public void SelectClass(int player, int classIdx)
         {
             if (RelayManager.IsMultiplayer)
             {
-                RelayManager.Instance.SendHeroSelection(player, classIdx);
+                bool amHost = Unity.Netcode.NetworkManager.Singleton.IsServer;
+                // Both Host and Client click bottom-left buttons (wired as player 1).
+                // We map this click to the correct player ID depending on whether we are Host (P1) or Client (P2).
+                if (player == 1)
+                {
+                    int actualPlayer = amHost ? 1 : 2;
+                    RelayManager.Instance.SendHeroSelection(actualPlayer, classIdx);
+                }
                 return;
             }
             SelectClassLocal(player, classIdx);

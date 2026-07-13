@@ -139,43 +139,51 @@ namespace Botte.UI
         public BookType p1SelectedBook = BookType.Spell;
         public BookType p2SelectedBook = BookType.Spell;
 
-        private bool referencesMapped = false;
+        private bool referencesSwapped = false;
 
         public void MapUIReferences()
         {
-            if (referencesMapped) return;
+            bool shouldSwap = RelayManager.IsMultiplayer && Unity.Netcode.NetworkManager.Singleton != null && !Unity.Netcode.NetworkManager.Singleton.IsServer;
 
-            if (RelayManager.IsMultiplayer && Unity.Netcode.NetworkManager.Singleton != null && !Unity.Netcode.NetworkManager.Singleton.IsServer)
+            if (shouldSwap && !referencesSwapped)
             {
-                // We are Client!
-                // Swap all p1 and p2 references, because P2 is the local player (left side) and P1 is the remote player (right side).
-                Swap(ref p1HeroNameText, ref p2HeroNameText);
-                Swap(ref p1HPBarFill, ref p2HPBarFill);
-                Swap(ref p1HPText, ref p2HPText);
-                Swap(ref p1ManaText, ref p2ManaText);
-                Swap(ref p1StaminaText, ref p2StaminaText);
-                Swap(ref p1StatusText, ref p2StatusText);
-                Swap(ref p1HandArea, ref p2HandArea);
-                Swap(ref p1HeroImage, ref p2HeroImage);
-                Swap(ref p1HeroAnim, ref p2HeroAnim);
-                Swap(ref p1ManaBarFill, ref p2ManaBarFill);
-                Swap(ref p1StaminaBarFill, ref p2StaminaBarFill);
-                Swap(ref p1HeroPopup, ref p2HeroPopup);
-                Swap(ref p1HeroPopupText, ref p2HeroPopupText);
-                Swap(ref p1DescPanel, ref p2DescPanel);
-                Swap(ref p1DescName, ref p2DescName);
-                Swap(ref p1DescCost, ref p2DescCost);
-                Swap(ref p1DescEffect, ref p2DescEffect);
-                Swap(ref p1ClassButtons, ref p2ClassButtons);
-                Swap(ref p1BookButtons, ref p2BookButtons);
-                Swap(ref p1BookLabel, ref p2BookLabel);
-                Swap(ref p1EquipSlots, ref p2EquipSlots);
-                Swap(ref p1WeaponConnector, ref p2WeaponConnector);
-                Swap(ref p1EquipWindow, ref p2EquipWindow);
-                Swap(ref p1ShowEquipButton, ref p2ShowEquipButton);
-                Swap(ref p1StatsReadout, ref p2StatsReadout);
+                DoSwapReferences();
+                referencesSwapped = true;
             }
-            referencesMapped = true;
+            else if (!shouldSwap && referencesSwapped)
+            {
+                DoSwapReferences(); // Swap back to restore original state
+                referencesSwapped = false;
+            }
+        }
+
+        private void DoSwapReferences()
+        {
+            Swap(ref p1HeroNameText, ref p2HeroNameText);
+            Swap(ref p1HPBarFill, ref p2HPBarFill);
+            Swap(ref p1HPText, ref p2HPText);
+            Swap(ref p1ManaText, ref p2ManaText);
+            Swap(ref p1StaminaText, ref p2StaminaText);
+            Swap(ref p1StatusText, ref p2StatusText);
+            Swap(ref p1HandArea, ref p2HandArea);
+            Swap(ref p1HeroImage, ref p2HeroImage);
+            Swap(ref p1HeroAnim, ref p2HeroAnim);
+            Swap(ref p1ManaBarFill, ref p2ManaBarFill);
+            Swap(ref p1StaminaBarFill, ref p2StaminaBarFill);
+            Swap(ref p1HeroPopup, ref p2HeroPopup);
+            Swap(ref p1HeroPopupText, ref p2HeroPopupText);
+            Swap(ref p1DescPanel, ref p2DescPanel);
+            Swap(ref p1DescName, ref p2DescName);
+            Swap(ref p1DescCost, ref p2DescCost);
+            Swap(ref p1DescEffect, ref p2DescEffect);
+            Swap(ref p1ClassButtons, ref p2ClassButtons);
+            Swap(ref p1BookButtons, ref p2BookButtons);
+            Swap(ref p1BookLabel, ref p2BookLabel);
+            Swap(ref p1EquipSlots, ref p2EquipSlots);
+            Swap(ref p1WeaponConnector, ref p2WeaponConnector);
+            Swap(ref p1EquipWindow, ref p2EquipWindow);
+            Swap(ref p1ShowEquipButton, ref p2ShowEquipButton);
+            Swap(ref p1StatsReadout, ref p2StatsReadout);
         }
 
         private void Swap<T>(ref T a, ref T b)
@@ -746,8 +754,8 @@ namespace Botte.UI
         // Highlights the chosen class button for each player on the character-select screen.
         public void UpdateSelectionHighlight(int player, int classIdx, HeroClass? sel1, HeroClass? sel2)
         {
-            Color normal = new Color32(0xf5, 0xa6, 0x23, 0xff);
-            Color picked = new Color32(0x2e, 0xcc, 0x71, 0xff);
+            Color normal = new Color32(160, 160, 160, 255); // Nice grey-ish tone for non-selected cards
+            Color picked = new Color32(0x2e, 0xcc, 0x71, 0xff); // Green tone for selected card
 
             if (p1ClassButtons != null)
             {
