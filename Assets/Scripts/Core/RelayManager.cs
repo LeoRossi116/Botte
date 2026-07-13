@@ -137,7 +137,7 @@ public class RelayManager : NetworkBehaviour
 
         if (mainMenuPanel != null) mainMenuPanel.SetActive(false);
         if (lobbyPanel != null) lobbyPanel.SetActive(true);
-        if (generatedCodeText != null) generatedCodeText.text = $"Room Code: <color=yellow>{joinCode}</color>";
+        if (generatedCodeText != null) generatedCodeText.text = $"Codice Stanza: <color=yellow>{joinCode}</color>";
 
         if (_startGameButton != null)
         {
@@ -251,7 +251,7 @@ public class RelayManager : NetworkBehaviour
     {
         if (!NetworkManager.Singleton.IsServer) return;
 
-        string listBuilder = "Player List:\n";
+        string listBuilder = "Lista Giocatori:\n";
 
         foreach (ulong id in NetworkManager.Singleton.ConnectedClientsIds)
         {
@@ -368,10 +368,10 @@ public class RelayManager : NetworkBehaviour
     {
         if (generatedCodeText != null)
         {
-            generatedCodeText.text = "<color=#2ECC71>Copied to clipboard!</color>";
+            generatedCodeText.text = "<color=#2ECC71>Codice Copiato!</color>";
             yield return new WaitForSeconds(1.0f);
             if (generatedCodeText != null)
-                generatedCodeText.text = $"Room Code: <color=yellow>{_currentJoinCode}</color>";
+                generatedCodeText.text = $"Codice Stanza: <color=yellow>{_currentJoinCode}</color>";
         }
     }
 
