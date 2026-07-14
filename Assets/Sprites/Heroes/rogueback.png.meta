@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 6c2f8acc23abf5649b5de1683ca89c02
+guid: 4df2e77a67460974999cdb1bd9f925e3
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4358241581133799862
-    second: mageback_0
+      213: 3177209000989128704
+    second: rogueback_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -109,17 +109,30 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: mageback_0
+      name: rogueback_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 832
-        height: 1248
+        x: 6
+        y: 13
+        width: 345
+        height: 513
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +141,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: a4ede277f5a6483c0800000000000000
-      internalID: -4358241581133799862
+      spriteID: 0087129b0c6b71c20800000000000000
+      internalID: 3177209000989128704
       vertices: []
       indices: 
       edges: []
@@ -148,7 +161,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      mageback_0: -4358241581133799862
+      rogueback_0: 3177209000989128704
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

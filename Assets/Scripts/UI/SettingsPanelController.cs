@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -19,6 +20,8 @@ namespace Botte.UI
         [SerializeField] private Toggle tutorialToggle;
         [Tooltip("The X button in the top-right corner that closes the panel.")]
         [SerializeField] private Button closeButton;
+        [Tooltip("Dropdown to switch the UI/content language (Italiano / English).")]
+        [SerializeField] private TMPro.TMP_Dropdown languageDropdown;
 
         private void Awake()
         {
@@ -33,6 +36,15 @@ namespace Botte.UI
             }
 
             if (closeButton != null) closeButton.onClick.AddListener(Close);
+
+            if (languageDropdown != null)
+            {
+                languageDropdown.ClearOptions();
+                languageDropdown.AddOptions(new List<string> { "Italiano", "English" });
+                languageDropdown.SetValueWithoutNotify((int)GameSettings.CurrentLanguage);
+                languageDropdown.RefreshShownValue();
+                languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
+            }
         }
 
         private void OnDestroy()
@@ -60,6 +72,11 @@ namespace Botte.UI
         private void OnTutorialToggleChanged(bool value)
         {
             GameSettings.TutorialEnabled = value;
+        }
+
+        private void OnLanguageChanged(int index)
+        {
+            GameSettings.CurrentLanguage = (Language)index;
         }
     }
 }

@@ -238,7 +238,7 @@ public class SceneUIManager : MonoBehaviour
             await InitializeServicesAsync();
             if (!AuthenticationService.Instance.IsSignedIn)
             {
-                ShowError("Not signed in to online services.");
+                ShowError(Loc.T("Non sei connesso ai servizi online."));
                 _isBusy = false;
                 return;
             }
@@ -252,7 +252,7 @@ public class SceneUIManager : MonoBehaviour
             // 2. Start the host on top of the configured Relay transport.
             if (!NetworkManager.Singleton.StartHost())
             {
-                ShowError("Failed to start host.");
+                ShowError(Loc.T("Impossibile avviare l'host."));
                 SafeShutdown();
                 _isBusy = false;
                 return;
@@ -277,7 +277,7 @@ public class SceneUIManager : MonoBehaviour
         catch (Exception e)
         {
             Debug.LogError($"Hosting failed: {e}");
-            ShowError("Failed to create a room.");
+            ShowError(Loc.T("Impossibile creare una stanza."));
             SafeShutdown();
         }
 
@@ -301,7 +301,7 @@ public class SceneUIManager : MonoBehaviour
             await InitializeServicesAsync();
             if (!AuthenticationService.Instance.IsSignedIn)
             {
-                ShowError("Not signed in to online services.");
+                ShowError(Loc.T("Non sei connesso ai servizi online."));
                 _isBusy = false;
                 return;
             }
@@ -357,7 +357,7 @@ public class SceneUIManager : MonoBehaviour
 
         if (!NetworkManager.Singleton.IsConnectedClient)
         {
-            ShowError("Connection timed out.");
+            ShowError(Loc.T("Connessione scaduta."));
             SafeShutdown();
             yield break;
         }
@@ -423,7 +423,7 @@ public class SceneUIManager : MonoBehaviour
 
     private IEnumerator ErrorRoutine(string message)
     {
-        errorStatusText.text = $"<color=red>Error: {message}</color>";
+        errorStatusText.text = $"<color=red>{Loc.T("Errore")}: {message}</color>";
         yield return new WaitForSeconds(3f);
         if (errorStatusText != null) errorStatusText.text = "";
     }

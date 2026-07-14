@@ -1,5 +1,8 @@
 public enum HeroClass { Warrior, Mage, Rogue, Necro }
 
+// Supported UI/content languages. Italian is the authoring/default language.
+public enum Language { Italian, English }
+
 // Card rarity governs how many copies of a card go into a deck.
 // NOTE: values are serialized in .asset files, so only append new entries at the end.
 public enum Rarity { Common, Uncommon, Rare, Legendary }

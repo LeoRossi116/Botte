@@ -103,6 +103,19 @@ namespace Botte.Core
             WireRuntimeListeners();
             ShowMainMenu();
             EnsureTurnAndTimerUI();
+            Loc.LanguageChanged += OnLanguageChanged;
+        }
+
+        private void OnDestroy()
+        {
+            Loc.LanguageChanged -= OnLanguageChanged;
+        }
+
+        // Rebuilds the persistent battle UI so all localized labels update live when the
+        // language changes mid-match.
+        private void OnLanguageChanged()
+        {
+            if (gameState != null && battleUI != null) RefreshAll();
         }
 
         public bool IsHeroActive(HeroState hero)
@@ -251,10 +264,11 @@ namespace Botte.Core
         // Toggles the equipment-slot window for a player (button to the left of the hero stats).
         public void OnShowEquipToggle(bool isPlayer1)
         {
-            if (battleUI == null) return;
-            battleUI.ToggleEquipmentSlots(isPlayer1);
-            if (gameState != null)
-                battleUI.RefreshEquipment(isPlayer1 ? gameState.player1 : gameState.player2, isPlayer1);
+            if (battleUI == null || gameState == null) return;
+            var hero = isPlayer1 ? gameState.player1 : gameState.player2;
+            var modal = Botte.UI.EquipmentWindowController.Instance;
+            if (modal != null)
+                modal.Open(hero, battleUI.GetPlayerDisplayName(isPlayer1), isPlayer1);
         }
 
         private bool bookButtonsWired;
@@ -785,7 +799,7 @@ namespace Botte.Core
             {
                 if (selectedP2.HasValue && selectedP2.Value == chosen)
                 {
-                    battleUI.AddLog($"Non puoi scegliere lo stesso eroe dell'altro giocatore ({chosen})!");
+                    battleUI.AddLog(string.Format(Loc.T("Non puoi scegliere lo stesso eroe dell'altro giocatore ({0})!"), chosen));
                     return;
                 }
                 selectedP1 = chosen;
@@ -794,7 +808,7 @@ namespace Botte.Core
             {
                 if (selectedP1.HasValue && selectedP1.Value == chosen)
                 {
-                    battleUI.AddLog($"Non puoi scegliere lo stesso eroe dell'altro giocatore ({chosen})!");
+                    battleUI.AddLog(string.Format(Loc.T("Non puoi scegliere lo stesso eroe dell'altro giocatore ({0})!"), chosen));
                     return;
                 }
                 selectedP2 = chosen;
@@ -1279,7 +1293,7 @@ namespace Botte.Core
             }
             if (gameState.phase != GamePhase.Combat)
             {
-                battleUI.AddLog("Puoi usare le carte solo durante la fase di Combattimento!");
+                battleUI.AddLog(Loc.T("Puoi usare le carte solo durante la fase di Combattimento!"));
                 return;
             }
             if (spell.magicType == MagicType.Aura && owner.activeAuras.Contains(spell))
@@ -1392,7 +1406,7 @@ namespace Botte.Core
         {
             if (gameState == null || gameState.activePlayer != owner)
             {
-                battleUI.AddLog("Puoi scartare le carte solo durante il tuo turno!");
+                battleUI.AddLog(Loc.T("Puoi scartare le carte solo durante il tuo turno!"));
                 return;
             }
 
@@ -1523,7 +1537,7 @@ namespace Botte.Core
             HeroState owner = isPlayer1 ? gameState.player1 : gameState.player2;
             if (gameState.activePlayer != owner)
             {
-                battleUI.AddLog("Puoi disequipaggiare/scartare equipaggiamento solo durante il tuo turno!");
+                battleUI.AddLog(Loc.T("Puoi disequipaggiare/scartare equipaggiamento solo durante il tuo turno!"));
                 return;
             }
 
@@ -1762,7 +1776,7 @@ namespace Botte.Core
             }
             else if (deck == DeckChoice.Equipment)
             {
-                if (hero.equipmentDeck.Count == 0) { battleUI.AddLog("Il mazzo equipaggiamento è vuoto."); return; }
+                if (hero.equipmentDeck.Count == 0) { battleUI.AddLog(Loc.T("Il mazzo equipaggiamento è vuoto.")); return; }
                 top = hero.equipmentDeck[0];
             }
             else
@@ -1790,7 +1804,7 @@ namespace Botte.Core
             {
                 gameState.itemDeck.Remove(pendingPeekCard);
                 hero.itemBook.Add(pendingPeekCard);
-                battleUI.AddLog($"{hero.data.heroName} tiene l'oggetto {pendingPeekCard.cardName}.");
+                battleUI.AddLog(string.Format(Loc.T("{0} tiene l'oggetto {1}."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
             }
             else
             {
@@ -1805,7 +1819,7 @@ namespace Botte.Core
                 {
                     hero.magicDeck.Remove(pendingPeekCard);
                     hero.hand.Add(pendingPeekCard);
-                    battleUI.AddLog($"{hero.data.heroName} tiene {pendingPeekCard.cardName}.");
+                    battleUI.AddLog(string.Format(Loc.T("{0} tiene {1}."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
                 }
             }
             pendingPeekCard = null;
@@ -1834,7 +1848,7 @@ namespace Botte.Core
                 hero.magicDeck.Remove(pendingPeekCard);
                 hero.discardPile.Add(pendingPeekCard);
             }
-            battleUI.AddLog($"{hero.data.heroName} scarta {pendingPeekCard.cardName} dalla cima del mazzo.");
+            battleUI.AddLog(string.Format(Loc.T("{0} scarta {1} dalla cima del mazzo."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
             pendingPeekCard = null;
             pendingDrawHero = null;
             RefreshAll();

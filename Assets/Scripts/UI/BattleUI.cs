@@ -207,9 +207,13 @@ namespace Botte.UI
             }
 
             if (localSide)
-                return string.IsNullOrEmpty(SceneUIManager.LocalNickname) ? "Giocatore 1" : SceneUIManager.LocalNickname;
-            return "Avversario";
+                return string.IsNullOrEmpty(SceneUIManager.LocalNickname) ? Loc.T("Giocatore 1") : SceneUIManager.LocalNickname;
+            return Loc.T("Avversario");
         }
+
+        // Public accessor so other systems (e.g. BattleManager) can obtain the display name
+        // shown for a given player side.
+        public string GetPlayerDisplayName(bool isPlayer1) => ResolvePlayerName(IsLocalPlayerSide(isPlayer1));
 
         // True when the given player side is the LOCAL player (shown on the left):
         // player1 for the host / single-player, player2 for a connected client.
@@ -338,27 +342,6 @@ namespace Botte.UI
                 Vector3 scale = heroImg.transform.localScale;
                 scale.x = faceX;
                 heroImg.transform.localScale = scale;
-
-                // Keep the equip toggle button pinned to the bottom-right of the sprite with
-                // upright text, independent of the sprite's mirror. It is moved OUT of the
-                // (mirrored) sprite onto the HeroPanel so it never inherits the horizontal flip.
-                Button eqBtn = isPlayer1 ? p1ShowEquipButton : p2ShowEquipButton;
-                RectTransform sprtRT = heroImg.transform as RectTransform;
-                if (eqBtn != null && sprtRT != null && sprtRT.parent != null)
-                {
-                    var brt = eqBtn.GetComponent<RectTransform>();
-                    Transform heroPanel = sprtRT.parent; // "HeroPanel"
-                    if (brt.parent != heroPanel) brt.SetParent(heroPanel, false);
-                    brt.localScale = Vector3.one;
-                    brt.anchorMin = new Vector2(0.5f, 0.5f);
-                    brt.anchorMax = new Vector2(0.5f, 0.5f);
-                    brt.pivot = new Vector2(0.5f, 0.5f);
-                    Vector2 half = sprtRT.sizeDelta * 0.5f;
-                    brt.anchoredPosition = new Vector2(
-                        sprtRT.anchoredPosition.x + half.x - 20f,
-                        sprtRT.anchoredPosition.y - half.y + 22f);
-                    brt.SetAsLastSibling();
-                }
             }
 
             if (heroAnim != null && hero.data != null)
@@ -399,12 +382,12 @@ namespace Botte.UI
                 RefreshOpponentCards(hero.data);
 
             string statusStr = "";
-            if (hero.poisonStacks > 0) statusStr += $"Veleno({hero.poisonStacks}) ";
-            if (hero.shieldAmount > 0) statusStr += $"Scudo({hero.shieldAmount}) ";
-            if (hero.hasShield) statusStr += "Blocco ";
-            if (hero.nextAttackUnblockable) statusStr += "Perforante ";
-            if (hero.auraBlockFirstAttack) statusStr += "Riflessi ";
-            if (hero.auraWeakenOpponent > 0) statusStr += $"Indebol(-{hero.auraWeakenOpponent}) ";
+            if (hero.poisonStacks > 0) statusStr += $"{Loc.T("Veleno")}({hero.poisonStacks}) ";
+            if (hero.shieldAmount > 0) statusStr += $"{Loc.T("Scudo")}({hero.shieldAmount}) ";
+            if (hero.hasShield) statusStr += Loc.T("Blocco") + " ";
+            if (hero.nextAttackUnblockable) statusStr += Loc.T("Perforante") + " ";
+            if (hero.auraBlockFirstAttack) statusStr += Loc.T("Riflessi") + " ";
+            if (hero.auraWeakenOpponent > 0) statusStr += $"{Loc.T("Indebol")}(-{hero.auraWeakenOpponent}) ";
             statusText.text = statusStr.Trim();
         }
 
@@ -571,15 +554,6 @@ namespace Botte.UI
             GameObject window = isPlayer1 ? p1EquipWindow : p2EquipWindow;
             if (window != null) window.SetActive(visible);
 
-            // Highlight the toggle button when active.
-            Button toggle = isPlayer1 ? p1ShowEquipButton : p2ShowEquipButton;
-            if (toggle != null)
-            {
-                var img = toggle.GetComponent<Image>();
-                if (img != null) img.color = visible ? new Color32(0x2e, 0xcc, 0x71, 0xff)
-                                                     : new Color32(0x16, 0x21, 0x3e, 0xff);
-            }
-
             // Move/resize the inspect box: full width when hidden, right of the slots when shown.
             GameObject descPanel = isPlayer1 ? p1DescPanel : p2DescPanel;
             if (descPanel != null)
@@ -623,13 +597,19 @@ namespace Botte.UI
             Button[] buttons = isPlayer1 ? p1BookButtons : p2BookButtons;
             BookType selected = isPlayer1 ? p1SelectedBook : p2SelectedBook;
             if (buttons == null) return;
-            Color normal = new Color32(0x16, 0x21, 0x3e, 0xff);
-            Color picked = new Color32(0xf5, 0xa6, 0x23, 0xff);
+            Color normal = Color.white;
+            Color picked = new Color32(0x2e, 0xcc, 0x71, 0xff);
+            // Book initials by language (index 0=Spell, 1=Equipment, 2=Item).
+            string[] initials = (Loc.Current == Language.Italian)
+                ? new[] { "M", "E", "O" }
+                : new[] { "S", "E", "I" };
             for (int i = 0; i < buttons.Length; i++)
             {
                 if (buttons[i] == null) continue;
                 var img = buttons[i].GetComponent<Image>();
                 if (img != null) img.color = ((int)selected == i) ? picked : normal;
+                var lbl = buttons[i].GetComponentInChildren<TMPro.TMP_Text>();
+                if (lbl != null && i < initials.Length) lbl.text = initials[i];
             }
         }
 
@@ -642,7 +622,7 @@ namespace Botte.UI
             if (panel == null || card == null) return;
 
             panel.SetActive(true);
-            if (nameT != null) nameT.text = card.cardName;
+            if (nameT != null) nameT.text = Loc.CardName(card.cardName);
             // Equipment has no mana/stamina cost, so hide the cost line for it.
             if (costT != null) costT.text = (card is EquipmentData) ? "" : $"M:{card.manaCost}  S:{card.staminaCost}";
             if (effectT != null)
@@ -656,16 +636,16 @@ namespace Botte.UI
                         string reqStr = "";
                         foreach (var r in eq.requirements)
                             reqStr += $"{EquipmentSystem.StatLabel(r.stat)} {r.value}  ";
-                        stats += $"<color=#E94560>Requisiti: {reqStr.Trim()}</color>\n";
+                        stats += $"<color=#E94560>{Loc.T("Requisiti")}: {reqStr.Trim()}</color>\n";
                     }
                     stats += $"<i>{eq.equipType} · {eq.slotType}</i>\n";
-                    if (eq.damageValue > 0) stats += $"Danno: {eq.damageValue}  ";
-                    if (eq.defenseValue > 0) stats += $"Difesa: {eq.defenseValue}  ";
+                    if (eq.damageValue > 0) stats += $"{Loc.T("Danno")}: {eq.damageValue}  ";
+                    if (eq.defenseValue > 0) stats += $"{Loc.T("Difesa")}: {eq.defenseValue}  ";
                     foreach (var m in eq.attributeMods)
                         stats += $"{(m.value >= 0 ? "+" : "")}{m.value} {EquipmentSystem.AttributeLabel(m.attr)}  ";
                     stats += "\n";
-                    if (eq.maxDurability > 0) stats += $"Durabilità: {eq.maxDurability}\n";
-                    if (!string.IsNullOrEmpty(eq.effectDescription)) stats += eq.effectDescription;
+                    if (eq.maxDurability > 0) stats += $"{Loc.T("Durabilità")}: {eq.maxDurability}\n";
+                    if (!string.IsNullOrEmpty(eq.effectDescription)) stats += Loc.CardDesc(eq.effectDescription);
                     else if (eq.specialEffect != EquipEffect.None) stats += eq.specialEffect.ToString();
                     effectT.text = stats;
                 }
@@ -673,9 +653,9 @@ namespace Botte.UI
                 {
                     string typeLine;
                     if (card is MagicData spell) typeLine = spell.magicType.ToString();
-                    else if (card is ItemData item) typeLine = $"Oggetto · {item.category} · {item.target}";
+                    else if (card is ItemData item) typeLine = $"{Loc.T("Oggetto")} · {item.category} · {item.target}";
                     else typeLine = card.cardType.ToString();
-                    effectT.text = $"<i>{typeLine}</i>\n{card.effectDescription}";
+                    effectT.text = $"<i>{typeLine}</i>\n{Loc.CardDesc(card.effectDescription)}";
                 }
             }
         }
@@ -690,7 +670,7 @@ namespace Botte.UI
         {
             if (peekPanel == null) return;
             peekPanel.SetActive(true);
-            if (peekText != null) peekText.text = $"Cima del mazzo:\n<b>{cardName}</b>\nTenere o scartare?";
+            if (peekText != null) peekText.text = $"{Loc.T("Cima del mazzo:")}\n<b>{Loc.CardName(cardName)}</b>\n{Loc.T("Tenere o scartare?")}";
         }
 
         public void HidePeek()

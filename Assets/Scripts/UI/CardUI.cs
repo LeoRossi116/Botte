@@ -59,13 +59,13 @@ namespace Botte.UI
             {
                 if (data is EquipmentData eq)
                 {
-                    string stat = eq.damageValue > 0 ? $"Dmg {eq.damageValue}" : (eq.defenseValue > 0 ? $"Def {eq.defenseValue}" : eq.equipType.ToString());
-                    label.text = $"{data.cardName}\n({stat})";
+                    string stat = eq.damageValue > 0 ? $"{Loc.T("Danno")} {eq.damageValue}" : (eq.defenseValue > 0 ? $"{Loc.T("Difesa")} {eq.defenseValue}" : eq.equipType.ToString());
+                    label.text = $"{Loc.CardName(data.cardName)}\n({stat})";
                 }
                 else
                 {
                     string suffix = isActiveOrUsed ? $"\n<{stateLabel}>" : "";
-                    label.text = $"{data.cardName}\n(M:{data.manaCost} S:{data.staminaCost}){suffix}";
+                    label.text = $"{Loc.CardName(data.cardName)}\n(M:{data.manaCost} S:{data.staminaCost}){suffix}";
                 }
             }
 
@@ -78,7 +78,9 @@ namespace Botte.UI
                 {
                     backgroundImage.sprite = data.cardTexture;
                     backgroundImage.color = Color.white;
-                    backgroundImage.preserveAspect = true;
+                    // Stretch the artwork to fill the whole card (inside the border frame) instead
+                    // of letterboxing it, so the sprite acts as the card background.
+                    backgroundImage.preserveAspect = false;
                 }
                 else
                 {

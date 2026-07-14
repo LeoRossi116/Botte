@@ -35,9 +35,9 @@ public static class EquipmentSystem
     {
         switch (stat)
         {
-            case RequirementStat.Strength: return "Forza";
-            case RequirementStat.Intelligence: return "Intelligenza";
-            case RequirementStat.Speed: return "Velocità";
+            case RequirementStat.Strength: return Loc.T("Forza");
+            case RequirementStat.Intelligence: return Loc.T("Intelligenza");
+            case RequirementStat.Speed: return Loc.T("Velocità");
         }
         return stat.ToString();
     }
@@ -53,7 +53,7 @@ public static class EquipmentSystem
             int have = GetStatValue(hero, req.stat);
             if (have < req.value)
             {
-                message = $"{hero.data.heroName} non può equipaggiare {eq.cardName}: richiede {StatLabel(req.stat)} {req.value} (attuale: {have}).";
+                message = string.Format(Loc.T("{0} non può equipaggiare {1}: richiede {2} {3} (attuale: {4})."), hero.data.heroName, Loc.CardName(eq.cardName), StatLabel(req.stat), req.value, have);
                 return false;
             }
         }
