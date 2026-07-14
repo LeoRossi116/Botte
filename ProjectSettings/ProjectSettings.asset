@@ -741,11 +741,11 @@ PlayerSettings:
   activeInputHandler: 1
   windowsGamepadBackendHint: 0
   enableDirectStorage: 0
-  cloudProjectId: 2e57a934-8963-4166-90b4-6e5f258e8fa7
+  cloudProjectId: 4b686d22-35dc-496d-8751-b89edf842713
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Botte
-  organizationId: ivanlazzarini8031
+  projectName: Bomboclat
+  organizationId: drg00ner100
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}
