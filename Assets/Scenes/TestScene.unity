@@ -3404,8 +3404,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.65}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -126.880005}
+  m_SizeDelta: {x: 0, y: 253.76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &239838591
 GameObject:
@@ -9210,7 +9210,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 631977633}
-  - component: {fileID: 631977634}
   m_Layer: 0
   m_Name: BarSlot_Stamina
   m_TagString: Untagged
@@ -9237,21 +9236,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 36, y: -192.03}
+  m_AnchoredPosition: {x: 36, y: -240}
   m_SizeDelta: {x: 220, y: 30.17}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &631977634
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 631977632}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
 --- !u!1 &648668032
 GameObject:
   m_ObjectHideFlags: 0
@@ -14007,7 +13994,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 931858645}
-  - component: {fileID: 931858646}
   m_Layer: 0
   m_Name: BarSlot_HP
   m_TagString: Untagged
@@ -14034,21 +14020,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -38.27, y: -124.76}
+  m_AnchoredPosition: {x: -38.27, y: -170}
   m_SizeDelta: {x: 220, y: 28.5}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &931858646
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 931858644}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
 --- !u!1 &952118287
 GameObject:
   m_ObjectHideFlags: 0
@@ -14245,7 +14219,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 972992017}
-  - component: {fileID: 972992018}
   m_Layer: 0
   m_Name: BarSlot_Mana
   m_TagString: Untagged
@@ -14272,21 +14245,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -38.27, y: -157.64}
+  m_AnchoredPosition: {x: -38.27, y: -205}
   m_SizeDelta: {x: 220, y: 30.67}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &972992018
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 972992016}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
 --- !u!1 &979986728
 GameObject:
   m_ObjectHideFlags: 0
@@ -16953,7 +16914,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1167892022}
-  - component: {fileID: 1167892023}
   m_Layer: 0
   m_Name: BarSlot_Stamina
   m_TagString: Untagged
@@ -16980,21 +16940,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: -38.19, y: -192.03}
+  m_AnchoredPosition: {x: -38.19, y: -240}
   m_SizeDelta: {x: 220, y: 30.17}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &1167892023
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1167892021}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
 --- !u!1 &1180807189
 GameObject:
   m_ObjectHideFlags: 0
@@ -18401,7 +18349,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0.38, y: 1}
-  m_AnchoredPosition: {x: 12.500061, y: 215}
+  m_AnchoredPosition: {x: 12.5, y: 215}
   m_SizeDelta: {x: -25, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1327366517
@@ -19575,7 +19523,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1426215070}
-  - component: {fileID: 1426215071}
   m_Layer: 0
   m_Name: BarSlot_HP
   m_TagString: Untagged
@@ -19602,21 +19549,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 36, y: -124.76}
+  m_AnchoredPosition: {x: 36, y: -170}
   m_SizeDelta: {x: 220, y: 28.5}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &1426215071
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1426215069}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
 --- !u!1 &1457422957
 GameObject:
   m_ObjectHideFlags: 0
@@ -30138,7 +30073,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2028913330}
-  - component: {fileID: 2028913331}
   m_Layer: 0
   m_Name: BarSlot_Mana
   m_TagString: Untagged
@@ -30165,21 +30099,9 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 1}
   m_AnchorMax: {x: 0.5, y: 1}
-  m_AnchoredPosition: {x: 36, y: -157.64}
+  m_AnchoredPosition: {x: 36, y: -205}
   m_SizeDelta: {x: 220, y: 30.67}
   m_Pivot: {x: 0.5, y: 1}
---- !u!114 &2028913331
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2028913329}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
 --- !u!1 &2034528400
 GameObject:
   m_ObjectHideFlags: 0
@@ -30905,8 +30827,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.65}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -126.880005}
+  m_SizeDelta: {x: 0, y: 253.76}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2072697374
 GameObject:
