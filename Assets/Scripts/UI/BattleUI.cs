@@ -129,12 +129,6 @@ namespace Botte.UI
         public bool p1EquipVisible;
         public bool p2EquipVisible;
 
-        // Desc panel layout: full width when slots hidden, narrow (right of slots) when shown.
-        private static readonly Vector2 DescPosFull = new Vector2(0f, 0f);
-        private static readonly Vector2 DescSizeFull = new Vector2(400f, 160f);
-        private static readonly Vector2 DescPosRight = new Vector2(0f, 0f);
-        private static readonly Vector2 DescSizeRight = new Vector2(400f, 160f);
-
         // Currently displayed book per player.
         public BookType p1SelectedBook = BookType.Spell;
         public BookType p2SelectedBook = BookType.Spell;
@@ -324,7 +318,7 @@ namespace Botte.UI
             // of the hero's name, keeping the hero-class color and the active-turn arrows.
             string playerName = ResolvePlayerName(IsLocalPlayerSide(isPlayer1));
             string styledName = GetClassColorizedName(hero.data.heroClass, playerName);
-            nameText.text = isActive ? $"<b>▶ {styledName} ◀</b>" : styledName;
+            nameText.text = isActive ? $"<b>{styledName}</b>" : styledName;
 
             // Show the portrait for the chosen hero. Prefer a HeroData-level texture, otherwise
             // fall back to the per-class mapping. The frame animator (when it has real art) owns
@@ -417,6 +411,7 @@ namespace Botte.UI
             }
 
             BookType book = isPlayer1 ? p1SelectedBook : p2SelectedBook;
+            if (bookLabel != null) bookLabel.text = BookName(book);
             UpdateBookSelectorVisuals(isPlayer1);
 
             if (book == BookType.Spell)
@@ -554,17 +549,9 @@ namespace Botte.UI
             GameObject window = isPlayer1 ? p1EquipWindow : p2EquipWindow;
             if (window != null) window.SetActive(visible);
 
-            // Move/resize the inspect box: full width when hidden, right of the slots when shown.
-            GameObject descPanel = isPlayer1 ? p1DescPanel : p2DescPanel;
-            if (descPanel != null)
-            {
-                var rt = descPanel.GetComponent<RectTransform>();
-                if (rt != null)
-                {
-                    rt.anchoredPosition = visible ? DescPosRight : DescPosFull;
-                    rt.sizeDelta = visible ? DescSizeRight : DescSizeFull;
-                }
-            }
+            // The card description panel's transform is intentionally left untouched here: its
+            // position and size are authored in the editor and must never be changed at runtime.
+            // Only its text content (name / cost / effect) is updated, in ShowCardDescription().
         }
 
         private string ShortName(string n)
@@ -585,9 +572,9 @@ namespace Botte.UI
         {
             switch (b)
             {
-                case BookType.Spell: return "Libro Incantesimi";
-                case BookType.Equipment: return "Libro Equipaggiamento";
-                case BookType.Item: return "Libro Oggetti";
+                case BookType.Spell: return Loc.T("Libro Incantesimi");
+                case BookType.Equipment: return Loc.T("Libro Equipaggiamento");
+                case BookType.Item: return Loc.T("Libro Oggetti");
             }
             return "";
         }
@@ -678,17 +665,32 @@ namespace Botte.UI
             if (peekPanel != null) peekPanel.SetActive(false);
         }
 
-        public void ShowDrawChoice(string title)
+        // The Italian source string of the currently shown draw-choice title, kept so the
+        // title can be re-translated live when the language changes (see RefreshDrawTitle).
+        private string _drawTitleItalian;
+
+        public void ShowDrawChoice(string italianTitle)
         {
+            _drawTitleItalian = italianTitle;
             if (drawChoicePanel != null)
             {
                 drawChoicePanel.SetActive(true);
-                var titleText = drawChoicePanel.transform.Find("Box/Title")?.GetComponent<TMP_Text>();
-                if (titleText != null)
-                {
-                    titleText.text = title;
-                }
+                ApplyDrawTitle();
             }
+        }
+
+        /// <summary>Re-applies the draw-choice title in the current language (no-op if the panel is hidden).</summary>
+        public void RefreshDrawTitle()
+        {
+            if (drawChoicePanel != null && drawChoicePanel.activeSelf) ApplyDrawTitle();
+        }
+
+        private void ApplyDrawTitle()
+        {
+            if (drawChoicePanel == null) return;
+            var titleText = drawChoicePanel.transform.Find("Box/Title")?.GetComponent<TMP_Text>();
+            if (titleText != null)
+                titleText.text = Loc.T(_drawTitleItalian);
         }
 
         public void AddLog(string message)

@@ -68,6 +68,7 @@ namespace Botte.Core
         public Button optionsCloseButton;      // the "X" that closes the window
         public Button optionsSettingsButton;   // settings entry (placeholder for now)
         public Button optionsQuitButton;       // red "quit match" button
+        public Button charSelectOptionsButton; // options button shown on the character-select screen
 
         private GameState gameState;
         private TurnManager turnManager;
@@ -164,6 +165,7 @@ namespace Botte.Core
 
             // --- In-game options window ---
             if (optionsButton != null) optionsButton.onClick.AddListener(OpenOptions);
+            if (charSelectOptionsButton != null) charSelectOptionsButton.onClick.AddListener(OpenOptions);
             if (optionsCloseButton != null) optionsCloseButton.onClick.AddListener(CloseOptions);
             if (optionsSettingsButton != null) optionsSettingsButton.onClick.AddListener(OnOptionsSettings);
             if (optionsQuitButton != null) optionsQuitButton.onClick.AddListener(OnOptionsQuit);
@@ -479,7 +481,8 @@ namespace Botte.Core
             {
                 int secs = Mathf.Max(0, secondsLeft);
                 string mmss = $"{secs / 60:00}:{secs % 60:00}";
-                battleUI.phaseText.text = $"Fase: {gameState.phase}    <color=#4EE1E1>{mmss}</color>";
+                battleUI.phaseText.text =
+                    $"{string.Format(Loc.T("Fase: {0}"), GetPhaseDisplayName(gameState.phase))}    <color=#4EE1E1>{mmss}</color>";
             }
 
             if (turnCounterText != null && gameState != null)
@@ -916,8 +919,7 @@ namespace Botte.Core
                 gameState.AdvancePhase(); // -> Preparation
             }
 
-            battleUI.turnText.text = $"Turno {gameState.currentTurn} — tocca a {GetStyledName(active)}";
-            battleUI.phaseText.text = $"Fase: {gameState.phase}";
+            RefreshTurnPhaseText();
 
             if (battleUI.prepButtonsContainer != null)
             {
@@ -1076,7 +1078,7 @@ namespace Botte.Core
                     TriggerPrepDraw(hero, 2);
                 }
             };
-            string label = (drawNumber == 1) ? "1° Pescaggio Obbligatorio" : "2° Pescaggio Obbligatorio";
+            string label = (drawNumber == 1) ? "Prima Pescata" : "Seconda Pescata";
             // Only the player actually drawing sees the draw popup (not the opponent).
             if (IsMyTurn()) battleUI.ShowDrawChoice(label);
         }
@@ -2017,6 +2019,34 @@ namespace Botte.Core
             battleUI.RefreshBook(gameState.player2, false);
             battleUI.RefreshEquipment(gameState.player1, true);
             battleUI.RefreshEquipment(gameState.player2, false);
+            RefreshTurnPhaseText();
+            battleUI.RefreshDrawTitle();
+        }
+
+        // Rebuilds the top-panel round & phase labels in the current language. The MM:SS timer
+        // is re-appended to the phase label on the next timer tick (UpdateTimerText).
+        private void RefreshTurnPhaseText()
+        {
+            if (battleUI == null || gameState == null) return;
+            if (battleUI.turnText != null)
+                battleUI.turnText.text = string.Format(
+                    Loc.T("Turno {0} — tocca a {1}"), gameState.currentTurn, GetStyledName(gameState.activePlayer));
+            if (battleUI.phaseText != null)
+                battleUI.phaseText.text = string.Format(
+                    Loc.T("Fase: {0}"), GetPhaseDisplayName(gameState.phase));
+        }
+
+        // Localized display name for a game phase (the raw enum names are English only).
+        private string GetPhaseDisplayName(GamePhase phase)
+        {
+            switch (phase)
+            {
+                case GamePhase.ResourceRecovery: return Loc.T("Recupero Risorse");
+                case GamePhase.Preparation: return Loc.T("Preparazione");
+                case GamePhase.Combat: return Loc.T("Combattimento");
+                case GamePhase.EndPhase: return Loc.T("Fase Finale");
+                default: return phase.ToString();
+            }
         }
 
         private void SetAllButtonsInteractable(bool value)

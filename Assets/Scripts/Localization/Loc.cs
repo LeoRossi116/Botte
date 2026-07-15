@@ -131,6 +131,37 @@ public static class Loc
         { "Cima del mazzo:", "Top of the deck:" },
         { "Tenere o scartare?", "Keep or discard?" },
 
+        // Draw-choice panel title (mandatory prep draws)
+        { "Prima Pescata", "First Draw" },
+        { "Seconda Pescata", "Second Draw" },
+
+        // Round & phase window (top panel)
+        { "Turno {0} — tocca a {1}", "Turn {0} — {1}'s turn" },
+        { "Fase: {0}", "Phase: {0}" },
+        { "Recupero Risorse", "Resource Recovery" },
+        { "Preparazione", "Preparation" },
+        { "Combattimento", "Combat" },
+        { "Fase Finale", "End Phase" },
+
+        // Character select
+        { "Scegli il Tuo Eroe", "Choose Your Hero" },
+
+        // Settings window
+        { "impostazioni", "settings" },
+
+        // Tutorial button hints
+        { "Utilizza carta equipaggiamento, fino a 2 volte per turno",
+          "Use an equipment card, up to 2 times per turn" },
+        { "Infliggi danno all'Avversario", "Deal damage to the Opponent" },
+        { "Pesca una carta da un mazzo a scelta", "Draw a card from a deck of your choice" },
+        { "Passa alla fase successiva", "Advance to the next phase" },
+        { "Passa alla Fase di Combattimento", "Advance to the Combat phase" },
+        { "Passa alla Fase Finale", "Advance to the End phase" },
+        { "Inizia il turno dell'Avversario", "Start the Opponent's turn" },
+        { "Mostra il Libro Incantesimi (magie)", "Show the Spell Book (magic)" },
+        { "Mostra il Libro Equipaggiamento", "Show the Equipment Book" },
+        { "Mostra il Libro Oggetti", "Show the Item Book" },
+
         // Battle log messages
         { "Non è il tuo turno!", "It's not your turn!" },
         { "Puoi equipaggiare solo in Preparazione (in combattimento l'equipaggiamento si può solo ispezionare).",
@@ -172,5 +203,40 @@ public static class Loc
         { "Impossibile sincronizzarsi con l'host.", "Could not sync with host." },
         { "Servizi online non disponibili: {0}", "Online services failed: {0}" },
         { "Errore", "Error" },
+
+        // Buttons (exact-case keys: the dictionary lookup is case-sensitive, so each button's
+        // authored Italian text maps to an English value that mirrors its capitalization style).
+        // Main menu / play / lobby screens
+        { "gioca", "play" },
+        { "opzioni", "options" },
+        { "esci", "quit" },
+        { "Esci", "Quit" },
+        { "unisciti", "join" },
+        { "crea lobby\n", "create lobby\n" },
+        { "cancella", "clear" },
+        { "Inserisci Nome", "Enter Name" },
+        { "Avvia", "Start" },
+        // Character select
+        { "INIZIA", "START" },
+        // Draw-choice panel
+        { "Magie", "Spells" },
+        { "EQUIPAGGIAMENTO", "EQUIPMENT" },
+        { "OGGETTI", "ITEMS" },
+        // Peek panel
+        { "TIENI", "KEEP" },
+        { "SCARTA", "DISCARD" },
+        // In-battle action buttons
+        { "Attacca", "Attack" },
+        { "Prossima Fase", "Next Phase" },
+        { "Dormi", "Sleep" },
+        { "Pescata Extra", "Extra Draw" },
+        // In-battle options window
+        { "OPZIONI", "OPTIONS" },
+        { "IMPOSTAZIONI", "SETTINGS" },
+        { "ESCI", "QUIT" },
+        // End-game (winner) overlay
+        { "RICOMINCIA", "RESTART" },
+        { "RIGIOCA", "REPLAY" },
+        { "LOBBY", "LOBBY" },
     };
 }

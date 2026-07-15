@@ -11,7 +11,7 @@ namespace Botte.UI
     [RequireComponent(typeof(RectTransform))]
     public class TutorialButtonHint : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
-        public enum HintKind { Equip, EndTurn, Attack, Sleep, DrawExtra, Custom }
+        public enum HintKind { Equip, EndTurn, Attack, Sleep, DrawExtra, BookSpell, BookEquip, BookItem, Custom }
 
         [SerializeField] private HintKind kind = HintKind.Custom;
         [Tooltip("Used only when kind is Custom.")]
@@ -30,7 +30,7 @@ namespace Botte.UI
         {
             if (!GameSettings.TutorialEnabled) return;
             if (TutorialTooltip.Instance == null) return;
-            TutorialTooltip.Instance.ShowFor(_rect, ResolveText());
+            TutorialTooltip.Instance.ShowFor(_rect, Loc.T(ResolveText()));
         }
 
         public void OnPointerExit(PointerEventData eventData)
@@ -50,6 +50,12 @@ namespace Botte.UI
                     return "+2hp +1Mana +1Stamina";
                 case HintKind.DrawExtra:
                     return "Pesca una carta da un mazzo a scelta";
+                case HintKind.BookSpell:
+                    return "Mostra il Libro Incantesimi (magie)";
+                case HintKind.BookEquip:
+                    return "Mostra il Libro Equipaggiamento";
+                case HintKind.BookItem:
+                    return "Mostra il Libro Oggetti";
                 case HintKind.EndTurn:
                     if (_battleManager == null)
                         _battleManager = Object.FindFirstObjectByType<Botte.Core.BattleManager>();
