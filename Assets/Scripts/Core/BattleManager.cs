@@ -1984,7 +1984,16 @@ namespace Botte.Core
                 if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
                 if (battleUI.drawChoicePanel != null) battleUI.drawChoicePanel.SetActive(false);
                 if (battleUI.characterSelectPanel != null) battleUI.characterSelectPanel.SetActive(false);
+        
+                // Disattiviamo il battleScreen
                 if (battleUI.battleScreen != null) battleUI.battleScreen.SetActive(false);
+            }
+
+            // <--- AGGIUNGI QUESTA PARTE QUI DI SEGUITO --->
+            // Forza l'AudioManager a riprodurre la musica del menu
+            if (Botte.Audio.BattleAudioManager.Instance != null)
+            {
+                Botte.Audio.BattleAudioManager.Instance.ForceMenuMusic();
             }
         }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using Botte.Audio; // Usiamo il namespace dell'audio manager
 
 namespace Botte.UI
 {
@@ -22,6 +23,10 @@ namespace Botte.UI
         [SerializeField] private Button closeButton;
         [Tooltip("Dropdown to switch the UI/content language (Italiano / English).")]
         [SerializeField] private TMPro.TMP_Dropdown languageDropdown;
+
+        [Header("Audio Settings")]
+        [Tooltip("Slider per regolare il volume della musica di sottofondo.")]
+        [SerializeField] private Slider volumeSlider;
 
         private void Awake()
         {
@@ -45,6 +50,20 @@ namespace Botte.UI
                 languageDropdown.RefreshShownValue();
                 languageDropdown.onValueChanged.AddListener(OnLanguageChanged);
             }
+
+            // Inizializza lo slider del volume
+            if (volumeSlider != null)
+            {
+                // Imposta i limiti dello slider (da 0 a 1)
+                volumeSlider.minValue = 0f;
+                volumeSlider.maxValue = 1f;
+
+                // Recupera il valore salvato (oppure usa il default di BattleAudioManager se non ancora istanziato)
+                float savedVolume = PlayerPrefs.GetFloat("MusicVolume", 0.5f);
+                volumeSlider.SetValueWithoutNotify(savedVolume);
+
+                volumeSlider.onValueChanged.AddListener(OnVolumeChanged);
+            }
         }
 
         private void OnDestroy()
@@ -56,6 +75,16 @@ namespace Botte.UI
         public void Open()
         {
             if (tutorialToggle != null) tutorialToggle.SetIsOnWithoutNotify(GameSettings.TutorialEnabled);
+            
+            // Sincronizza lo slider all'apertura del pannello
+            if (volumeSlider != null)
+            {
+                float currentVol = BattleAudioManager.Instance != null 
+                    ? BattleAudioManager.Instance.MusicVolume 
+                    : PlayerPrefs.GetFloat("MusicVolume", 0.5f);
+                volumeSlider.SetValueWithoutNotify(currentVol);
+            }
+
             if (content != null)
             {
                 content.SetActive(true);
@@ -77,6 +106,21 @@ namespace Botte.UI
         private void OnLanguageChanged(int index)
         {
             GameSettings.CurrentLanguage = (Language)index;
+        }
+
+        private void OnVolumeChanged(float value)
+        {
+            // Aggiorna il volume nel manager se è presente in scena
+            if (BattleAudioManager.Instance != null)
+            {
+                BattleAudioManager.Instance.MusicVolume = value;
+            }
+            else
+            {
+                // Se l'audio manager non è ancora attivo, salviamo comunque la preferenza su disco
+                PlayerPrefs.SetFloat("MusicVolume", value);
+                PlayerPrefs.Save();
+            }
         }
     }
 }

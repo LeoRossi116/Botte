@@ -1385,6 +1385,7 @@ GameObject:
   - component: {fileID: 134173791}
   - component: {fileID: 134173790}
   - component: {fileID: 134173793}
+  - component: {fileID: 134173794}
   m_Layer: 0
   m_Name: JoinButton
   m_TagString: Untagged
@@ -1521,6 +1522,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &134173794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 134173788}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &136323186
 GameObject:
   m_ObjectHideFlags: 0
@@ -2714,6 +2731,152 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 176005539}
   m_CullTransparentMesh: 1
+--- !u!1 &181773235
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 181773236}
+  - component: {fileID: 181773237}
+  - component: {fileID: 181773238}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &181773236
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181773235}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 107.171814, y: -78.23056, z: 0}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1109870074}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &181773237
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181773235}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 8300000, guid: 462ad92a98d8580449c4f594ef26ec9e, type: 3}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 1
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &181773238
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 181773235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 454a3121f403fe34a84ca50020cb1d45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.Audio.BattleAudioManager
+  battleUI: {fileID: 601073364}
+  menuMusic: {fileID: 8300000, guid: 462ad92a98d8580449c4f594ef26ec9e, type: 3}
+  battleMusic: {fileID: 8300000, guid: 35ede7e92eed87c44afa25b78b31c4b9, type: 3}
+  fadeDuration: 1
 --- !u!1 &182159364
 GameObject:
   m_ObjectHideFlags: 0
@@ -3317,11 +3480,13 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 657938216}
   - {fileID: 1508350368}
   - {fileID: 825197884}
   - {fileID: 304665771}
   - {fileID: 1764199975}
   - {fileID: 344039837}
+  - {fileID: 1133029425}
   m_Father: {fileID: 1341748379}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -4695,6 +4860,7 @@ GameObject:
   - component: {fileID: 312825533}
   - component: {fileID: 312825532}
   - component: {fileID: 312825535}
+  - component: {fileID: 312825536}
   m_Layer: 0
   m_Name: PeekDiscardButton
   m_TagString: Untagged
@@ -4819,6 +4985,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &312825536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 312825530}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &330596140
 GameObject:
   m_ObjectHideFlags: 0
@@ -5937,6 +6119,7 @@ GameObject:
   - component: {fileID: 399493297}
   - component: {fileID: 399493296}
   - component: {fileID: 399493295}
+  - component: {fileID: 399493298}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -6046,6 +6229,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 399493293}
   m_CullTransparentMesh: 1
+--- !u!114 &399493298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 399493293}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &406955888
 GameObject:
   m_ObjectHideFlags: 0
@@ -7678,6 +7877,143 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LocalizedText
   italianSource: X
+--- !u!1 &525948600
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 525948601}
+  - component: {fileID: 525948603}
+  - component: {fileID: 525948602}
+  m_Layer: 0
+  m_Name: Text (TMP)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &525948601
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525948600}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1109870074}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -527, y: -345}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &525948602
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525948600}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: v1.4
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 69e8d9f3e6b6ff440ada00fa43db9ebc, type: 2}
+  m_sharedMaterial: {fileID: -2114779899851603903, guid: 69e8d9f3e6b6ff440ada00fa43db9ebc, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 20
+  m_fontSizeBase: 20
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &525948603
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 525948600}
+  m_CullTransparentMesh: 1
 --- !u!1 &531764790
 GameObject:
   m_ObjectHideFlags: 0
@@ -8776,6 +9112,7 @@ GameObject:
   - component: {fileID: 591139551}
   - component: {fileID: 591139550}
   - component: {fileID: 591139553}
+  - component: {fileID: 591139554}
   m_Layer: 0
   m_Name: PeekKeepButton
   m_TagString: Untagged
@@ -8900,6 +9237,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &591139554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 591139548}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &601073360
 GameObject:
   m_ObjectHideFlags: 0
@@ -9588,6 +9941,96 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 656774639}
   m_CullTransparentMesh: 1
+--- !u!1 &657938215
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 657938216}
+  - component: {fileID: 657938217}
+  m_Layer: 0
+  m_Name: VolumeSlider
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &657938216
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657938215}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2064398822}
+  - {fileID: 1317026278}
+  - {fileID: 1293037222}
+  m_Father: {fileID: 230591374}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 39, y: -84}
+  m_SizeDelta: {x: 160, y: 20}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &657938217
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657938215}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Slider
+  m_Navigation:
+    m_Mode: 3
+    m_WrapAround: 0
+    m_SelectOnUp: {fileID: 0}
+    m_SelectOnDown: {fileID: 0}
+    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnRight: {fileID: 0}
+  m_Transition: 1
+  m_Colors:
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
+    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_ColorMultiplier: 1
+    m_FadeDuration: 0.1
+  m_SpriteState:
+    m_HighlightedSprite: {fileID: 0}
+    m_PressedSprite: {fileID: 0}
+    m_SelectedSprite: {fileID: 0}
+    m_DisabledSprite: {fileID: 0}
+  m_AnimationTriggers:
+    m_NormalTrigger: Normal
+    m_HighlightedTrigger: Highlighted
+    m_PressedTrigger: Pressed
+    m_SelectedTrigger: Selected
+    m_DisabledTrigger: Disabled
+  m_Interactable: 1
+  m_TargetGraphic: {fileID: 1614458978}
+  m_FillRect: {fileID: 1266836223}
+  m_HandleRect: {fileID: 1614458977}
+  m_Direction: 0
+  m_MinValue: 0
+  m_MaxValue: 1
+  m_WholeNumbers: 0
+  m_Value: 0
+  m_OnValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &669082912
 GameObject:
   m_ObjectHideFlags: 0
@@ -9602,6 +10045,7 @@ GameObject:
   - component: {fileID: 669082914}
   - component: {fileID: 669082917}
   - component: {fileID: 669082918}
+  - component: {fileID: 669082919}
   m_Layer: 0
   m_Name: EndTurnButton
   m_TagString: Untagged
@@ -9752,6 +10196,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &669082919
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 669082912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &685028737
 GameObject:
   m_ObjectHideFlags: 0
@@ -10107,6 +10567,7 @@ MonoBehaviour:
   tutorialToggle: {fileID: 304665772}
   closeButton: {fileID: 825197885}
   languageDropdown: {fileID: 1764199976}
+  volumeSlider: {fileID: 657938217}
 --- !u!1 &718296119
 GameObject:
   m_ObjectHideFlags: 0
@@ -11902,6 +12363,7 @@ GameObject:
   - component: {fileID: 825197887}
   - component: {fileID: 825197886}
   - component: {fileID: 825197885}
+  - component: {fileID: 825197888}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -12011,6 +12473,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 825197883}
   m_CullTransparentMesh: 1
+--- !u!114 &825197888
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 825197883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &825434206
 GameObject:
   m_ObjectHideFlags: 0
@@ -12270,6 +12748,7 @@ GameObject:
   - component: {fileID: 839789708}
   - component: {fileID: 839789712}
   - component: {fileID: 839789713}
+  - component: {fileID: 839789714}
   m_Layer: 0
   m_Name: AttackButton
   m_TagString: Untagged
@@ -12420,6 +12899,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &839789714
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 839789707}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &841142454
 GameObject:
   m_ObjectHideFlags: 0
@@ -14743,7 +15238,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 41.16667, y: -23}
+  m_AnchoredPosition: {x: 41.166626, y: -23}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1006202404
@@ -15923,6 +16418,7 @@ GameObject:
   - component: {fileID: 1108853280}
   - component: {fileID: 1108853279}
   - component: {fileID: 1108853282}
+  - component: {fileID: 1108853283}
   m_Layer: 0
   m_Name: OptionsButton
   m_TagString: Untagged
@@ -16047,6 +16543,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1108853283
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108853277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1109870070
 GameObject:
   m_ObjectHideFlags: 0
@@ -16154,6 +16666,8 @@ RectTransform:
   - {fileID: 197509106}
   - {fileID: 412352489}
   - {fileID: 1895025133}
+  - {fileID: 525948601}
+  - {fileID: 181773236}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -16480,6 +16994,143 @@ CanvasRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1131037923}
+  m_CullTransparentMesh: 1
+--- !u!1 &1133029424
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1133029425}
+  - component: {fileID: 1133029427}
+  - component: {fileID: 1133029426}
+  m_Layer: 0
+  m_Name: AudioLabel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1133029425
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133029424}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 230591374}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -75, y: -99}
+  m_SizeDelta: {x: 200, y: 50}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1133029426
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133029424}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_text: Audio
+  m_isRightToLeft: 0
+  m_fontAsset: {fileID: 11400000, guid: 69e8d9f3e6b6ff440ada00fa43db9ebc, type: 2}
+  m_sharedMaterial: {fileID: -2114779899851603903, guid: 69e8d9f3e6b6ff440ada00fa43db9ebc, type: 2}
+  m_fontSharedMaterials: []
+  m_fontMaterial: {fileID: 0}
+  m_fontMaterials: []
+  m_fontColor32:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_enableVertexGradient: 0
+  m_colorMode: 3
+  m_fontColorGradient:
+    topLeft: {r: 1, g: 1, b: 1, a: 1}
+    topRight: {r: 1, g: 1, b: 1, a: 1}
+    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
+    bottomRight: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColorGradientPreset: {fileID: 0}
+  m_spriteAsset: {fileID: 0}
+  m_tintAllSprites: 0
+  m_StyleSheet: {fileID: 0}
+  m_TextStyleHashCode: -1183493901
+  m_overrideHtmlColors: 0
+  m_faceColor:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_fontSize: 28
+  m_fontSizeBase: 28
+  m_fontWeight: 400
+  m_enableAutoSizing: 0
+  m_fontSizeMin: 18
+  m_fontSizeMax: 72
+  m_fontStyle: 0
+  m_HorizontalAlignment: 1
+  m_VerticalAlignment: 256
+  m_textAlignment: 65535
+  m_characterSpacing: 0
+  m_characterHorizontalScale: 1
+  m_wordSpacing: 0
+  m_lineSpacing: 0
+  m_lineSpacingMax: 0
+  m_paragraphSpacing: 0
+  m_charWidthMaxAdj: 0
+  m_TextWrappingMode: 1
+  m_wordWrappingRatios: 0.4
+  m_overflowMode: 0
+  m_linkedTextComponent: {fileID: 0}
+  parentLinkedComponent: {fileID: 0}
+  m_enableKerning: 0
+  m_ActiveFontFeatures: 6e72656b
+  m_enableExtraPadding: 0
+  checkPaddingRequired: 0
+  m_isRichText: 1
+  m_EmojiFallbackSupport: 1
+  m_parseCtrlCharacters: 1
+  m_isOrthographic: 1
+  m_isCullingEnabled: 0
+  m_horizontalMapping: 0
+  m_verticalMapping: 0
+  m_uvLineOffset: 0
+  m_geometrySortingOrder: 0
+  m_IsTextObjectScaleStatic: 0
+  m_VertexBufferAutoSizeReduction: 0
+  m_useMaxVisibleDescender: 1
+  m_pageToDisplay: 1
+  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_isUsingLegacyAnimationComponent: 0
+  m_isVolumetricText: 0
+  m_hasFontAssetChanged: 0
+  m_baseMaterial: {fileID: 0}
+  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!222 &1133029427
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1133029424}
   m_CullTransparentMesh: 1
 --- !u!1 &1146328545
 GameObject:
@@ -17232,6 +17883,7 @@ GameObject:
   - component: {fileID: 1222234245}
   - component: {fileID: 1222234244}
   - component: {fileID: 1222234247}
+  - component: {fileID: 1222234248}
   m_Layer: 0
   m_Name: QuitButton
   m_TagString: Untagged
@@ -17356,6 +18008,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.8627451}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1222234248
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1222234242}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1231885341
 GameObject:
   m_ObjectHideFlags: 0
@@ -17544,6 +18212,7 @@ GameObject:
   - component: {fileID: 1252647725}
   - component: {fileID: 1252647724}
   - component: {fileID: 1252647727}
+  - component: {fileID: 1252647728}
   m_Layer: 0
   m_Name: PlayButton
   m_TagString: Untagged
@@ -17680,6 +18349,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1252647728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1252647722}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1257890587
 GameObject:
   m_ObjectHideFlags: 0
@@ -17857,7 +18542,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 41.16667, y: -22.999996}
+  m_AnchoredPosition: {x: 41.166626, y: -23}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1258808608
@@ -17925,6 +18610,81 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24e26efdd35f7da44873c3e6dbd1f677, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LockRectTransform
+--- !u!1 &1266836222
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1266836223}
+  - component: {fileID: 1266836225}
+  - component: {fileID: 1266836224}
+  m_Layer: 0
+  m_Name: Fill
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1266836223
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266836222}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1317026278}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 10, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1266836224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266836222}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1266836225
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266836222}
+  m_CullTransparentMesh: 1
 --- !u!1 &1267607804
 GameObject:
   m_ObjectHideFlags: 0
@@ -18070,7 +18830,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -18158,6 +18918,42 @@ RectTransform:
   m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 25, y: 70}
   m_SizeDelta: {x: -62.091797, y: -24.292}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1293037221
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1293037222}
+  m_Layer: 0
+  m_Name: Handle Slide Area
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1293037222
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293037221}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1614458977}
+  m_Father: {fileID: 657938216}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1295037233
 GameObject:
@@ -18313,6 +19109,42 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1302191286}
   m_CullTransparentMesh: 1
+--- !u!1 &1317026277
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1317026278}
+  m_Layer: 0
+  m_Name: Fill Area
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1317026278
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1317026277}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1266836223}
+  m_Father: {fileID: 657938216}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.25}
+  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchoredPosition: {x: -5, y: 0}
+  m_SizeDelta: {x: -20, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1326050723
 GameObject:
   m_ObjectHideFlags: 0
@@ -18578,6 +19410,7 @@ GameObject:
   - component: {fileID: 1339768464}
   - component: {fileID: 1339768468}
   - component: {fileID: 1339768469}
+  - component: {fileID: 1339768470}
   m_Layer: 0
   m_Name: EquipPrepButton
   m_TagString: Untagged
@@ -18728,6 +19561,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1339768470
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1339768463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1341748378
 GameObject:
   m_ObjectHideFlags: 0
@@ -18762,7 +19611,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 13, y: 16}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1344646813
@@ -18778,6 +19627,7 @@ GameObject:
   - component: {fileID: 1344646816}
   - component: {fileID: 1344646815}
   - component: {fileID: 1344646818}
+  - component: {fileID: 1344646819}
   m_Layer: 0
   m_Name: ExitButton
   m_TagString: Untagged
@@ -18914,6 +19764,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 0
+--- !u!114 &1344646819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1344646813}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1345042334
 GameObject:
   m_ObjectHideFlags: 0
@@ -19390,6 +20256,7 @@ GameObject:
   - component: {fileID: 1399243588}
   - component: {fileID: 1399243587}
   - component: {fileID: 1399243590}
+  - component: {fileID: 1399243591}
   m_Layer: 0
   m_Name: StartGameButton
   m_TagString: Untagged
@@ -19514,6 +20381,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1399243591
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1399243585}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1426215069
 GameObject:
   m_ObjectHideFlags: 0
@@ -20168,6 +21051,7 @@ GameObject:
   - component: {fileID: 1494046271}
   - component: {fileID: 1494046270}
   - component: {fileID: 1494046273}
+  - component: {fileID: 1494046274}
   m_Layer: 0
   m_Name: StartBattleButton
   m_TagString: Untagged
@@ -20292,6 +21176,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1494046274
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494046268}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1496979687
 GameObject:
   m_ObjectHideFlags: 0
@@ -20309,7 +21209,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1496979688
 RectTransform:
   m_ObjectHideFlags: 0
@@ -21622,6 +22522,7 @@ GameObject:
   - component: {fileID: 1554950130}
   - component: {fileID: 1554950129}
   - component: {fileID: 1554950132}
+  - component: {fileID: 1554950133}
   m_Layer: 0
   m_Name: ExitButton
   m_TagString: Untagged
@@ -21758,6 +22659,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1554950133
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554950127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1601088090
 GameObject:
   m_ObjectHideFlags: 0
@@ -22263,6 +23180,81 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.LocalizedText
   italianSource: unisciti
+--- !u!1 &1614458976
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1614458977}
+  - component: {fileID: 1614458979}
+  - component: {fileID: 1614458978}
+  m_Layer: 0
+  m_Name: Handle
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1614458977
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1614458976}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1293037222}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 20, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1614458978
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1614458976}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1614458979
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1614458976}
+  m_CullTransparentMesh: 1
 --- !u!1 &1615917178
 GameObject:
   m_ObjectHideFlags: 0
@@ -22500,6 +23492,7 @@ GameObject:
   - component: {fileID: 1638527817}
   - component: {fileID: 1638527819}
   - component: {fileID: 1638527818}
+  - component: {fileID: 1638527820}
   m_Layer: 0
   m_Name: Checkmark
   m_TagString: Untagged
@@ -22564,6 +23557,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1638527816}
   m_CullTransparentMesh: 1
+--- !u!114 &1638527820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1638527816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1641469150
 GameObject:
   m_ObjectHideFlags: 0
@@ -23114,6 +24123,7 @@ GameObject:
   - component: {fileID: 1668669853}
   - component: {fileID: 1668669852}
   - component: {fileID: 1668669855}
+  - component: {fileID: 1668669856}
   m_Layer: 0
   m_Name: ExitButton
   m_TagString: Untagged
@@ -23238,6 +24248,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1668669856
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1668669850}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1682443160
 GameObject:
   m_ObjectHideFlags: 0
@@ -24264,6 +25290,7 @@ GameObject:
   - component: {fileID: 1748878575}
   - component: {fileID: 1748878574}
   - component: {fileID: 1748878577}
+  - component: {fileID: 1748878578}
   m_Layer: 0
   m_Name: HostButton
   m_TagString: Untagged
@@ -24400,6 +25427,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1748878578
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1748878572}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1751899261
 GameObject:
   m_ObjectHideFlags: 0
@@ -24435,7 +25478,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -10}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1751899263
@@ -25699,7 +26742,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 194.46611}
+  m_AnchoredPosition: {x: 0.000061035, y: 195}
   m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1798124424
@@ -26607,7 +27650,7 @@ MonoBehaviour:
   m_fontColor32:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -27112,7 +28155,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 41.49121, y: -48.48932}
+  m_AnchoredPosition: {x: 41.49121, y: -48.489258}
   m_SizeDelta: {x: 66.6666, y: 71.1666}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1878770853
@@ -28042,6 +29085,7 @@ GameObject:
   - component: {fileID: 1942513901}
   - component: {fileID: 1942513900}
   - component: {fileID: 1942513903}
+  - component: {fileID: 1942513904}
   m_Layer: 0
   m_Name: ExitButton
   m_TagString: Untagged
@@ -28178,6 +29222,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1942513904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1942513898}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1948661945
 GameObject:
   m_ObjectHideFlags: 0
@@ -28448,6 +29508,7 @@ GameObject:
   - component: {fileID: 1951951260}
   - component: {fileID: 1951951259}
   - component: {fileID: 1951951258}
+  - component: {fileID: 1951951262}
   m_Layer: 0
   m_Name: ClearNameButton
   m_TagString: Untagged
@@ -28557,6 +29618,22 @@ RectTransform:
   m_AnchoredPosition: {x: 116.29513, y: 126.08186}
   m_SizeDelta: {x: 117.6357, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1951951262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1951951257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1954696143
 GameObject:
   m_ObjectHideFlags: 0
@@ -28858,6 +29935,7 @@ GameObject:
   - component: {fileID: 1974178264}
   - component: {fileID: 1974178263}
   - component: {fileID: 1974178267}
+  - component: {fileID: 1974178268}
   m_Layer: 0
   m_Name: InsertNameButton
   m_TagString: Untagged
@@ -28982,6 +30060,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 7, y: -7}
   m_UseGraphicAlpha: 1
+--- !u!114 &1974178268
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1974178262}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1976618514
 GameObject:
   m_ObjectHideFlags: 0
@@ -29255,6 +30349,7 @@ GameObject:
   - component: {fileID: 1993051414}
   - component: {fileID: 1993051413}
   - component: {fileID: 1993051416}
+  - component: {fileID: 1993051417}
   m_Layer: 0
   m_Name: SettingsButton
   m_TagString: Untagged
@@ -29379,6 +30474,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.8627451}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1993051417
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1993051411}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1994131851
 GameObject:
   m_ObjectHideFlags: 0
@@ -29392,6 +30503,7 @@ GameObject:
   - component: {fileID: 1994131853}
   - component: {fileID: 1994131852}
   - component: {fileID: 1994131856}
+  - component: {fileID: 1994131857}
   m_Layer: 0
   m_Name: FinishPrepButton
   m_TagString: Untagged
@@ -29528,6 +30640,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &1994131857
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1994131851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &1997303409
 GameObject:
   m_ObjectHideFlags: 0
@@ -30114,6 +31242,7 @@ GameObject:
   - component: {fileID: 2034528404}
   - component: {fileID: 2034528403}
   - component: {fileID: 2034528402}
+  - component: {fileID: 2034528405}
   m_Layer: 0
   m_Name: CloseButton
   m_TagString: Untagged
@@ -30223,6 +31352,22 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2034528400}
   m_CullTransparentMesh: 1
+--- !u!114 &2034528405
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2034528400}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &2036804993
 GameObject:
   m_ObjectHideFlags: 0
@@ -30830,6 +31975,81 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: -126.880005}
   m_SizeDelta: {x: 0, y: 253.76}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &2064398821
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2064398822}
+  - component: {fileID: 2064398824}
+  - component: {fileID: 2064398823}
+  m_Layer: 0
+  m_Name: Background
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &2064398822
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064398821}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 657938216}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0.25}
+  m_AnchorMax: {x: 1, y: 0.75}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &2064398823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064398821}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
+  m_Type: 1
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &2064398824
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064398821}
+  m_CullTransparentMesh: 1
 --- !u!1 &2072697374
 GameObject:
   m_ObjectHideFlags: 0
@@ -30843,6 +32063,7 @@ GameObject:
   - component: {fileID: 2072697377}
   - component: {fileID: 2072697376}
   - component: {fileID: 2072697379}
+  - component: {fileID: 2072697380}
   m_Layer: 0
   m_Name: RestartButton
   m_TagString: Untagged
@@ -30967,6 +32188,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 1
+--- !u!114 &2072697380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2072697374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &2079927191
 GameObject:
   m_ObjectHideFlags: 0
@@ -30980,6 +32217,7 @@ GameObject:
   - component: {fileID: 2079927194}
   - component: {fileID: 2079927193}
   - component: {fileID: 2079927196}
+  - component: {fileID: 2079927197}
   m_Layer: 0
   m_Name: OptionButton
   m_TagString: Untagged
@@ -31116,6 +32354,22 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 0, b: 0, a: 0.6666667}
   m_EffectDistance: {x: 5, y: -5}
   m_UseGraphicAlpha: 0
+--- !u!114 &2079927197
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2079927191}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1d2ccaaeac1c6b0478aa95c9bcf82131, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Botte.UI.UIClickEffect
+  clickSFX: {fileID: 8300000, guid: bc0d5c57f89223946ba7cfbc327451d7, type: 3}
+  customAudioSource: {fileID: 0}
+  pressedScale: {x: 0.9, y: 0.9, z: 0.9}
+  animationDuration: 0.1
 --- !u!1 &2101743142
 GameObject:
   m_ObjectHideFlags: 0
