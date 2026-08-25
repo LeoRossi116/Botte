@@ -85,6 +85,9 @@ public static class Loc
         { "Libro Equipaggiamento", "Equipment Book" },
         { "Libro Oggetti", "Item Book" },
 
+        // Combat VFX
+        { "Danno bloccato", "Damage blocked" },
+
         // Status effects
         { "Veleno", "Poison" },
         { "Scudo", "Shield" },

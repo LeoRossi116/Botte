@@ -9,15 +9,18 @@ public class HeroState
     public int currentMana;
     public int currentStamina;
 
-    // Maximum number of cards a hero can have in each book.
-    public const int MAX_BOOK_SIZE = 7;
+    /// <summary>1 = player1, 2 = player2. Set by GameState constructor.</summary>
+    public int playerIndex;
 
-    public List<CardData> hand = new List<CardData>();          // held spells (the "spellbook" contents)
-    public List<CardData> itemBook = new List<CardData>();      // held item cards
-    public List<CardData> equipmentBook = new List<CardData>(); // held equipment (future)
-    public List<CardData> equipmentDeck = new List<CardData>(); // equipment draw pile (future)
-    public List<CardData> magicDeck = new List<CardData>();     // spell draw pile
-    public List<CardData> discardPile = new List<CardData>();   // spell discard pile
+    /// <summary>Single unified draw pile (spells + equipment + items merged). No size limit.</summary>
+    public List<CardData> deck = new List<CardData>();
+
+    /// <summary>Held cards (all types: spells, items, equipment). Preserved in draw order. No size limit.</summary>
+    public List<CardData> hand = new List<CardData>();
+
+    /// <summary>Reference to the ONE shared discard pile in GameState. Assigned by GameState constructor.</summary>
+    public List<DiscardEntry> sharedDiscardPile;
+
     // Indexed by EquipmentSlot: WeaponMain, WeaponOff, Head, Torso, Hands, Feet.
     public EquipmentData[] equippedItems = new EquipmentData[6];
     public bool weaponTwoHandedEquipped; // main weapon occupies both weapon slots
@@ -65,31 +68,21 @@ public class HeroState
         shieldAmount = 0;
     }
 
-    // Instant spells do NOT occupy a spellbook slot, so only count non-instant held spells.
-    public int CountSpellbookSlots()
+    // ---------- Shared discard pile helpers ----------
+
+    /// <summary>Adds the card to the shared discard pile tagged with this player's index.</summary>
+    public void Discard(CardData card)
     {
-        int count = 0;
-        foreach (CardData c in hand)
-        {
-            if (c is MagicData m && m.magicType == MagicType.Instant) continue;
-            count++;
-        }
-        return count;
+        if (sharedDiscardPile != null)
+            sharedDiscardPile.Add(new DiscardEntry(card, playerIndex));
     }
 
-    public bool IsSpellbookFull()
+    /// <summary>Iterates only the entries in the shared pile that belong to this player.</summary>
+    public System.Collections.Generic.IEnumerable<DiscardEntry> MyDiscards()
     {
-        return CountSpellbookSlots() >= MAX_BOOK_SIZE;
-    }
-
-    public bool IsItemBookFull()
-    {
-        return itemBook.Count >= MAX_BOOK_SIZE;
-    }
-
-    public bool IsEquipmentBookFull()
-    {
-        return equipmentBook.Count >= MAX_BOOK_SIZE;
+        if (sharedDiscardPile == null) yield break;
+        foreach (var e in sharedDiscardPile)
+            if (e.playerIndex == playerIndex) yield return e;
     }
 
     public void AddModifier(StatModifier mod)

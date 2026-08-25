@@ -70,7 +70,7 @@ public static class CombatActions
             EquipmentSystem.RemoveAttributes(hero, piece);
             hero.equippedItems[(int)slot] = null;
             hero.durability.Remove(slot);
-            hero.discardPile.Add(piece);
+            hero.Discard(piece);
         }
     }
 
@@ -97,7 +97,7 @@ public static class CombatActions
                     EquipmentSystem.RemoveAttributes(defender, sac.piece);
                     defender.equippedItems[(int)sac.slot] = null;
                     defender.durability.Remove(sac.slot);
-                    defender.discardPile.Add(sac.piece);
+                    defender.Discard(sac.piece);
                     return 0;
                 }
             }
@@ -215,6 +215,14 @@ public static class CombatActions
 
     public static bool TryWeaponAttack(HeroState attacker, HeroState defender, int staminaCost)
     {
+        return TryWeaponAttack(attacker, defender, staminaCost, out _, out _);
+    }
+
+    public static bool TryWeaponAttack(HeroState attacker, HeroState defender, int staminaCost, out int dealtDamage, out bool wasBlocked)
+    {
+        dealtDamage = 0;
+        wasBlocked = false;
+
         if (attacker.HasEquipEffect(EquipEffect.ReduceStaminaCost)) staminaCost -= 1;
         staminaCost = Mathf.Max(1, staminaCost);
 
@@ -241,6 +249,9 @@ public static class CombatActions
         if (doubleAttack) raw *= 2;
 
         int dealt = DealDamage(attacker, defender, raw, unblockable, true);
+        dealtDamage = dealt;
+        // Fully blocked/absorbed: the attack would have hurt (raw > 0) but no HP was lost.
+        wasBlocked = raw > 0 && dealt == 0;
         OnWeaponHit(attacker, defender, dealt);
         Debug.Log($"[Combat] {attacker.data.heroName} attacca con l'arma{(doubleAttack ? " (attacco doppio)" : "")}: {dealt} danno a {defender.data.heroName} (HP: {defender.currentHP}).");
 

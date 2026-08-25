@@ -20,7 +20,6 @@ namespace Botte.UI
         private Color normalColor = new Color32(0xf5, 0xa6, 0x23, 0xff); // Amber border (spells)
         private Color itemColor = new Color32(0x3a, 0x9e, 0xd0, 0xff);   // Blue-ish border (items)
         private Color equipColor = new Color32(0x9b, 0x59, 0xb6, 0xff);  // Purple border (equipment)
-        private Color hoverColor = Color.white;                          // White outline on hover
         private Color activeColor = new Color32(0x2e, 0xcc, 0x71, 0xff); // Green border when aura active / used
         private bool isActiveOrUsed;
         private bool isItem;
@@ -29,6 +28,14 @@ namespace Botte.UI
         // Bring-to-front on hover uses an override-sorting sub-canvas so the card renders
         // above its siblings without changing its order inside the hand layout group.
         private const int HoverSortingOrder = 100;
+
+        // --- Glow highlight (hover + just-drawn) ---
+        private Image glowImage;                                         // Soft halo behind card art
+        private bool isHovering;
+        private float drawGlowEndTime = -1f;                            // unscaled time until the "just drawn" glow ends
+        private static readonly Color DrawGlowColor = new Color(1f, 0.9f, 0.45f, 1f); // warm gold "new card" glow
+        private const float GlowPulseMin = 0.55f;
+        private const float GlowPulseMax = 1f;
 
         private void Awake()
         {
@@ -42,6 +49,86 @@ namespace Botte.UI
             }
 
             cardLabel = GetComponentInChildren<TMP_Text>();
+
+            EnsureGlow();
+        }
+
+        // Lazily builds the soft halo image used for hover / just-drawn highlights.
+        // It is the first child so the card art (Background/Label) renders on top of it,
+        // and it is padded larger than the card so the halo spills around the edges.
+        private void EnsureGlow()
+        {
+            if (glowImage != null) return;
+
+            var go = new GameObject("Glow", typeof(RectTransform));
+            var rt = go.GetComponent<RectTransform>();
+            rt.SetParent(transform, false);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            float pad = GlowTextureFactory.GlowPad;
+            rt.offsetMin = new Vector2(-pad, -pad);
+            rt.offsetMax = new Vector2(pad, pad);
+            rt.SetAsFirstSibling();
+
+            glowImage = go.AddComponent<Image>();
+            glowImage.sprite = GlowTextureFactory.GetCardGlow();
+            glowImage.type = Image.Type.Simple;
+            glowImage.raycastTarget = false;
+            glowImage.enabled = false;
+        }
+
+        private void Update()
+        {
+            if (glowImage == null) return;
+
+            float now = Time.unscaledTime;
+            bool drawActive = now < drawGlowEndTime;
+
+            if (isHovering)
+            {
+                // Glow in the card's own (current) color so the hovered card clearly stands out.
+                Color c = Brighten(BaseColor());
+                c.a = PulseAlpha(now, 6f);
+                glowImage.color = c;
+                glowImage.enabled = true;
+            }
+            else if (drawActive)
+            {
+                Color c = DrawGlowColor;
+                c.a = PulseAlpha(now, 5f);
+                glowImage.color = c;
+                glowImage.enabled = true;
+            }
+            else
+            {
+                glowImage.enabled = false;
+            }
+        }
+
+        private static float PulseAlpha(float t, float speed)
+        {
+            float k = 0.5f + 0.5f * Mathf.Sin(t * speed);
+            return Mathf.Lerp(GlowPulseMin, GlowPulseMax, k);
+        }
+
+        private static Color Brighten(Color c)
+        {
+            return new Color(
+                Mathf.Clamp01(c.r * 1.15f + 0.15f),
+                Mathf.Clamp01(c.g * 1.15f + 0.15f),
+                Mathf.Clamp01(c.b * 1.15f + 0.15f),
+                1f);
+        }
+
+        /// <summary>
+        /// Starts (or refreshes) the "just drawn" glow for the given remaining duration.
+        /// BattleUI re-applies this after each hand refresh so the glow survives rebuilds.
+        /// </summary>
+        public void PlayDrawGlow(float remainingSeconds)
+        {
+            if (remainingSeconds <= 0f) return;
+            EnsureGlow();
+            drawGlowEndTime = Time.unscaledTime + remainingSeconds;
         }
 
         public void Setup(CardData data, HeroState hero, bool player1, BattleUI ui, string stateLabel)
@@ -104,14 +191,14 @@ namespace Botte.UI
 
         public void OnPointerEnter(PointerEventData eventData)
         {
-            if (borderImage != null) borderImage.color = hoverColor;
+            isHovering = true;
             SetOnTop(true);
             if (battleUI != null && cardData != null) battleUI.ShowCardDescription(isPlayer1, cardData);
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
-            if (borderImage != null) borderImage.color = BaseColor();
+            isHovering = false;
             SetOnTop(false);
             if (battleUI != null) battleUI.HideCardDescription(isPlayer1);
         }

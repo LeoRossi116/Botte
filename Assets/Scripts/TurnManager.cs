@@ -153,11 +153,6 @@ public class TurnManager
             Debug.Log($"[EndPhase] {hero.data.heroName} pesca una carta extra a fine turno (logica di pescaggio da implementare).");
         }
 
-        if (hero.hand != null && hero.hand.Count > 7)
-        {
-            Debug.Log($"[EndPhase] {hero.data.heroName} ha più di 7 carte in mano, scarto fino a 7 da implementare.");
-        }
-
         hero.ExpireModifiers(ModifierDuration.EndOfThisTurn);
 
         // Silence lasts through the silenced hero's turn, then clears.

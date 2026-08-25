@@ -52,6 +52,19 @@ public static class DeckBuilder
         return deck;
     }
 
+    /// <summary>
+    /// Builds the single unified draw pile for a player (spells + equipment + items merged).
+    /// No size limit. The deck is shuffled implicitly through random-index draws.
+    /// </summary>
+    public static List<CardData> BuildUnifiedDeck(HeroClass hc)
+    {
+        var d = new List<CardData>();
+        d.AddRange(BuildSpellDeck(hc));
+        d.AddRange(BuildEquipmentDeck(hc));
+        d.AddRange(BuildItemDeck());
+        return d;
+    }
+
     public static bool CanDrawFromDeck(HeroState hero, MagicData card)
     {
         if (card == null) return false;

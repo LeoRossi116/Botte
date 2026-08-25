@@ -10,9 +10,11 @@ public class GameState
     public HeroState activePlayer;
     public GamePhase phase;
 
-    // Shared between both players: a single item deck and a single item discard pile.
-    public List<CardData> itemDeck = new List<CardData>();
-    public List<CardData> itemDiscard = new List<CardData>();
+    /// <summary>
+    /// ONE shared discard pile for both players. Last element = top (most recently played card).
+    /// Each entry records which player played the card via playerIndex.
+    /// </summary>
+    public List<DiscardEntry> discardPile = new List<DiscardEntry>();
 
     public GameState(HeroState p1, HeroState p2)
     {
@@ -21,6 +23,12 @@ public class GameState
         currentTurn = 1;
         activePlayer = p1;
         phase = GamePhase.ResourceRecovery;
+
+        // Wire player indices and the shared discard pile reference.
+        p1.playerIndex = 1;
+        p2.playerIndex = 2;
+        p1.sharedDiscardPile = discardPile;
+        p2.sharedDiscardPile = discardPile;
     }
 
     public void AdvancePhase()

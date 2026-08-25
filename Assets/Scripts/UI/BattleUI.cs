@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
@@ -103,11 +104,11 @@ namespace Botte.UI
         public Button[] p1ClassButtons;
         public Button[] p2ClassButtons;
 
-        [Header("Book Selectors (Spell, Equipment, Item)")]
-        public Button[] p1BookButtons;
-        public Button[] p2BookButtons;
-        public TMP_Text p1BookLabel;
-        public TMP_Text p2BookLabel;
+        [Header("Shared Discard Pile (center of screen)")]
+        public Transform discardPileAnchor;
+        public UnityEngine.UI.Image discardTopImage;
+        public TMP_Text discardTopLabel;
+        public TMP_Text discardCountLabel;
 
         [Header("Peek Panel (manipolazione)")]
         public GameObject peekPanel;
@@ -129,11 +130,17 @@ namespace Botte.UI
         public bool p1EquipVisible;
         public bool p2EquipVisible;
 
-        // Currently displayed book per player.
-        public BookType p1SelectedBook = BookType.Spell;
-        public BookType p2SelectedBook = BookType.Spell;
-
         private bool referencesSwapped = false;
+
+        // ---------- Visual effects (draw glow + damage indicators) ----------
+        private const float DrawGlowSeconds = 3f;   // longer than the damage-indicator lifetime
+
+        private struct DrawGlow { public HeroState hero; public CardData card; public float endTime; }
+        private readonly List<DrawGlow> drawGlows = new List<DrawGlow>();
+
+        private RectTransform vfxOverlay;
+        private DamageIndicatorStack p1DmgStack;
+        private DamageIndicatorStack p2DmgStack;
 
         public void MapUIReferences()
         {
@@ -171,8 +178,6 @@ namespace Botte.UI
             Swap(ref p1DescCost, ref p2DescCost);
             Swap(ref p1DescEffect, ref p2DescEffect);
             Swap(ref p1ClassButtons, ref p2ClassButtons);
-            Swap(ref p1BookButtons, ref p2BookButtons);
-            Swap(ref p1BookLabel, ref p2BookLabel);
             Swap(ref p1EquipSlots, ref p2EquipSlots);
             Swap(ref p1WeaponConnector, ref p2WeaponConnector);
             Swap(ref p1EquipWindow, ref p2EquipWindow);
@@ -385,20 +390,17 @@ namespace Botte.UI
             statusText.text = statusStr.Trim();
         }
 
-        // Displays the contents of the currently selected book for the given player.
+        // Displays ALL cards in the hero's unified hand (spells, items, equipment) in drawn order.
         public void RefreshBook(HeroState hero, bool isPlayer1)
         {
             MapUIReferences();
             RectTransform area = isPlayer1 ? p1HandArea : p2HandArea;
-            TMP_Text bookLabel = isPlayer1 ? p1BookLabel : p2BookLabel;
 
-            // The single bottom panel only ever shows the LOCAL player's book. The two hand
-            // areas overlap, so the remote player's area (and its label) are hidden entirely,
-            // otherwise it would cover the local player's cards.
+            // The single bottom panel only ever shows the LOCAL player's hand. The two hand
+            // areas overlap, so the remote player's area is hidden entirely.
             bool local = IsLocalPlayerSide(isPlayer1);
             GameObject areaRoot = GetHandAreaRoot(area);
             if (areaRoot != null) areaRoot.SetActive(local);
-            if (bookLabel != null) bookLabel.gameObject.SetActive(local);
             if (!local) return;
 
             if (area == null || cardPrefab == null) return;
@@ -406,45 +408,112 @@ namespace Botte.UI
             for (int i = area.childCount - 1; i >= 0; i--)
             {
                 Transform child = area.GetChild(i);
-                child.SetParent(null, false); // detach so childCount is correct this frame
+                child.SetParent(null, false);
                 Destroy(child.gameObject);
             }
 
-            BookType book = isPlayer1 ? p1SelectedBook : p2SelectedBook;
-            if (bookLabel != null) bookLabel.text = BookName(book);
-            UpdateBookSelectorVisuals(isPlayer1);
+            // Work out which hand slots should show the "just drawn" glow (and for how long),
+            // so the glow survives hand rebuilds until its timer runs out.
+            Dictionary<int, float> glowSlots = BuildDrawGlowSlots(hero);
 
-            if (book == BookType.Spell)
+            // Spawn one CardUI per card in the unified hand, preserving draw order (left-to-right).
+            for (int i = 0; i < hero.hand.Count; i++)
             {
-                foreach (CardData card in hero.hand)
+                CardData card = hero.hand[i];
+                string state = "";
+                if (card is MagicData spell)
                 {
-                    if (card is MagicData spell)
-                    {
-                        string state = "";
-                        if (spell.magicType == MagicType.Aura && hero.activeAuras.Contains(spell)) state = "ATTIVA";
-                        else if (spell.magicType == MagicType.Exhaustion && hero.exhaustedThisRound.Contains(spell)) state = "USATA";
-                        SpawnCard(area, spell, hero, isPlayer1, state);
-                    }
+                    if (spell.magicType == MagicType.Aura && hero.activeAuras.Contains(spell)) state = "ATTIVA";
+                    else if (spell.magicType == MagicType.Exhaustion && hero.exhaustedThisRound.Contains(spell)) state = "USATA";
                 }
-            }
-            else if (book == BookType.Item)
-            {
-                foreach (CardData card in hero.itemBook)
-                    SpawnCard(area, card, hero, isPlayer1, "");
-            }
-            else if (book == BookType.Equipment)
-            {
-                foreach (CardData card in hero.equipmentBook)
-                    SpawnCard(area, card, hero, isPlayer1, "");
+                CardUI cardUI = SpawnCard(area, card, hero, isPlayer1, state);
+                if (cardUI != null && glowSlots.TryGetValue(i, out float remaining))
+                    cardUI.PlayDrawGlow(remaining);
             }
         }
 
-        private void SpawnCard(Transform area, CardData card, HeroState hero, bool isPlayer1, string state)
+        // Returns hand-index -> remaining glow seconds for cards this hero drew recently.
+        // Also prunes expired entries. Targets the most-recently-added copy of each card.
+        private Dictionary<int, float> BuildDrawGlowSlots(HeroState hero)
+        {
+            var result = new Dictionary<int, float>();
+            float now = Time.unscaledTime;
+            for (int e = drawGlows.Count - 1; e >= 0; e--)
+            {
+                if (now >= drawGlows[e].endTime) { drawGlows.RemoveAt(e); continue; }
+                if (drawGlows[e].hero != hero) continue;
+                int idx = hero.hand.LastIndexOf(drawGlows[e].card);
+                if (idx >= 0) result[idx] = drawGlows[e].endTime - now;
+            }
+            return result;
+        }
+
+        /// <summary>Marks a card as just-drawn so it briefly glows in the owner's hand.</summary>
+        public void FlagDrawnCard(HeroState hero, CardData card)
+        {
+            if (hero == null || card == null) return;
+            drawGlows.Add(new DrawGlow { hero = hero, card = card, endTime = Time.unscaledTime + DrawGlowSeconds });
+        }
+
+        private CardUI SpawnCard(Transform area, CardData card, HeroState hero, bool isPlayer1, string state)
         {
             GameObject cardGO = Instantiate(cardPrefab, area);
             CardUI cardUI = cardGO.GetComponent<CardUI>();
             if (cardUI == null) cardUI = cardGO.AddComponent<CardUI>();
             cardUI.Setup(card, hero, isPlayer1, this, state);
+            return cardUI;
+        }
+
+        // ---------- Damage indicators ----------
+
+        // Full-screen overlay (created once) that hosts floating damage indicators on top of
+        // everything else in the same canvas as the hero portraits.
+        private RectTransform EnsureVfxOverlay()
+        {
+            if (vfxOverlay != null) return vfxOverlay;
+
+            Canvas canvas = p1HeroImage != null ? p1HeroImage.canvas
+                          : (p2HeroImage != null ? p2HeroImage.canvas : null);
+            if (canvas == null) return null;
+
+            var go = new GameObject("VFXOverlay", typeof(RectTransform));
+            vfxOverlay = go.GetComponent<RectTransform>();
+            vfxOverlay.SetParent(canvas.transform, false);
+            vfxOverlay.anchorMin = Vector2.zero;
+            vfxOverlay.anchorMax = Vector2.one;
+            vfxOverlay.offsetMin = Vector2.zero;
+            vfxOverlay.offsetMax = Vector2.zero;
+            vfxOverlay.SetAsLastSibling();
+            go.AddComponent<Canvas>(); // inherits parent canvas; keeps overlay drawn last
+
+            return vfxOverlay;
+        }
+
+        /// <summary>
+        /// Shows a floating damage indicator above the defender's hero portrait. Red "-N HP"
+        /// for damage taken, blue "damage blocked" when the attack was fully blocked. Multiple
+        /// indicators stack upward without overlapping and slide down as the oldest expire.
+        /// </summary>
+        public void ShowDamageIndicator(bool defenderIsPlayer1, int amount, bool blocked)
+        {
+            RectTransform overlay = EnsureVfxOverlay();
+            if (overlay == null) return;
+
+            UnityEngine.UI.Image portrait = defenderIsPlayer1 ? p1HeroImage : p2HeroImage;
+            if (portrait == null) return;
+            Canvas canvas = portrait.canvas;
+
+            DamageIndicatorStack stack = defenderIsPlayer1 ? p1DmgStack : p2DmgStack;
+            if (stack == null)
+            {
+                var stackGO = new GameObject(defenderIsPlayer1 ? "P1DamageStack" : "P2DamageStack");
+                stackGO.transform.SetParent(overlay, false);
+                stack = stackGO.AddComponent<DamageIndicatorStack>();
+                stack.Init(overlay, portrait.rectTransform, canvas);
+                if (defenderIsPlayer1) p1DmgStack = stack; else p2DmgStack = stack;
+            }
+
+            stack.Show(amount, blocked);
         }
 
         // Backwards-compatible alias still used by some flows.
@@ -560,44 +629,39 @@ namespace Botte.UI
             return n.Length <= 12 ? n : n.Substring(0, 11) + "…";
         }
 
-        public void SetSelectedBook(bool isPlayer1, BookType book)
-        {
-            if (isPlayer1) p1SelectedBook = book; else p2SelectedBook = book;
-            TMP_Text label = isPlayer1 ? p1BookLabel : p2BookLabel;
-            if (label != null) label.text = BookName(book);
-            UpdateBookSelectorVisuals(isPlayer1);
-        }
+        // ---------- Shared Discard Pile ----------
 
-        private string BookName(BookType b)
+        /// <summary>
+        /// Refreshes the discard-pile display in the center of the screen.
+        /// The last element in gs.discardPile is the TOP (most recently played card).
+        /// </summary>
+        public void RefreshDiscardPile(GameState gs)
         {
-            switch (b)
+            if (gs == null || gs.discardPile == null || gs.discardPile.Count == 0)
             {
-                case BookType.Spell: return Loc.T("Libro Incantesimi");
-                case BookType.Equipment: return Loc.T("Libro Equipaggiamento");
-                case BookType.Item: return Loc.T("Libro Oggetti");
+                if (discardTopImage != null) discardTopImage.enabled = false;
+                if (discardTopLabel != null) discardTopLabel.text = "";
+                if (discardCountLabel != null) discardCountLabel.text = "0";
+                return;
             }
-            return "";
-        }
 
-        private void UpdateBookSelectorVisuals(bool isPlayer1)
-        {
-            Button[] buttons = isPlayer1 ? p1BookButtons : p2BookButtons;
-            BookType selected = isPlayer1 ? p1SelectedBook : p2SelectedBook;
-            if (buttons == null) return;
-            Color normal = Color.white;
-            Color picked = new Color32(0x2e, 0xcc, 0x71, 0xff);
-            // Book initials by language (index 0=Spell, 1=Equipment, 2=Item).
-            string[] initials = (Loc.Current == Language.Italian)
-                ? new[] { "M", "E", "O" }
-                : new[] { "S", "E", "I" };
-            for (int i = 0; i < buttons.Length; i++)
+            var top = gs.discardPile[gs.discardPile.Count - 1];
+            if (discardTopImage != null)
             {
-                if (buttons[i] == null) continue;
-                var img = buttons[i].GetComponent<Image>();
-                if (img != null) img.color = ((int)selected == i) ? picked : normal;
-                var lbl = buttons[i].GetComponentInChildren<TMPro.TMP_Text>();
-                if (lbl != null && i < initials.Length) lbl.text = initials[i];
+                if (top.card != null && top.card.cardTexture != null)
+                {
+                    discardTopImage.sprite = top.card.cardTexture;
+                    discardTopImage.enabled = true;
+                }
+                else
+                {
+                    discardTopImage.enabled = false;
+                }
             }
+            if (discardTopLabel != null)
+                discardTopLabel.text = top.card != null ? Loc.CardName(top.card.cardName) : "";
+            if (discardCountLabel != null)
+                discardCountLabel.text = gs.discardPile.Count.ToString();
         }
 
         public void ShowCardDescription(bool isPlayer1, CardData card)

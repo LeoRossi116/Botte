@@ -284,21 +284,6 @@ namespace Botte.Core
 
             battleUI.MapUIReferences();
 
-            if (battleUI.p1BookButtons != null)
-                for (int i = 0; i < battleUI.p1BookButtons.Length; i++)
-                {
-                    int idx = i;
-                    if (battleUI.p1BookButtons[i] != null)
-                        battleUI.p1BookButtons[i].onClick.AddListener(() => OnBookSelected(true, idx));
-                }
-            if (battleUI.p2BookButtons != null)
-                for (int i = 0; i < battleUI.p2BookButtons.Length; i++)
-                {
-                    int idx = i;
-                    if (battleUI.p2BookButtons[i] != null)
-                        battleUI.p2BookButtons[i].onClick.AddListener(() => OnBookSelected(false, idx));
-                }
-
             // Equip toggle buttons must also be wired AFTER the swap so the physical LEFT button
             // always drives (and highlights) the local player and the RIGHT button the opponent.
             if (battleUI.p1ShowEquipButton != null)
@@ -307,14 +292,6 @@ namespace Botte.Core
                 battleUI.p2ShowEquipButton.onClick.AddListener(() => OnShowEquipToggle(false));
 
             bookButtonsWired = true;
-        }
-
-        public void OnBookSelected(bool isPlayer1, int bookIdx)
-        {
-            if (battleUI == null) return;
-            battleUI.SetSelectedBook(isPlayer1, (BookType)bookIdx);
-            if (gameState != null)
-                battleUI.RefreshBook(isPlayer1 ? gameState.player1 : gameState.player2, isPlayer1);
         }
 
         // ---------- Turn and Timer UI Generator ----------
@@ -573,33 +550,16 @@ namespace Botte.Core
                     }
                     break;
                 case GameplayActionType.ItemClicked:
-                    if (arg1 >= 0 && arg1 < active.itemBook.Count)
-                    {
-                        OnItemClickedLocal(active, (ItemData)active.itemBook[arg1]);
-                    }
+                    if (arg1 >= 0 && arg1 < active.hand.Count && active.hand[arg1] is ItemData it)
+                        OnItemClickedLocal(active, it);
                     break;
                 case GameplayActionType.EquipmentClicked:
-                    if (arg1 >= 0 && arg1 < active.equipmentBook.Count)
-                    {
-                        OnEquipmentClickedLocal(active, (EquipmentData)active.equipmentBook[arg1]);
-                    }
+                    if (arg1 >= 0 && arg1 < active.hand.Count && active.hand[arg1] is EquipmentData eq)
+                        OnEquipmentClickedLocal(active, eq);
                     break;
                 case GameplayActionType.CardRightClicked:
-                    if (arg1 == 0)
-                    {
-                        if (arg2 >= 0 && arg2 < active.hand.Count)
-                            OnCardRightClickedLocal(active, active.hand[arg2]);
-                    }
-                    else if (arg1 == 1)
-                    {
-                        if (arg2 >= 0 && arg2 < active.equipmentBook.Count)
-                            OnCardRightClickedLocal(active, active.equipmentBook[arg2]);
-                    }
-                    else if (arg1 == 2)
-                    {
-                        if (arg2 >= 0 && arg2 < active.itemBook.Count)
-                            OnCardRightClickedLocal(active, active.itemBook[arg2]);
-                    }
+                    if (arg1 >= 0 && arg1 < active.hand.Count)
+                        OnCardRightClickedLocal(active, active.hand[arg1]);
                     break;
                 case GameplayActionType.EquipSlotRightClicked:
                     bool isP1 = arg2 == 1;
@@ -1100,18 +1060,17 @@ namespace Botte.Core
             if (gameState == null || gameState.phase != GamePhase.Preparation) return;
             bool isP1 = gameState.activePlayer == gameState.player1;
 
-            // Entering equip mode: force the equipment book AND show the equipment slots.
-            battleUI.SetSelectedBook(isP1, BookType.Equipment);
+            // Entering equip mode: show the equipment slots.
             battleUI.SetEquipmentSlotsVisible(isP1, true);
             LogAction($"{GetStyledName(gameState.activePlayer)}: modalità equipaggiamento attiva. Clicca un pezzo nel Libro Equipaggiamento (max 2 per turno).");
             RefreshAll();
         }
 
-        // Left-clicking an equipment card in the Equipment book during Preparation equips it.
+        // Left-clicking an equipment card in the hand during Preparation equips it.
         public void OnEquipmentClicked(HeroState owner, EquipmentData equip)
         {
             if (!CanInteractWithOwner(owner)) return;
-            int idx = owner.equipmentBook.IndexOf(equip);
+            int idx = owner.hand.IndexOf(equip);
             ExecuteAction(GameplayActionType.EquipmentClicked, idx);
         }
 
@@ -1133,15 +1092,14 @@ namespace Botte.Core
                 return;
             }
 
-            // Both conditions required: the equipment book must be selected AND the slots shown.
+            // Equipment slots must be visible (equip mode active).
             bool isP1 = owner == gameState.player1;
-            BookType selBook = isP1 ? battleUI.p1SelectedBook : battleUI.p2SelectedBook;
-            if (selBook != BookType.Equipment || !battleUI.IsEquipVisible(isP1))
+            if (!battleUI.IsEquipVisible(isP1))
             {
-                battleUI.AddLog("Premi il pulsante Equipaggia per attivare la modalità (serve il Libro Equipaggiamento e gli slot mostrati).");
+                battleUI.AddLog("Premi il pulsante Equipaggia per attivare la modalità equipaggiamento (gli slot devono essere visibili).");
                 return;
             }
-            if (!owner.equipmentBook.Contains(equip)) return;
+            if (!owner.hand.Contains(equip)) return;
 
             if (!EquipmentSystem.MeetsRequirements(owner, equip, out string reqMsg))
             {
@@ -1150,7 +1108,7 @@ namespace Botte.Core
             }
 
             HeroState opponent = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
-            owner.equipmentBook.Remove(equip);
+            owner.hand.Remove(equip);
             var displaced = EquipmentSystem.Equip(owner, equip);
             LogAction($"{GetStyledName(owner)} equipaggia {equip.cardName} ({equip.slotType}).");
             foreach (var d in displaced)
@@ -1162,7 +1120,7 @@ namespace Botte.Core
             RefreshAll();
         }
 
-        // Handles OnDiscard equipment effects then moves the piece to the discard pile.
+        // Handles OnDiscard equipment effects then moves the piece to the shared discard pile.
         private void DiscardEquipment(HeroState owner, HeroState opponent, EquipmentData equip)
         {
             if (equip.specialEffect == EquipEffect.OnDiscardGainMana)
@@ -1175,7 +1133,7 @@ namespace Botte.Core
                 int dealt = CombatActions.DealDamage(owner, opponent, equip.effectValue, false, false);
                 LogAction($"{equip.cardName}: infligge {dealt} danni a {GetStyledName(opponent)}.");
             }
-            owner.discardPile.Add(equip);
+            owner.Discard(equip);
         }
 
         public void OnFinishPrepPressed()
@@ -1218,9 +1176,14 @@ namespace Botte.Core
             HeroState attacker = gameState.activePlayer;
             HeroState defender = (attacker == gameState.player1) ? gameState.player2 : gameState.player1;
 
-            if (CombatActions.TryWeaponAttack(attacker, defender, 2))
+            if (CombatActions.TryWeaponAttack(attacker, defender, 2, out int dealt, out bool blocked))
             {
                 RefreshAll();
+                if (battleUI != null && (blocked || dealt > 0))
+                {
+                    bool defenderIsP1 = defender == gameState.player1;
+                    battleUI.ShowDamageIndicator(defenderIsP1, dealt, blocked);
+                }
                 CheckForWinner();
             }
         }
@@ -1322,7 +1285,7 @@ namespace Botte.Core
             {
                 case MagicType.Instant:
                     owner.hand.Remove(spell);
-                    owner.discardPile.Add(spell);
+                    owner.Discard(spell);
                     break;
                 case MagicType.Aura:
                     if (!owner.activeAuras.Contains(spell)) owner.activeAuras.Add(spell);
@@ -1331,7 +1294,7 @@ namespace Botte.Core
                     if (!owner.exhaustedThisRound.Contains(spell)) owner.exhaustedThisRound.Add(spell);
                     break;
                 case MagicType.Repeatable:
-                    // stays in the spellbook; only discarded by player choice (right-click)
+                    // stays in the hand; only discarded by player choice (right-click)
                     break;
             }
 
@@ -1343,7 +1306,7 @@ namespace Botte.Core
         public void OnItemClicked(HeroState owner, ItemData item)
         {
             if (!CanInteractWithOwner(owner)) return;
-            int idx = owner.itemBook.IndexOf(item);
+            int idx = owner.hand.IndexOf(item);
             ExecuteAction(GameplayActionType.ItemClicked, idx);
         }
 
@@ -1367,9 +1330,9 @@ namespace Botte.Core
 
             owner.cardTypesUsedThisTurn.Add("Item");
 
-            // Items are always discarded into the shared item discard pile after use.
-            owner.itemBook.Remove(item);
-            gameState.itemDiscard.Add(item);
+            // Items are always discarded into the shared discard pile after use.
+            owner.hand.Remove(item);
+            owner.Discard(item);
 
             ResolveDeferred(owner, opponent, result);
 
@@ -1377,31 +1340,13 @@ namespace Botte.Core
             CheckForWinner();
         }
 
-        // ---------- Right click: discard a card from the active hero's books ----------
+        // ---------- Right click: discard a card from the active hero's hand ----------
         public void OnCardRightClicked(HeroState owner, CardData card)
         {
             if (!CanInteractWithOwner(owner)) return;
-            int bookType = -1;
-            int idx = -1;
-            if (card is MagicData m && owner.hand.Contains(m))
-            {
-                bookType = 0;
-                idx = owner.hand.IndexOf(m);
-            }
-            else if (card is EquipmentData eq && owner.equipmentBook.Contains(eq))
-            {
-                bookType = 1;
-                idx = owner.equipmentBook.IndexOf(eq);
-            }
-            else if (card is ItemData item && owner.itemBook.Contains(item))
-            {
-                bookType = 2;
-                idx = owner.itemBook.IndexOf(item);
-            }
-            if (bookType != -1 && idx != -1)
-            {
-                ExecuteAction(GameplayActionType.CardRightClicked, bookType, idx);
-            }
+            int idx = owner.hand.IndexOf(card);
+            if (idx != -1)
+                ExecuteAction(GameplayActionType.CardRightClicked, idx);
         }
 
         public void OnCardRightClickedLocal(HeroState owner, CardData card)
@@ -1412,30 +1357,30 @@ namespace Botte.Core
                 return;
             }
 
-            if (card is ItemData item && owner.itemBook.Contains(item))
+            if (!owner.hand.Contains(card)) return;
+
+            if (card is ItemData item)
             {
-                owner.itemBook.Remove(item);
-                gameState.itemDiscard.Add(item);
+                owner.hand.Remove(item);
+                owner.Discard(item);
                 LogAction($"{GetStyledName(owner)} scarta l'oggetto {item.cardName}.");
             }
-            else if (card is MagicData spell && owner.hand.Contains(spell))
+            else if (card is MagicData spell)
             {
                 owner.hand.Remove(spell);
-                owner.discardPile.Add(spell);
+                owner.Discard(spell);
                 owner.activeAuras.Remove(spell);
-                LogAction($"{GetStyledName(owner)} scarta {spell.cardName} dal libro incantesimi.");
+                LogAction($"{GetStyledName(owner)} scarta {spell.cardName} dalla mano.");
             }
-            else if (card is EquipmentData eq && owner.equipmentBook.Contains(eq))
+            else if (card is EquipmentData eq)
             {
                 HeroState opp = (owner == gameState.player1) ? gameState.player2 : gameState.player1;
-                owner.equipmentBook.Remove(eq);
+                owner.hand.Remove(eq);
                 DiscardEquipment(owner, opp, eq);
                 LogAction($"{GetStyledName(owner)} scarta l'equipaggiamento {eq.cardName}.");
             }
-            else
-            {
-                return;
-            }
+            else return;
+
             RefreshAll();
         }
 
@@ -1588,64 +1533,21 @@ namespace Botte.Core
                     numEquip = 1; numSpells = 2; numItems = 1; break;
             }
 
-            for (int i = 0; i < numEquip; i++) DrawStartingCard(hero, DeckChoice.Equipment);
-            for (int i = 0; i < numSpells; i++) DrawStartingCard(hero, DeckChoice.Spell);
-            for (int i = 0; i < numItems; i++) DrawStartingCard(hero, DeckChoice.Item);
+            int total = numEquip + numSpells + numItems;
+            // DeckChoice arg is irrelevant — all draw from the single unified hero.deck.
+            for (int i = 0; i < total; i++) DrawStartingCard(hero, DeckChoice.Spell);
         }
 
+        // DeckChoice parameter kept for signature compatibility but is now ignored.
+        // All cards are drawn from hero.deck (the single unified draw pile). No size limit.
         private void DrawStartingCard(HeroState hero, DeckChoice deck)
         {
-            if (deck == DeckChoice.Item)
-            {
-                if (gameState.itemDeck.Count > 0)
-                {
-                    int idx = Random.Range(0, gameState.itemDeck.Count);
-                    CardData card = gameState.itemDeck[idx];
-                    gameState.itemDeck.RemoveAt(idx);
-                    if (hero.itemBook.Count < HeroState.MAX_BOOK_SIZE)
-                    {
-                        hero.itemBook.Add(card);
-                    }
-                    else
-                    {
-                        gameState.itemDiscard.Add(card);
-                    }
-                }
-            }
-            else if (deck == DeckChoice.Equipment)
-            {
-                if (hero.equipmentDeck.Count > 0)
-                {
-                    int idx = Random.Range(0, hero.equipmentDeck.Count);
-                    CardData card = hero.equipmentDeck[idx];
-                    hero.equipmentDeck.RemoveAt(idx);
-                    if (hero.equipmentBook.Count < HeroState.MAX_BOOK_SIZE)
-                    {
-                        hero.equipmentBook.Add(card);
-                    }
-                    else
-                    {
-                        hero.discardPile.Add(card);
-                    }
-                }
-            }
-            else if (deck == DeckChoice.Spell)
-            {
-                if (hero.magicDeck.Count > 0)
-                {
-                    int idx = Random.Range(0, hero.magicDeck.Count);
-                    CardData card = hero.magicDeck[idx];
-                    hero.magicDeck.RemoveAt(idx);
-                    if (hero.hand.Count < HeroState.MAX_BOOK_SIZE)
-                    {
-                        hero.hand.Add(card);
-                    }
-                    else
-                    {
-                        hero.discardPile.Add(card);
-                    }
-                }
-            }
+            if (hero.deck.Count == 0) { ApplyFatigue(hero); return; }
+            int idx = Random.Range(0, hero.deck.Count);
+            CardData card = hero.deck[idx];
+            hero.deck.RemoveAt(idx);
+            hero.hand.Add(card);
+            if (battleUI != null) battleUI.FlagDrawnCard(hero, card);
         }
 
         private void ApplyFatigue(HeroState hero)
@@ -1658,6 +1560,8 @@ namespace Botte.Core
         }
 
         // ---------- Concrete draws ----------
+        // DeckChoice parameter kept for signature/call-site compatibility but is now ignored.
+        // All draws use the single unified hero.deck. No size limit on the hand.
         private void DrawOneFromDeck(HeroState hero, DeckChoice deck)
         {
             string prepPrefix = "";
@@ -1666,126 +1570,57 @@ namespace Botte.Core
                 prepPrefix = (prepDrawsThisPhase == 0) ? "[1° pescaggio di preparazione] " : "[2° pescaggio di preparazione] ";
             }
 
-            if (deck == DeckChoice.Item)
+            if (hero.deck.Count == 0)
             {
-                if (gameState.itemDeck.Count == 0)
-                {
-                    ApplyFatigue(hero);
-                    return;
-                }
-                int idx = Random.Range(0, gameState.itemDeck.Count);
-                CardData card = gameState.itemDeck[idx];
-                gameState.itemDeck.RemoveAt(idx);
-
-                if (hero.itemBook.Count >= HeroState.MAX_BOOK_SIZE)
-                {
-                    gameState.itemDiscard.Add(card);
-                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'oggetto {card.cardName}, ma il suo Libro Oggetti è pieno ({HeroState.MAX_BOOK_SIZE}). Viene scartato immediatamente!");
-                }
-                else
-                {
-                    hero.itemBook.Add(card);
-                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'oggetto {card.cardName}.");
-                }
+                ApplyFatigue(hero);
                 return;
             }
-
-            if (deck == DeckChoice.Equipment)
-            {
-                if (hero.equipmentDeck.Count == 0)
-                {
-                    ApplyFatigue(hero);
-                    return;
-                }
-                int eIdx = Random.Range(0, hero.equipmentDeck.Count);
-                CardData card = hero.equipmentDeck[eIdx];
-                hero.equipmentDeck.RemoveAt(eIdx);
-
-                if (hero.equipmentBook.Count >= HeroState.MAX_BOOK_SIZE)
-                {
-                    hero.discardPile.Add(card);
-                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'equipaggiamento {card.cardName}, ma il suo Libro Equipaggiamento è pieno ({HeroState.MAX_BOOK_SIZE}). Viene scartato immediatamente!");
-                }
-                else
-                {
-                    hero.equipmentBook.Add(card);
-                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca l'equipaggiamento {card.cardName}.");
-                }
-                return;
-            }
-
-            if (deck == DeckChoice.Spell)
-            {
-                if (hero.magicDeck.Count == 0)
-                {
-                    ApplyFatigue(hero);
-                    return;
-                }
-                int sIdx = Random.Range(0, hero.magicDeck.Count);
-                CardData spellCard = hero.magicDeck[sIdx];
-                hero.magicDeck.RemoveAt(sIdx);
-
-                bool isInstant = spellCard is MagicData m && m.magicType == MagicType.Instant;
-                if (hero.hand.Count >= HeroState.MAX_BOOK_SIZE || (!isInstant && hero.IsSpellbookFull()))
-                {
-                    hero.discardPile.Add(spellCard);
-                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca {spellCard.cardName}, ma il suo Libro Incantesimi è pieno ({HeroState.MAX_BOOK_SIZE}). Viene scartata immediatamente!");
-                }
-                else
-                {
-                    hero.hand.Add(spellCard);
-                    LogAction($"{prepPrefix}{GetStyledName(hero)} pesca {spellCard.cardName}.");
-                }
-                return;
-            }
+            int idx = Random.Range(0, hero.deck.Count);
+            CardData card = hero.deck[idx];
+            hero.deck.RemoveAt(idx);
+            hero.hand.Add(card);
+            if (battleUI != null) battleUI.FlagDrawnCard(hero, card);
+            LogAction($"{prepPrefix}{GetStyledName(hero)} pesca {card.cardName}.");
         }
 
+        // Recover a random card from the shared discard pile that belongs to this hero.
         private void DrawFromOwnDiscard(HeroState hero)
         {
-            if (hero.discardPile.Count == 0) { battleUI.AddLog($"{hero.data.heroName} non ha carte negli scarti."); return; }
-            int idx = Random.Range(0, hero.discardPile.Count);
-            CardData card = hero.discardPile[idx];
-            if (hero.hand.Count >= HeroState.MAX_BOOK_SIZE || (card is MagicData m && m.magicType != MagicType.Instant && hero.IsSpellbookFull()))
-            {
-                LogAction($"Libro incantesimi pieno: impossibile recuperare {card.cardName} dagli scarti.");
-                return;
-            }
-            hero.discardPile.RemoveAt(idx);
-            hero.hand.Add(card);
-            LogAction($"{GetStyledName(hero)} recupera {card.cardName} dagli scarti.");
+            var myEntries = new System.Collections.Generic.List<DiscardEntry>();
+            foreach (var e in gameState.discardPile)
+                if (e.playerIndex == hero.playerIndex) myEntries.Add(e);
+
+            if (myEntries.Count == 0) { battleUI.AddLog($"{hero.data.heroName} non ha carte negli scarti."); return; }
+            int idx = Random.Range(0, myEntries.Count);
+            DiscardEntry entry = myEntries[idx];
+            gameState.discardPile.Remove(entry);
+            hero.hand.Add(entry.card);
+            if (battleUI != null) battleUI.FlagDrawnCard(hero, entry.card);
+            LogAction($"{GetStyledName(hero)} recupera {entry.card.cardName} dagli scarti.");
         }
 
-        // Saccheggio: grab a card from opponent discard into own spellbook (ignores size limit).
+        // Saccheggio: grab a random card from the opponent's entries in the shared discard pile.
         private void StealFromOpponentDiscard(HeroState owner, HeroState opponent)
         {
-            if (opponent.discardPile.Count == 0) { battleUI.AddLog($"{opponent.data.heroName} non ha carte negli scarti da rubare."); return; }
-            int idx = Random.Range(0, opponent.discardPile.Count);
-            CardData card = opponent.discardPile[idx];
-            opponent.discardPile.RemoveAt(idx);
-            
-            owner.hand.Add(card);
-            LogAction($"{GetStyledName(owner)} ruba {card.cardName} dagli scarti di {GetStyledName(opponent)} (limite ignorato).");
+            var oppEntries = new System.Collections.Generic.List<DiscardEntry>();
+            foreach (var e in gameState.discardPile)
+                if (e.playerIndex == opponent.playerIndex) oppEntries.Add(e);
+
+            if (oppEntries.Count == 0) { battleUI.AddLog($"{opponent.data.heroName} non ha carte negli scarti da rubare."); return; }
+            int idx = Random.Range(0, oppEntries.Count);
+            DiscardEntry entry = oppEntries[idx];
+            gameState.discardPile.Remove(entry);
+            owner.hand.Add(entry.card);
+            if (battleUI != null) battleUI.FlagDrawnCard(owner, entry.card);
+            LogAction($"{GetStyledName(owner)} ruba {entry.card.cardName} dagli scarti di {GetStyledName(opponent)}.");
         }
 
-        // Manipolazione: reveal top card of a chosen deck, then keep or discard it.
+        // Manipolazione: reveal top card of the unified deck, then keep or discard it.
+        // DeckChoice parameter kept for signature compatibility but is now ignored.
         private void DoPeek(HeroState hero, DeckChoice deck)
         {
-            CardData top = null;
-            if (deck == DeckChoice.Item)
-            {
-                if (gameState.itemDeck.Count == 0) { battleUI.AddLog("Il mazzo oggetti è vuoto."); return; }
-                top = gameState.itemDeck[0];
-            }
-            else if (deck == DeckChoice.Equipment)
-            {
-                if (hero.equipmentDeck.Count == 0) { battleUI.AddLog(Loc.T("Il mazzo equipaggiamento è vuoto.")); return; }
-                top = hero.equipmentDeck[0];
-            }
-            else
-            {
-                if (hero.magicDeck.Count == 0) { battleUI.AddLog($"Il mazzo incantesimi di {hero.data.heroName} è vuoto."); return; }
-                top = hero.magicDeck[0];
-            }
+            if (hero.deck.Count == 0) { battleUI.AddLog($"Il mazzo di {hero.data.heroName} è vuoto."); return; }
+            CardData top = hero.deck[0];
             pendingPeekDeck = deck;
             pendingPeekCard = top;
             if (IsMyTurn()) battleUI.ShowPeek(top.cardName);
@@ -1802,28 +1637,9 @@ namespace Botte.Core
             battleUI.HidePeek();
             if (pendingPeekCard == null) return;
             HeroState hero = pendingDrawHero;
-            if (pendingPeekDeck == DeckChoice.Item)
-            {
-                gameState.itemDeck.Remove(pendingPeekCard);
-                hero.itemBook.Add(pendingPeekCard);
-                battleUI.AddLog(string.Format(Loc.T("{0} tiene l'oggetto {1}."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
-            }
-            else
-            {
-                bool isInstant = pendingPeekCard is MagicData m && m.magicType == MagicType.Instant;
-                if (!isInstant && hero.IsSpellbookFull())
-                {
-                    battleUI.AddLog($"Libro pieno: {pendingPeekCard.cardName} viene scartata invece di essere tenuta.");
-                    hero.magicDeck.Remove(pendingPeekCard);
-                    hero.discardPile.Add(pendingPeekCard);
-                }
-                else
-                {
-                    hero.magicDeck.Remove(pendingPeekCard);
-                    hero.hand.Add(pendingPeekCard);
-                    battleUI.AddLog(string.Format(Loc.T("{0} tiene {1}."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
-                }
-            }
+            hero.deck.Remove(pendingPeekCard);
+            hero.hand.Add(pendingPeekCard);
+            battleUI.AddLog(string.Format(Loc.T("{0} tiene {1}."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
             pendingPeekCard = null;
             pendingDrawHero = null;
             RefreshAll();
@@ -1840,16 +1656,8 @@ namespace Botte.Core
             battleUI.HidePeek();
             if (pendingPeekCard == null) return;
             HeroState hero = pendingDrawHero;
-            if (pendingPeekDeck == DeckChoice.Item)
-            {
-                gameState.itemDeck.Remove(pendingPeekCard);
-                gameState.itemDiscard.Add(pendingPeekCard);
-            }
-            else
-            {
-                hero.magicDeck.Remove(pendingPeekCard);
-                hero.discardPile.Add(pendingPeekCard);
-            }
+            hero.deck.Remove(pendingPeekCard);
+            hero.Discard(pendingPeekCard);
             battleUI.AddLog(string.Format(Loc.T("{0} scarta {1} dalla cima del mazzo."), hero.data.heroName, Loc.CardName(pendingPeekCard.cardName)));
             pendingPeekCard = null;
             pendingDrawHero = null;
@@ -2030,6 +1838,7 @@ namespace Botte.Core
             battleUI.RefreshEquipment(gameState.player2, false);
             RefreshTurnPhaseText();
             battleUI.RefreshDrawTitle();
+            battleUI.RefreshDiscardPile(gameState);
         }
 
         // Rebuilds the top-panel round & phase labels in the current language. The MM:SS timer

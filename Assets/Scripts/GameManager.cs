@@ -29,14 +29,10 @@ public class GameManager : MonoBehaviour
         HeroState player1 = new HeroState(CreateHeroData(p1Class));
         HeroState player2 = new HeroState(CreateHeroData(p2Class));
 
-        player1.magicDeck = DeckBuilder.BuildSpellDeck(p1Class);
-        player2.magicDeck = DeckBuilder.BuildSpellDeck(p2Class);
-
-        player1.equipmentDeck = DeckBuilder.BuildEquipmentDeck(p1Class);
-        player2.equipmentDeck = DeckBuilder.BuildEquipmentDeck(p2Class);
+        player1.deck = DeckBuilder.BuildUnifiedDeck(p1Class);
+        player2.deck = DeckBuilder.BuildUnifiedDeck(p2Class);
 
         gameState = new GameState(player1, player2);
-        gameState.itemDeck = DeckBuilder.BuildItemDeck();
 
         // Decide who starts based on the hero who has higher starting max stamina (agility).
         int p1Stam = player1.GetModifiedAgility();
@@ -50,6 +46,6 @@ public class GameManager : MonoBehaviour
             gameState.activePlayer = player1;
         }
 
-        Debug.Log($"Game initialized. P1: {player1.data.heroName} ({p1Class}) vs P2: {player2.data.heroName} ({p2Class}). Item deck: {gameState.itemDeck.Count} carte. Higher stamina starts: {gameState.activePlayer.data.heroName}.");
+        Debug.Log($"Game initialized. P1: {player1.data.heroName} ({p1Class}, {player1.deck.Count} carte) vs P2: {player2.data.heroName} ({p2Class}, {player2.deck.Count} carte). Stamina più alta inizia: {gameState.activePlayer.data.heroName}.");
     }
 }
