@@ -258,6 +258,12 @@ namespace Botte.Core
 
         public void OnPlayMenuPressed()
         {
+            // Reset match-scoped state here — this is the character-select entry point for
+            // every new match. Do NOT reset per-round inside OnStartBattlePressedLocal.
+            _p1RoundWins = 0;
+            _p2RoundWins = 0;
+            _matchStatsRecorded = false;
+
             if (battleUI != null && battleUI.mainMenuPanel != null)
                 battleUI.mainMenuPanel.SetActive(false);
             ShowCharacterSelect();
@@ -829,6 +835,8 @@ namespace Botte.Core
         {
             if (!selectedP1.HasValue || !selectedP2.HasValue) return;
 
+            _statsRecorded = false;
+            _roundResolved = false;  // Allow the next round's EndBattle to process normally.
             gameManager.InitGame(selectedP1.Value, selectedP2.Value);
             gameState = gameManager.gameState;
             turnManager = new TurnManager(gameState);
@@ -840,6 +848,8 @@ namespace Botte.Core
                 if (battleUI.winnerOverlay != null) battleUI.winnerOverlay.SetActive(false);
                 battleUI.ClearLog();
             }
+
+            HideRoundBanner();
 
             // Hide the optional draw prep button as the 2 draws are now obligatory
             if (drawPrepButton != null) drawPrepButton.gameObject.SetActive(false);
@@ -921,19 +931,22 @@ namespace Botte.Core
             }
 
             // --- Reset and start timer ---
+            // Durations come from the active lobby config (set by the host, synced to clients).
+            // Fall back to the original hardcoded values if no config is present.
+            LobbyConfig cfg = ActiveLobby.Config;
             if (gameState.phase == GamePhase.Preparation)
             {
-                phaseTimer = 30f;
+                phaseTimer = cfg != null ? (float)cfg.prepSeconds : 30f;
                 timerActive = true;
             }
             else if (gameState.phase == GamePhase.Combat)
             {
-                phaseTimer = 60f;
+                phaseTimer = cfg != null ? (float)cfg.combatSeconds : 60f;
                 timerActive = true;
             }
             else if (gameState.phase == GamePhase.EndPhase)
             {
-                phaseTimer = 20f;
+                phaseTimer = cfg != null ? (float)cfg.endSeconds : 20f;
                 timerActive = true;
             }
             else
@@ -1665,6 +1678,44 @@ namespace Botte.Core
         }
 
         // ---------- Win / restart / exit ----------
+        // Guards against recording the same match's result more than once (CheckForWinner can
+        // be reached multiple times while damage is resolved).
+        private bool _statsRecorded;
+
+        // Best-of-N match state — reset once at match start (OnPlayMenuPressed), NOT per round.
+        private int _p1RoundWins;
+        private int _p2RoundWins;
+        private bool _matchStatsRecorded;
+
+        // Prevents EndBattle from processing the same round result twice when CheckForWinner
+        // fires multiple times during damage resolution. Reset to false at round start.
+        private bool _roundResolved;
+
+        // Runtime round-score banner shown between rounds (created lazily under BattleScreen).
+        private TextMeshProUGUI _roundScoreText;
+        private Coroutine _nextRoundCoroutine;
+
+        // Records the LOCAL player's match result into their saved profile. In multiplayer this
+        // runs on each peer for its own hero (host = Player 1, client = Player 2); in local
+        // hotseat the profile owner is treated as Player 1.
+        // Gated by _matchStatsRecorded so it fires exactly once per match (not once per round).
+        private void RecordLocalMatchResult(HeroState winner)
+        {
+            if (_matchStatsRecorded || gameState == null || winner == null) return;
+
+            HeroState myHero;
+            if (RelayManager.IsMultiplayer && Unity.Netcode.NetworkManager.Singleton != null)
+                myHero = Unity.Netcode.NetworkManager.Singleton.IsServer ? gameState.player1 : gameState.player2;
+            else
+                myHero = gameState.player1;
+
+            if (myHero == null || myHero.data == null) return;
+
+            bool won = winner == myHero;
+            PlayerProfileManager.RecordMatch(myHero.data.heroClass, won);
+            _matchStatsRecorded = true;
+        }
+
         private bool CheckForWinner()
         {
             if (gameState == null) return false;
@@ -1675,25 +1726,61 @@ namespace Botte.Core
 
         private void EndBattle(HeroState winner)
         {
-            SetAllButtonsInteractable(false);
+            // Guard: CheckForWinner can fire multiple times during damage resolution.
+            // Only the first call per round should process the result.
+            if (_roundResolved) return;
+            _roundResolved = true;
 
-            if (RelayManager.IsMultiplayer)
+            // Both peers run this increment (deterministic sim keeps them in sync).
+            if (winner == gameState.player1) _p1RoundWins++;
+            else _p2RoundWins++;
+
+            int roundsNeeded = (ActiveLobby.Config != null) ? ActiveLobby.Config.RoundsToWin : 1;
+            bool matchOver = (_p1RoundWins >= roundsNeeded || _p2RoundWins >= roundsNeeded);
+
+            if (matchOver)
             {
-                // The simulation runs on both peers, so only the SERVER broadcasts the winner.
-                // The server resolves the winner's real nickname (never "Host"/"Client") and the
-                // ClientRpc shows the winner window on both peers, still on the battle screen.
-                if (Unity.Netcode.NetworkManager.Singleton != null && Unity.Netcode.NetworkManager.Singleton.IsServer
-                    && RelayManager.Instance != null)
+                // Match decided — record stats exactly once (gated by _matchStatsRecorded).
+                RecordLocalMatchResult(winner);
+                SetAllButtonsInteractable(false);
+
+                if (RelayManager.IsMultiplayer)
+                {
+                    // Only the SERVER broadcasts the winner; ClientRpc shows the end screen
+                    // on both peers via ShowNetworkWinner.
+                    if (Unity.Netcode.NetworkManager.Singleton != null
+                        && Unity.Netcode.NetworkManager.Singleton.IsServer
+                        && RelayManager.Instance != null)
+                    {
+                        bool hostWon = winner == gameState.player1;
+                        string winnerName = RelayManager.Instance.GetWinnerDisplayName(hostWon);
+                        RelayManager.Instance.BroadcastWinner(winnerName);
+                    }
+                    return;
+                }
+
+                // Local (hotseat) play.
+                ShowEndGameScreen(winner.data.heroName, false);
+            }
+            else
+            {
+                // Round finished but the match is still alive — start the next round.
+                SetAllButtonsInteractable(false);
+
+                // Build a round-winner label appropriate for the context.
+                string roundWinnerLabel = winner.data.heroName;
+                if (RelayManager.IsMultiplayer && RelayManager.Instance != null)
                 {
                     bool hostWon = winner == gameState.player1;
-                    string winnerName = RelayManager.Instance.GetWinnerDisplayName(hostWon);
-                    RelayManager.Instance.BroadcastWinner(winnerName);
+                    string resolved = RelayManager.Instance.GetWinnerDisplayName(hostWon);
+                    if (!string.IsNullOrEmpty(resolved)) roundWinnerLabel = resolved;
                 }
-                return;
-            }
 
-            // Local (hotseat) play: announce the winning hero and offer replay / main menu.
-            ShowEndGameScreen(winner.data.heroName, false);
+                ShowRoundBanner(roundWinnerLabel, _p1RoundWins, _p2RoundWins);
+
+                if (_nextRoundCoroutine != null) StopCoroutine(_nextRoundCoroutine);
+                _nextRoundCoroutine = StartCoroutine(StartNextRoundAfterDelay());
+            }
         }
 
         // Called on both peers via RelayManager's winner ClientRpc.
@@ -1876,6 +1963,89 @@ namespace Botte.Core
             if (finishPrepButton != null) finishPrepButton.interactable = value;
             if (sleepButton != null) sleepButton.interactable = value;
             if (drawExtraButton != null) drawExtraButton.interactable = value;
+        }
+
+        // ---------- Round-score banner helpers ----------
+
+        // Creates (or reuses) a centered TMP text overlay for displaying the inter-round score.
+        // Parented under the existing BattleScreen so it sits on top of the board without any
+        // scene-asset edits.
+        private void EnsureRoundScoreUI()
+        {
+            if (_roundScoreText != null) return;
+
+            // Prefer the battleUI reference; fall back to a scene find.
+            GameObject battleScreen = (battleUI != null && battleUI.battleScreen != null)
+                ? battleUI.battleScreen
+                : GameObject.Find("Canvas/BattleScreen");
+            if (battleScreen == null) return;
+
+            var existing = battleScreen.transform.Find("RoundScoreBanner");
+            if (existing != null)
+            {
+                _roundScoreText = existing.GetComponent<TextMeshProUGUI>();
+                return;
+            }
+
+            var go = new GameObject("RoundScoreBanner");
+            go.transform.SetParent(battleScreen.transform, false);
+            _roundScoreText = go.AddComponent<TextMeshProUGUI>();
+            _roundScoreText.fontSize = 52f;
+            _roundScoreText.fontStyle = FontStyles.Bold;
+            _roundScoreText.alignment = TextAlignmentOptions.Center;
+            _roundScoreText.raycastTarget = false;
+            _roundScoreText.enableWordWrapping = false;
+            _roundScoreText.color = new Color32(0xFF, 0xD7, 0x00, 0xFF); // gold
+
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot    = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = new Vector2(0f, 60f);
+            rt.sizeDelta = new Vector2(820f, 140f);
+
+            go.SetActive(false);
+        }
+
+        // Displays "Round a <name>!\n<p1Wins> – <p2Wins>" over the board.
+        private void ShowRoundBanner(string roundWinnerName, int p1Wins, int p2Wins)
+        {
+            EnsureRoundScoreUI();
+            if (_roundScoreText == null) return;
+            _roundScoreText.text = $"Round a {roundWinnerName}!\n{p1Wins} – {p2Wins}";
+            _roundScoreText.gameObject.SetActive(true);
+        }
+
+        private void HideRoundBanner()
+        {
+            if (_roundScoreText != null) _roundScoreText.gameObject.SetActive(false);
+        }
+
+        // Waits 2 seconds, hides the round banner, then triggers the next round.
+        // In multiplayer, only the SERVER calls SendStartBattle; StartBattleClientRpc runs
+        // OnStartBattlePressedLocal on both peers (seeding Random identically first).
+        // In local play, OnStartBattlePressedLocal is called directly.
+        private System.Collections.IEnumerator StartNextRoundAfterDelay()
+        {
+            yield return new WaitForSecondsRealtime(2f);
+            HideRoundBanner();
+
+            if (RelayManager.IsMultiplayer)
+            {
+                if (Unity.Netcode.NetworkManager.Singleton != null
+                    && Unity.Netcode.NetworkManager.Singleton.IsServer
+                    && RelayManager.Instance != null)
+                {
+                    int seed = UnityEngine.Random.Range(1, 100000);
+                    RelayManager.Instance.SendStartBattle(seed);
+                }
+                // The client peer does nothing here — it will receive StartBattleClientRpc
+                // from the server which calls OnStartBattlePressedLocal on its side.
+            }
+            else
+            {
+                OnStartBattlePressedLocal();
+            }
         }
     }
 }

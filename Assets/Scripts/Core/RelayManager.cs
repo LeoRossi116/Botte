@@ -29,6 +29,11 @@ public class RelayManager : NetworkBehaviour
 
     private Coroutine _errorCoroutine;
     private UnityEngine.UI.Button _startGameButton;
+    // --- READY SYSTEM & CONFIG DISPLAY FIELDS ---
+    private TextMeshProUGUI _startButtonText;  // TMP text child of _startGameButton
+    private TextMeshProUGUI _lobbyConfigText;  // read-only config display in lobby panel
+    private bool _clientReady;                 // server: whether the connected client is ready
+    private bool _localClientReady;            // client: own ready toggle state
 
     private readonly System.Collections.Generic.Dictionary<ulong, string> _playerNames = new System.Collections.Generic.Dictionary<ulong, string>();
 
@@ -139,10 +144,27 @@ public class RelayManager : NetworkBehaviour
         if (lobbyPanel != null) lobbyPanel.SetActive(true);
         if (generatedCodeText != null) generatedCodeText.text = $"Codice Stanza: <color=yellow>{joinCode}</color>";
 
+        // The start/ready button is shown to both host and client; only its role differs.
         if (_startGameButton != null)
         {
-            _startGameButton.gameObject.SetActive(isHost);
+            _startGameButton.gameObject.SetActive(true);
+            if (isHost)
+            {
+                // Reset server-side client-ready whenever the lobby is (re)opened.
+                _clientReady = false;
+                UpdateStartButtonInteractable();
+            }
+            else
+            {
+                // Client entering / re-entering lobby: reset local ready state.
+                _localClientReady = false;
+                if (_startButtonText != null) _startButtonText.text = "READY";
+                _startGameButton.interactable = true;
+            }
         }
+
+        // Populate (or refresh) the read-only settings display for this peer.
+        RefreshLobbyConfigDisplay();
 
         // Reset chat for a fresh lobby session
         _chatHistory.Clear();
@@ -171,13 +193,20 @@ public class RelayManager : NetworkBehaviour
         // "disconnected" error over a victory / normal message.
         _leavingIntentionally = true;
 
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        // Route through the managed session layer when a session is active; the session
+        // SDK tears down the NGO relay connection automatically. Fall back to a direct
+        // Shutdown only when there is no managed session (e.g. local solo game).
+        if (SceneUIManager.CurrentSession != null)
+        {
+            _ = SceneUIManager.LeaveCurrentSessionAsync();
+        }
+        else if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
         {
             NetworkManager.Singleton.Shutdown();
         }
 
         if (joinCodeInputField != null) joinCodeInputField.text = "";
-        
+
         lobbyPanel.SetActive(false);
         mainMenuPanel.SetActive(true);
     }
@@ -193,7 +222,10 @@ public class RelayManager : NetworkBehaviour
                 NetworkManager.Singleton.DisconnectClient(clientId, "Lobby is full!");
                 return;
             }
+            // A new player in the lobby means ready state must be rechecked.
+            _clientReady = false;
             UpdateAndBroadcastPlayerList();
+            UpdateStartButtonInteractable();
         }
     }
 
@@ -202,7 +234,10 @@ public class RelayManager : NetworkBehaviour
         if (NetworkManager.Singleton.IsServer)
         {
             _playerNames.Remove(clientId);
+            // Disconnected client is no longer ready; re-gate the Start button.
+            _clientReady = false;
             UpdateAndBroadcastPlayerList();
+            UpdateStartButtonInteractable();
             return;
         }
 
@@ -244,6 +279,8 @@ public class RelayManager : NetworkBehaviour
         ulong senderId = serverRpcParams.Receive.SenderClientId;
         _playerNames[senderId] = nickname;
         UpdateAndBroadcastPlayerList();
+        // Belt-and-suspenders: sync the host's lobby config to the newly registered client.
+        BroadcastLobbyConfig();
     }
 
     // --- NETWORK STRING BUILDER & SYNC ENGINE ---
@@ -264,6 +301,12 @@ public class RelayManager : NetworkBehaviour
             {
                 name = (id == NetworkManager.ServerClientId) ? "Host" : "Client";
             }
+            // Append ready status for non-host clients so both peers can see it.
+            if (id != NetworkManager.ServerClientId)
+                name += _clientReady
+                    ? " <color=#2ECC71>(Ready)</color>"
+                    : " <color=#FF6B6B>(Not Ready)</color>";
+
             listBuilder += $"    - {name}\n";
         }
 
@@ -312,6 +355,8 @@ public class RelayManager : NetworkBehaviour
     private void RequestPlayerListRefreshServerRpc()
     {
         UpdateAndBroadcastPlayerList();
+        // Belt-and-suspenders: ensure the client has the host's lobby config.
+        BroadcastLobbyConfig();
     }
 
     // --- LOBBY TEXT CHAT ---
@@ -446,15 +491,30 @@ public class RelayManager : NetworkBehaviour
             _copyCodeButton.onClick.AddListener(CopyCodeToClipboard);
         }
 
-        // Dynamically find and bind StartGameButton
+        // Dynamically find and bind StartGameButton.
+        // The button is shown on BOTH host (as "Start") and client (as "READY").
         if (lobbyPanel != null)
         {
             _startGameButton = lobbyPanel.transform.Find("StartGameButton")?.GetComponent<UnityEngine.UI.Button>();
             if (_startGameButton != null)
             {
+                _startButtonText = _startGameButton.GetComponentInChildren<TextMeshProUGUI>();
                 _startGameButton.onClick.RemoveAllListeners();
-                _startGameButton.onClick.AddListener(OnStartGameButtonClicked);
-                _startGameButton.gameObject.SetActive(NetworkManager.Singleton.IsServer);
+                _startGameButton.gameObject.SetActive(true); // visible to both host and client
+
+                if (NetworkManager.Singleton.IsServer)
+                {
+                    // Host: wire to start game; initially not interactable until client is ready.
+                    _startGameButton.onClick.AddListener(OnStartGameButtonClicked);
+                    _startGameButton.interactable = false;
+                }
+                else
+                {
+                    // Client: relabel to READY and wire the ready toggle.
+                    if (_startButtonText != null) _startButtonText.text = "READY";
+                    _startGameButton.onClick.AddListener(OnReadyButtonClicked);
+                    _startGameButton.interactable = true;
+                }
             }
 
             // Dynamically find and bind the lobby chat UI (children of "ChatPanel")
@@ -498,6 +558,8 @@ public class RelayManager : NetworkBehaviour
         }
         else if (playerCount == 2)
         {
+            // Lock the session so it leaves the public browse list once the match begins.
+            _ = SceneUIManager.LockCurrentSessionAsync();
             // 2 players -> start multiplayer character select!
             StartMultiplayerCharacterSelectClientRpc();
         }
@@ -743,5 +805,115 @@ public class RelayManager : NetworkBehaviour
         if (bm != null) bm.ForceReturnToMainMenu();
 
         ToMainMenu();
+    }
+
+    // --- READY SYSTEM ---
+
+    // Called on the client when the player clicks the READY button (which reuses StartGameButton).
+    private void OnReadyButtonClicked()
+    {
+        _localClientReady = !_localClientReady;
+        if (_startButtonText != null)
+            _startButtonText.text = _localClientReady ? "READY \u2713" : "READY";
+        SetClientReadyServerRpc(_localClientReady);
+    }
+
+    // Client → Server: update the ready state and refresh gating + player list on both peers.
+    [ServerRpc(RequireOwnership = false)]
+    private void SetClientReadyServerRpc(bool ready)
+    {
+        _clientReady = ready;
+        UpdateAndBroadcastPlayerList();
+        UpdateStartButtonInteractable();
+    }
+
+    // Server-only: recompute whether the host's Start button should be interactable.
+    // Rules: 1 player (solo) → always startable; 2 players → require client ready.
+    private void UpdateStartButtonInteractable()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        if (_startGameButton == null) return;
+        int playerCount = NetworkManager.Singleton.ConnectedClientsIds.Count;
+        bool canStart = (playerCount == 1) || (playerCount >= 2 && _clientReady);
+        _startGameButton.interactable = canStart;
+    }
+
+    // --- HOST → CLIENT CONFIG SYNC ---
+
+    // Server helper: reads ActiveLobby.Config and broadcasts it to all clients via ClientRpc.
+    private void BroadcastLobbyConfig()
+    {
+        if (NetworkManager.Singleton == null || !NetworkManager.Singleton.IsServer) return;
+        LobbyConfig cfg = ActiveLobby.Config;
+        if (cfg == null) return;
+        SyncLobbyConfigClientRpc(
+            cfg.lobbyName     ?? "",
+            cfg.isPublic,
+            cfg.hostName      ?? "",
+            cfg.prepSeconds,
+            cfg.combatSeconds,
+            cfg.endSeconds,
+            cfg.bestOf);
+    }
+
+    // Runs on every peer; only clients act on it (server already owns the canonical config).
+    [ClientRpc]
+    private void SyncLobbyConfigClientRpc(
+        string lobbyName, bool isPublic, string hostName,
+        int prep, int combat, int end, int bestOf)
+    {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer) return;
+
+        ActiveLobby.Config = new LobbyConfig
+        {
+            lobbyName     = lobbyName,
+            isPublic      = isPublic,
+            hostName      = hostName,
+            prepSeconds   = prep,
+            combatSeconds = combat,
+            endSeconds    = end,
+            bestOf        = bestOf,
+        };
+        RefreshLobbyConfigDisplay();
+    }
+
+    // --- READ-ONLY LOBBY CONFIG DISPLAY ---
+
+    // Creates (lazily) and refreshes a TMP text showing lobby settings under the lobby panel.
+    // Called on the host from ShowLobby and on clients from SyncLobbyConfigClientRpc.
+    private void RefreshLobbyConfigDisplay()
+    {
+        if (lobbyPanel == null) return;
+
+        if (_lobbyConfigText == null)
+        {
+            var go = new GameObject("LobbyConfigText", typeof(RectTransform));
+            go.transform.SetParent(lobbyPanel.transform, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin        = new Vector2(0.5f, 1f);
+            rt.anchorMax        = new Vector2(0.5f, 1f);
+            rt.pivot            = new Vector2(0.5f, 1f);
+            rt.sizeDelta        = new Vector2(500f, 80f);
+            rt.anchoredPosition = new Vector2(0f, -90f);
+            _lobbyConfigText = go.AddComponent<TextMeshProUGUI>();
+            _lobbyConfigText.fontSize      = 14f;
+            _lobbyConfigText.alignment     = TextAlignmentOptions.Center;
+            _lobbyConfigText.color         = new Color(0.75f, 0.85f, 1f, 1f);
+            _lobbyConfigText.raycastTarget = false;
+        }
+
+        LobbyConfig cfg = ActiveLobby.Config;
+        if (cfg == null || string.IsNullOrEmpty(cfg.lobbyName))
+        {
+            _lobbyConfigText.text = "";
+            return;
+        }
+
+        string bestOfStr = cfg.bestOf >= 3 ? "Best of 3" : "Best of 1";
+        _lobbyConfigText.text =
+            $"<b>{cfg.lobbyName}</b>\n" +
+            $"Prep <color=#FFD54A>{cfg.prepSeconds}s</color>  " +
+            $"Combat <color=#FFD54A>{cfg.combatSeconds}s</color>  " +
+            $"End <color=#FFD54A>{cfg.endSeconds}s</color>  |  {bestOfStr}";
     }
 }
