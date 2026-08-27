@@ -106,22 +106,31 @@ public class SceneUIManager : MonoBehaviour
     private Coroutine _errorCoroutine;
     private bool _isBusy;
 
-    // ── Lazily-built panels (built once under the Canvas at runtime, no scene edits) ──
-    private GameObject _createLobbyPanel;
-    private GameObject _joinBrowsePanel;
+    [Header("Runtime-authored Lobby Panels")]
+    [Tooltip("CreateLobbyPanel authored in scene (built at runtime as fallback when null).")]
+    [SerializeField] private GameObject _createLobbyPanel;
+    [Tooltip("JoinBrowsePanel authored in scene (built at runtime as fallback when null).")]
+    [SerializeField] private GameObject _joinBrowsePanel;
 
     // CreateLobbyPanel controls
-    private TMP_InputField _lobbyNameInput;
-    private Toggle         _publicToggle;
-    private TMP_InputField _prepInput;
-    private TMP_InputField _combatInput;
-    private TMP_InputField _endInput;
-    private Toggle         _bestOf3Toggle;
+    [SerializeField] private TMP_InputField _lobbyNameInput;
+    [SerializeField] private Toggle         _publicToggle;
+    [SerializeField] private TMP_InputField _prepInput;
+    [SerializeField] private TMP_InputField _combatInput;
+    [SerializeField] private TMP_InputField _endInput;
+    [SerializeField] private Toggle         _bestOf3Toggle;
 
     // JoinBrowsePanel controls
-    private Transform      _sessionListContent;
-    private TMP_InputField _codeEntryInput;
-    private TextMeshProUGUI _browseStatusText;
+    [SerializeField] private Transform      _sessionListContent;
+    [SerializeField] private TMP_InputField _codeEntryInput;
+    [SerializeField] private TextMeshProUGUI _browseStatusText;
+
+    // Interactive buttons (listeners not serialized; re-wired at runtime in Start)
+    [SerializeField] private Button createLobbyConfirmBtn;
+    [SerializeField] private Button createLobbyBackBtn;
+    [SerializeField] private Button joinRefreshBtn;
+    [SerializeField] private Button joinByCodeBtn;
+    [SerializeField] private Button joinBrowseBackBtn;
 
     // UI style constants (placeholder look – dark panel, blue / green buttons)
     private static readonly Color ColDarkPanel   = new Color(0.122f, 0.122f, 0.149f, 0.97f);
@@ -151,8 +160,56 @@ public class SceneUIManager : MonoBehaviour
         if (playPanel     != null) playPanel.SetActive(false);
         if (lobbyPanel    != null) lobbyPanel.SetActive(false);
 
+        // Wire authored panel buttons (listeners are not serialized; re-added at runtime).
+        WireAuthoredPanelButtons();
+
         // Pre-warm UGS / auth so hosting / joining is instant.
         await EnsureServicesReadyAsync();
+    }
+
+    private void WireAuthoredPanelButtons()
+    {
+        // ── CreateLobbyPanel ─────────────────────────────────────────────────
+        if (createLobbyConfirmBtn != null)
+        {
+            createLobbyConfirmBtn.onClick.RemoveAllListeners();
+            createLobbyConfirmBtn.onClick.AddListener(OnCreateLobbyConfirm);
+        }
+        if (createLobbyBackBtn != null)
+        {
+            createLobbyBackBtn.onClick.RemoveAllListeners();
+            createLobbyBackBtn.onClick.AddListener(OnCreateLobbyBack);
+        }
+
+        // ── JoinBrowsePanel ──────────────────────────────────────────────────
+        if (joinRefreshBtn != null)
+        {
+            joinRefreshBtn.onClick.RemoveAllListeners();
+            joinRefreshBtn.onClick.AddListener(() => _ = RefreshSessionListAsync());
+        }
+        if (joinByCodeBtn != null)
+        {
+            joinByCodeBtn.onClick.RemoveAllListeners();
+            joinByCodeBtn.onClick.AddListener(JoinByCodeButtonClicked);
+        }
+        if (joinBrowseBackBtn != null)
+        {
+            joinBrowseBackBtn.onClick.RemoveAllListeners();
+            joinBrowseBackBtn.onClick.AddListener(OnJoinBrowseBack);
+        }
+
+        // Re-apply non-serializable input-field config for authored CodeInput
+        if (_codeEntryInput != null)
+        {
+            _codeEntryInput.characterLimit = 8;
+            _codeEntryInput.onValidateInput = (_, __, c) => char.ToUpper(c);
+            if (_codeEntryInput.placeholder is TextMeshProUGUI ph)
+                ph.text = "Enter room code\u2026";
+        }
+
+        // Ensure panels start inactive
+        if (_createLobbyPanel != null) _createLobbyPanel.SetActive(false);
+        if (_joinBrowsePanel  != null) _joinBrowsePanel.SetActive(false);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -1074,7 +1131,25 @@ public class SceneUIManager : MonoBehaviour
         return int.TryParse(field.text, out int v) ? Mathf.Clamp(v, min, max) : defaultVal;
     }
 
-    private void SafeShutdown()
+    #if UNITY_EDITOR
+        /// <summary>Editor-only: invokes BuildCreateLobbyPanel so the hierarchy can be authored
+        /// into the scene for inspector editing. Skips silently if the panel already exists.</summary>
+        public void Editor_AuthorCreateLobbyPanel(Transform canvas)
+        {
+            if (canvas.Find("CreateLobbyPanel") == null)
+                BuildCreateLobbyPanel(canvas);
+        }
+
+        /// <summary>Editor-only: invokes BuildJoinBrowsePanel so the hierarchy can be authored
+        /// into the scene for inspector editing. Skips silently if the panel already exists.</summary>
+        public void Editor_AuthorJoinBrowsePanel(Transform canvas)
+        {
+            if (canvas.Find("JoinBrowsePanel") == null)
+                BuildJoinBrowsePanel(canvas);
+        }
+    #endif
+
+        private void SafeShutdown()
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();

@@ -741,7 +741,25 @@ namespace Botte.Core
             {
                 tooltip = buttons[idx].gameObject.AddComponent<Botte.UI.HeroCardTooltipHint>();
             }
-            tooltip.tooltipText = $"HP: {d.maxHP}\nF (Forza): {d.strength}\nM (Magia): {d.intelligence}\nS (Stamina): {d.agility}";
+            tooltip.tooltipText = $"{ClassStyleDescription(hc)}\n\nHP: {d.maxHP}\nF (Forza): {d.strength}\nM (Magia): {d.intelligence}\nS (Stamina): {d.agility}";
+        }
+
+        // Brief per-class "game style" blurb shown at the top of the character hover pop-up.
+        private static string ClassStyleDescription(HeroClass hc)
+        {
+            switch (hc)
+            {
+                case HeroClass.Warrior:
+                    return "Massimo danno e poche magie: distruggi tutti senza pietà!";
+                case HeroClass.Mage:
+                    return "Poca vita, ma scatena un'infinità di incantesimi devastanti.";
+                case HeroClass.Rogue:
+                    return "Veleno letale, attacchi a raffica ed un'inaspettata, incredibile resistenza.";
+                case HeroClass.Necro:
+                    return "Vinci d'astuzia: statistiche bilanciate e un arsenale di abilità versatili.";
+                default:
+                    return string.Empty;
+            }
         }
 
         public void SelectClass(int player, int classIdx)

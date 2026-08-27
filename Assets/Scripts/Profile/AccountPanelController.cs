@@ -10,16 +10,45 @@ using TMPro;
 // All data comes from the locally-saved PlayerProfileManager.
 public class AccountPanelController : MonoBehaviour
 {
-    private GameObject accountPanel;
-    private TMP_InputField nameInput;
-    private TextMeshProUGUI idText;
-    private TextMeshProUGUI statsText;
+    [Header("Authored Scene References (Panel & Controls)")]
+    [SerializeField] private GameObject accountButton;
+    [SerializeField] private GameObject accountPanel;
+    [SerializeField] private TMP_InputField nameInput;
+    [SerializeField] private TextMeshProUGUI idText;
+    [SerializeField] private TextMeshProUGUI statsText;
+
+    [Header("Authored Scene References (Buttons)")]
+    [SerializeField] private Button accountOpenButton;
+    [SerializeField] private Button backButton;
 
     private void Start()
     {
         // Touch the profile so it loads and generates its ID on first ever access.
         var _ = PlayerProfileManager.Current;
 
+        if (accountPanel != null)
+        {
+            // Panel already exists as an authored scene object – just wire the listeners.
+            if (accountOpenButton != null)
+            {
+                accountOpenButton.onClick.RemoveAllListeners();
+                accountOpenButton.onClick.AddListener(OpenPanel);
+            }
+            if (backButton != null)
+            {
+                backButton.onClick.RemoveAllListeners();
+                backButton.onClick.AddListener(ClosePanel);
+            }
+            if (nameInput != null)
+            {
+                nameInput.onEndEdit.RemoveAllListeners();
+                nameInput.onEndEdit.AddListener(OnNameEdited);
+            }
+            accountPanel.SetActive(false);
+            return;
+        }
+
+        // ── Fallback: build at runtime (no serialized references assigned) ──
         GameObject canvasGo = GameObject.Find("Canvas");
         if (canvasGo == null)
         {
@@ -158,7 +187,20 @@ public class AccountPanelController : MonoBehaviour
         statsText.text = sb.ToString();
     }
 
-    // ---------- Small UI builders (placeholder styling) ----------
+    #if UNITY_EDITOR
+        /// <summary>Editor-only: invokes the private builders so the panel hierarchy can be
+        /// authored into the scene for inspector editing. Call from a RunCommand, not from gameplay code.</summary>
+        public void Editor_AuthorIntoScene(Transform canvas, Transform mainMenuParent)
+        {
+            Transform parent = mainMenuParent ?? canvas;
+            if (parent.Find("AccountButton") == null)
+                BuildOpenButton(parent);
+            if (canvas.Find("AccountPanel") == null)
+                BuildAccountPanel(canvas);
+        }
+    #endif
+
+        // ---------- Small UI builders (placeholder styling) ----------
 
     private TextMeshProUGUI CreateText(Transform parent, string name, string content, float fontSize, TextAlignmentOptions align)
     {
