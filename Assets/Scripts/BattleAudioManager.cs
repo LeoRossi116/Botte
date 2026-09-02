@@ -16,6 +16,13 @@ namespace Botte.Audio
         public AudioClip menuMusic;
         public AudioClip battleMusic;
 
+        [Header("Impostazioni Volume e Bilanciamento")]
+        [Tooltip("Moltiplicatore del volume per la musica del menu/lobby (0.0 a 1.0).")]
+        [Range(0f, 1f)] public float menuMusicVolumeMultiplier = 1.0f;
+
+        [Tooltip("Moltiplicatore del volume per la musica di battaglia (0.0 a 1.0). Abbassato per pareggiare i decibel con la musica del menu/lobby.")]
+        [Range(0f, 1f)] public float battleMusicVolumeMultiplier = 0.25f;
+
         [Header("Impostazioni Transizione")]
         [Range(0.1f, 3f)] public float fadeDuration = 1.0f;
 
@@ -34,9 +41,18 @@ namespace Botte.Audio
                 PlayerPrefs.Save();
                 if (fadeCoroutine == null && audioSource != null)
                 {
-                    audioSource.volume = currentMusicVolume;
+                    audioSource.volume = GetEffectiveVolume();
                 }
             }
+        }
+
+        /// <summary>
+        /// Calcola il volume effettivo applicando il moltiplicatore specifico per la traccia corrente (menu vs battaglia).
+        /// </summary>
+        public float GetEffectiveVolume()
+        {
+            float multiplier = isPlayingBattleMusic ? battleMusicVolumeMultiplier : menuMusicVolumeMultiplier;
+            return currentMusicVolume * multiplier;
         }
 
         private void Awake()
@@ -108,7 +124,7 @@ namespace Botte.Audio
                 {
                     audioSource.clip = initialClip;
                     audioSource.Play();
-                    audioSource.volume = currentMusicVolume;
+                    audioSource.volume = GetEffectiveVolume();
                 }
             }
         }
@@ -116,6 +132,14 @@ namespace Botte.Audio
         private void OnDestroy()
         {
             if (Instance == this) Instance = null;
+        }
+
+        private void OnValidate()
+        {
+            if (audioSource != null && fadeCoroutine == null && Application.isPlaying)
+            {
+                audioSource.volume = GetEffectiveVolume();
+            }
         }
 
         private void TransitionToTrack(AudioClip newClip)
@@ -140,7 +164,7 @@ namespace Botte.Audio
                 if (newClip != null)
                 {
                     audioSource.Play();
-                    yield return StartCoroutine(FadeAudio(currentMusicVolume, fadeDuration / 2f));
+                    yield return StartCoroutine(FadeAudio(GetEffectiveVolume(), fadeDuration / 2f));
                 }
                 else
                 {
@@ -150,7 +174,7 @@ namespace Botte.Audio
             else
             {
                 // Se la clip è già quella giusta (es. era già impostato il menu), si assicura solo che il volume sia corretto
-                yield return StartCoroutine(FadeAudio(currentMusicVolume, fadeDuration / 2f));
+                yield return StartCoroutine(FadeAudio(GetEffectiveVolume(), fadeDuration / 2f));
             }
             
             fadeCoroutine = null;
@@ -164,12 +188,11 @@ namespace Botte.Audio
             while (time < duration)
             {
                 time += Time.deltaTime;
-                float actualTarget = Mathf.Min(targetVolume, currentMusicVolume);
-                audioSource.volume = Mathf.Lerp(startVolume, actualTarget, time / duration);
+                audioSource.volume = Mathf.Lerp(startVolume, targetVolume, time / duration);
                 yield return null;
             }
 
-            audioSource.volume = Mathf.Min(targetVolume, currentMusicVolume);
+            audioSource.volume = targetVolume;
         }
     }
 }

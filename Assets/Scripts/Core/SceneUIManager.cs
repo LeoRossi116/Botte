@@ -19,6 +19,10 @@ public class SceneUIManager : MonoBehaviour
     [Header("Network Prefab")]
     [SerializeField] private NetworkObject relayManagerPrefab;
 
+    [Header("UI Prefabs")]
+    [Tooltip("Prefab instantiated for each lobby found in the browse list. Placed in Assets/Prefabs/ for easy editor modification.")]
+    [SerializeField] private GameObject lobbyRowPrefab;
+
     [Header("Scene UI Panels")]
     [Tooltip("Title / landing page (PLAY · OPTION · EXIT).")]
     [SerializeField] private GameObject mainMenuPanel;
@@ -34,6 +38,8 @@ public class SceneUIManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI errorStatusText;
     [SerializeField] private TextMeshProUGUI generatedCodeText;
     [SerializeField] private TextMeshProUGUI playerListText;
+    [Tooltip("Text displaying the lobby rules/options (durations, best of, etc.). Authored in scene editor.")]
+    [SerializeField] private TextMeshProUGUI lobbyOptionsText;
 
     [Header("Nickname Fields (obsolete – kept for scene backward-compat)")]
     [SerializeField] private Button insertNameButton;
@@ -421,7 +427,8 @@ public class SceneUIManager : MonoBehaviour
                 joinCodeInputField,
                 errorStatusText,
                 generatedCodeText,
-                playerListText);
+                playerListText,
+                lobbyOptionsText);
 
             if (_createLobbyPanel != null) _createLobbyPanel.SetActive(false);
             _activeRelayManager.ShowLobby(CurrentSession.Code, isHost: true);
@@ -643,7 +650,8 @@ public class SceneUIManager : MonoBehaviour
                 joinCodeInputField,
                 errorStatusText,
                 generatedCodeText,
-                playerListText);
+                playerListText,
+                lobbyOptionsText);
 
             if (playPanel != null) playPanel.SetActive(false);
             _activeRelayManager.ShowLobby(code, isHost: false);
@@ -848,32 +856,57 @@ public class SceneUIManager : MonoBehaviour
         string displayName = string.IsNullOrEmpty(name)     ? "(Unnamed Lobby)" : name;
         string displayHost = string.IsNullOrEmpty(hostName) ? "Unknown"         : hostName;
 
-        var rowGo = new GameObject($"Row_{sessionId}",
+        if (lobbyRowPrefab != null)
+        {
+            var rowGo = Instantiate(lobbyRowPrefab, _sessionListContent, false);
+            rowGo.name = $"Row_{sessionId}";
+            var rowItem = rowGo.GetComponent<Botte.UI.LobbyRowItem>();
+            if (rowItem != null)
+            {
+                rowItem.Init(sessionId, displayName, displayHost, id => _ = DoJoinByIdAsync(id));
+            }
+            else
+            {
+                var lblTMP = rowGo.GetComponentInChildren<TextMeshProUGUI>();
+                if (lblTMP != null)
+                    lblTMP.text = $"<b>{displayName}</b>    <color=#8899cc>Host: {displayHost}</color>";
+                var btn = rowGo.GetComponentInChildren<Button>();
+                if (btn != null)
+                {
+                    btn.onClick.RemoveAllListeners();
+                    string capturedId = sessionId;
+                    btn.onClick.AddListener(() => _ = DoJoinByIdAsync(capturedId));
+                }
+            }
+            return;
+        }
+
+        var fallbackRow = new GameObject($"Row_{sessionId}",
             typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(LayoutElement));
-        rowGo.transform.SetParent(_sessionListContent, false);
-        rowGo.GetComponent<Image>().color = new Color(0.20f, 0.20f, 0.24f, 0.90f);
-        rowGo.GetComponent<LayoutElement>().preferredHeight = 54f;
+        fallbackRow.transform.SetParent(_sessionListContent, false);
+        fallbackRow.GetComponent<Image>().color = new Color(0.20f, 0.20f, 0.24f, 0.90f);
+        fallbackRow.GetComponent<LayoutElement>().preferredHeight = 54f;
 
         // Info label
-        var lblGo = new GameObject("Label", typeof(RectTransform));
-        lblGo.transform.SetParent(rowGo.transform, false);
-        var lblRT = lblGo.GetComponent<RectTransform>();
+        var lblFallbackGo = new GameObject("Label", typeof(RectTransform));
+        lblFallbackGo.transform.SetParent(fallbackRow.transform, false);
+        var lblRT = lblFallbackGo.GetComponent<RectTransform>();
         lblRT.anchorMin = new Vector2(0f, 0f);
         lblRT.anchorMax = new Vector2(1f, 1f);
         lblRT.offsetMin = new Vector2(10f, 0f);
         lblRT.offsetMax = new Vector2(-108f, 0f);
-        var lblTMP = lblGo.AddComponent<TextMeshProUGUI>();
-        lblTMP.text          = $"<b>{displayName}</b>    <color=#8899cc>Host: {displayHost}</color>";
-        lblTMP.fontSize      = 15;
-        lblTMP.alignment     = TextAlignmentOptions.Left;
-        lblTMP.color         = Color.white;
-        lblTMP.raycastTarget = false;
-        lblTMP.richText      = true;
+        var lblFallbackTMP = lblFallbackGo.AddComponent<TextMeshProUGUI>();
+        lblFallbackTMP.text          = $"<b>{displayName}</b>    <color=#8899cc>Host: {displayHost}</color>";
+        lblFallbackTMP.fontSize      = 15;
+        lblFallbackTMP.alignment     = TextAlignmentOptions.Left;
+        lblFallbackTMP.color         = Color.white;
+        lblFallbackTMP.raycastTarget = false;
+        lblFallbackTMP.richText      = true;
 
         // JOIN button
-        string capturedId = sessionId;
-        Button joinBtn = CreateButton(rowGo.transform, "JoinBtn", "JOIN",
-            ColButtonGreen, () => _ = DoJoinByIdAsync(capturedId));
+        string capturedIdFallback = sessionId;
+        Button joinBtn = CreateButton(fallbackRow.transform, "JoinBtn", "JOIN",
+            ColButtonGreen, () => _ = DoJoinByIdAsync(capturedIdFallback));
         var btnRT = joinBtn.GetComponent<RectTransform>();
         btnRT.anchorMin        = new Vector2(1f, 0.5f);
         btnRT.anchorMax        = new Vector2(1f, 0.5f);

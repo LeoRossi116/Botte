@@ -26,12 +26,14 @@ public class RelayManager : NetworkBehaviour
     [Header("Lobby Panel Elements")]
     [SerializeField] private TextMeshProUGUI generatedCodeText;
     [SerializeField] private TextMeshProUGUI playerListText;
+    [Tooltip("Text field displaying lobby rules/options (name, turn durations, format). Authored in scene editor.")]
+    [SerializeField] private TextMeshProUGUI lobbyConfigText;
 
     private Coroutine _errorCoroutine;
     private UnityEngine.UI.Button _startGameButton;
     // --- READY SYSTEM & CONFIG DISPLAY FIELDS ---
     private TextMeshProUGUI _startButtonText;  // TMP text child of _startGameButton
-    private TextMeshProUGUI _lobbyConfigText;  // read-only config display in lobby panel
+    private TextMeshProUGUI _lobbyConfigText;  // active config display in lobby panel
     private bool _clientReady;                 // server: whether the connected client is ready
     private bool _localClientReady;            // client: own ready toggle state
 
@@ -465,7 +467,8 @@ public class RelayManager : NetworkBehaviour
         TMP_InputField inputField, 
         TextMeshProUGUI errorText, 
         TextMeshProUGUI codeText, 
-        TextMeshProUGUI listText)
+        TextMeshProUGUI listText,
+        TextMeshProUGUI configText = null)
     {
         mainMenuPanel = mainPanel;
         lobbyPanel = lobPanel;
@@ -473,6 +476,7 @@ public class RelayManager : NetworkBehaviour
         errorStatusText = errorText;
         generatedCodeText = codeText;
         playerListText = listText;
+        if (configText != null) _lobbyConfigText = configText;
 
         // Make the room-code label clickable so any player can copy the code.
         if (generatedCodeText != null)
@@ -884,6 +888,21 @@ public class RelayManager : NetworkBehaviour
     private void RefreshLobbyConfigDisplay()
     {
         if (lobbyPanel == null) return;
+
+        if (_lobbyConfigText == null && lobbyConfigText != null)
+        {
+            _lobbyConfigText = lobbyConfigText;
+        }
+
+        if (_lobbyConfigText == null)
+        {
+            var existingText = lobbyPanel.transform.Find("LobbyOptionsText")?.GetComponent<TextMeshProUGUI>()
+                ?? lobbyPanel.transform.Find("LobbyConfigText")?.GetComponent<TextMeshProUGUI>();
+            if (existingText != null)
+            {
+                _lobbyConfigText = existingText;
+            }
+        }
 
         if (_lobbyConfigText == null)
         {
