@@ -71,6 +71,9 @@ namespace Botte.UI
             if (Instance == this) Instance = null;
         }
 
+        /// <summary>Returns true when the settings modal's content is currently visible.</summary>
+        public bool IsOpen => content != null && content.activeSelf;
+
         /// <summary>Shows the settings modal on top of everything else.</summary>
         public void Open()
         {

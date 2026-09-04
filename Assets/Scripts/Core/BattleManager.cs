@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using TMPro;
 
 namespace Botte.Core
@@ -979,6 +980,25 @@ namespace Botte.Core
 
         private void Update()
         {
+            // ESC hotkey: close settings modal → close options panel → open options (gameplay only).
+            // Uses New Input System (old UnityEngine.Input is disabled in this project).
+            if (Keyboard.current != null && Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                if (Botte.UI.SettingsPanelController.Instance != null &&
+                    Botte.UI.SettingsPanelController.Instance.IsOpen)
+                {
+                    Botte.UI.SettingsPanelController.Instance.Close();
+                }
+                else if (optionsPanel != null && optionsPanel.activeSelf)
+                {
+                    CloseOptions();
+                }
+                else if (gameState != null) // null on main menu — do not open options there
+                {
+                    OpenOptions();
+                }
+            }
+
             if (gameState != null && battleUI != null && battleUI.battleScreen.activeSelf)
             {
                 if (RelayManager.IsMultiplayer)

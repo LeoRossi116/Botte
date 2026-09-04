@@ -19,6 +19,10 @@ namespace Botte.Audio
         [Header("Impostazioni Transizione")]
         [Range(0.1f, 3f)] public float fadeDuration = 1.0f;
 
+        [Header("Volume Musica")]
+        [Tooltip("Moltiplicatore volume applicato SOLO alla musica di battaglia (1 = come il menu/lobby, valori bassi = molto più silenzioso).")]
+        [Range(0f, 1f)] public float battleMusicVolumeScale = 0.3f;
+
         private AudioSource audioSource;
         private bool isPlayingBattleMusic = false;
         private Coroutine fadeCoroutine;
@@ -34,10 +38,13 @@ namespace Botte.Audio
                 PlayerPrefs.Save();
                 if (fadeCoroutine == null && audioSource != null)
                 {
-                    audioSource.volume = currentMusicVolume;
+                    audioSource.volume = TargetVolume;
                 }
             }
         }
+
+        private float TargetVolume =>
+            isPlayingBattleMusic ? currentMusicVolume * battleMusicVolumeScale : currentMusicVolume;
 
         private void Awake()
         {
@@ -108,7 +115,7 @@ namespace Botte.Audio
                 {
                     audioSource.clip = initialClip;
                     audioSource.Play();
-                    audioSource.volume = currentMusicVolume;
+                    audioSource.volume = TargetVolume;
                 }
             }
         }
@@ -140,7 +147,7 @@ namespace Botte.Audio
                 if (newClip != null)
                 {
                     audioSource.Play();
-                    yield return StartCoroutine(FadeAudio(currentMusicVolume, fadeDuration / 2f));
+                    yield return StartCoroutine(FadeAudio(TargetVolume, fadeDuration / 2f));
                 }
                 else
                 {
@@ -150,7 +157,7 @@ namespace Botte.Audio
             else
             {
                 // Se la clip è già quella giusta (es. era già impostato il menu), si assicura solo che il volume sia corretto
-                yield return StartCoroutine(FadeAudio(currentMusicVolume, fadeDuration / 2f));
+                yield return StartCoroutine(FadeAudio(TargetVolume, fadeDuration / 2f));
             }
             
             fadeCoroutine = null;
@@ -164,12 +171,12 @@ namespace Botte.Audio
             while (time < duration)
             {
                 time += Time.deltaTime;
-                float actualTarget = Mathf.Min(targetVolume, currentMusicVolume);
+                float actualTarget = Mathf.Min(targetVolume, TargetVolume);
                 audioSource.volume = Mathf.Lerp(startVolume, actualTarget, time / duration);
                 yield return null;
             }
 
-            audioSource.volume = Mathf.Min(targetVolume, currentMusicVolume);
+            audioSource.volume = Mathf.Min(targetVolume, TargetVolume);
         }
     }
 }

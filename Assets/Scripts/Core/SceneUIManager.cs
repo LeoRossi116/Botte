@@ -124,6 +124,8 @@ public class SceneUIManager : MonoBehaviour
     [SerializeField] private Transform      _sessionListContent;
     [SerializeField] private TMP_InputField _codeEntryInput;
     [SerializeField] private TextMeshProUGUI _browseStatusText;
+    [Tooltip("Prefab instantiated for each found lobby row in the browse list.")]
+    [SerializeField] private GameObject     lobbyRowPrefab;
 
     // Interactive buttons (listeners not serialized; re-wired at runtime in Start)
     [SerializeField] private Button createLobbyConfirmBtn;
@@ -848,38 +850,18 @@ public class SceneUIManager : MonoBehaviour
         string displayName = string.IsNullOrEmpty(name)     ? "(Unnamed Lobby)" : name;
         string displayHost = string.IsNullOrEmpty(hostName) ? "Unknown"         : hostName;
 
-        var rowGo = new GameObject($"Row_{sessionId}",
-            typeof(RectTransform), typeof(CanvasRenderer), typeof(Image), typeof(LayoutElement));
-        rowGo.transform.SetParent(_sessionListContent, false);
-        rowGo.GetComponent<Image>().color = new Color(0.20f, 0.20f, 0.24f, 0.90f);
-        rowGo.GetComponent<LayoutElement>().preferredHeight = 54f;
+        if (lobbyRowPrefab == null)
+        {
+            Debug.LogWarning("[SceneUIManager] lobbyRowPrefab is not assigned; cannot create lobby row.");
+            return;
+        }
 
-        // Info label
-        var lblGo = new GameObject("Label", typeof(RectTransform));
-        lblGo.transform.SetParent(rowGo.transform, false);
-        var lblRT = lblGo.GetComponent<RectTransform>();
-        lblRT.anchorMin = new Vector2(0f, 0f);
-        lblRT.anchorMax = new Vector2(1f, 1f);
-        lblRT.offsetMin = new Vector2(10f, 0f);
-        lblRT.offsetMax = new Vector2(-108f, 0f);
-        var lblTMP = lblGo.AddComponent<TextMeshProUGUI>();
-        lblTMP.text          = $"<b>{displayName}</b>    <color=#8899cc>Host: {displayHost}</color>";
-        lblTMP.fontSize      = 15;
-        lblTMP.alignment     = TextAlignmentOptions.Left;
-        lblTMP.color         = Color.white;
-        lblTMP.raycastTarget = false;
-        lblTMP.richText      = true;
-
-        // JOIN button
+        GameObject rowGo = Instantiate(lobbyRowPrefab, _sessionListContent);
+        rowGo.name = $"Row_{sessionId}";
+        var rowUI = rowGo.GetComponent<LobbyRowUI>();
+        if (rowUI == null) rowUI = rowGo.AddComponent<LobbyRowUI>();
         string capturedId = sessionId;
-        Button joinBtn = CreateButton(rowGo.transform, "JoinBtn", "JOIN",
-            ColButtonGreen, () => _ = DoJoinByIdAsync(capturedId));
-        var btnRT = joinBtn.GetComponent<RectTransform>();
-        btnRT.anchorMin        = new Vector2(1f, 0.5f);
-        btnRT.anchorMax        = new Vector2(1f, 0.5f);
-        btnRT.pivot            = new Vector2(1f, 0.5f);
-        btnRT.sizeDelta        = new Vector2(90f, 40f);
-        btnRT.anchoredPosition = new Vector2(-8f, 0f);
+        rowUI.Setup(displayName, displayHost, () => _ = DoJoinByIdAsync(capturedId));
     }
 
     // ─────────────────────────────────────────────────────────────────────────

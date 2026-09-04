@@ -26,12 +26,12 @@ public class RelayManager : NetworkBehaviour
     [Header("Lobby Panel Elements")]
     [SerializeField] private TextMeshProUGUI generatedCodeText;
     [SerializeField] private TextMeshProUGUI playerListText;
+    [SerializeField] private TextMeshProUGUI _lobbyConfigText; // read-only lobby options display; assignable in Inspector, auto-created if null
 
     private Coroutine _errorCoroutine;
     private UnityEngine.UI.Button _startGameButton;
     // --- READY SYSTEM & CONFIG DISPLAY FIELDS ---
     private TextMeshProUGUI _startButtonText;  // TMP text child of _startGameButton
-    private TextMeshProUGUI _lobbyConfigText;  // read-only config display in lobby panel
     private bool _clientReady;                 // server: whether the connected client is ready
     private bool _localClientReady;            // client: own ready toggle state
 
